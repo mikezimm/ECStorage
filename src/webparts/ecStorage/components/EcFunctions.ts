@@ -28,34 +28,56 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { IEcStorageState, IECStorageList, IECStorageBatch } from './IEcStorageState';
+import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IECStorageBatch } from './IEcStorageState';
+import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+
  /**
   * These properties throw error on fetching.
   * ,"ServerRedirectedPreviewURL", "SharedWithInternal"
   */
- const thisSelect = ['FileRef','FileLeafRef','Author/Title','Editor/Title','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename'];
+ const thisSelect = ['ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename'];
  const thisExpand = ['Author','Editor'];
 
- export async function getStorageItems( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any ) {
+ export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, addTheseItemsToState: any, setProgress: any, ) {
 
-  let items: any[] = [];
+  let webURL = pickedWeb.url;
+  let listTitle = pickedList.Title;
+  let batchSize = 500;
 
-  let fetchStart = new Date();
-  let startMs = fetchStart.getTime();
+  let items: any = null;
 
   let isLoaded = false;
 
   let errMessage = '';
   let thisWebInstance = null;
+
+  let batches: IECStorageBatch[] = [];
  
   try {
     thisWebInstance = Web(webURL);
     let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
-
+    setProgress( 0 , pickedList.ItemCount, 'Getting ' + 'first' + ' batches of items' );
     try {
-      items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(5000).filter('').get(); 
-      items = analyzeStorage( items );
+
+      let fetchStart = new Date();
+      let startMs = fetchStart.getTime();
+      items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
+
+      batches = batches.concat( createThisBatch( items, startMs ) );
+      for ( let i = 1; i < 100 ; i++ ) {
+        if ( items.hasNext ) {
+          let thisBatchStart = i * batchSize ;
+          setProgress( thisBatchStart , pickedList.ItemCount, `Fetching ${thisBatchStart} of ${ pickedList.ItemCount } items` );
+          fetchStart = new Date();
+          startMs = fetchStart.getTime();
+          items = await items.getNext();
+          batches = batches.concat( createThisBatch( items, startMs ) );
+        }
+      }
+      
+
 
     } catch( e ) {
       let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
@@ -68,26 +90,33 @@ import { IECStorageBatch } from './IEcStorageState';
  
   }
 
-  let fetchEnd = new Date();
-  let endMs = fetchEnd.getTime();
 
-  let batch: IECStorageBatch = {
-    start: startMs,
-    end: endMs,
-    duration: endMs - startMs,
-    count: items.length,
-    errMessage: errMessage,
-    id: '',
-    items: items,
-  }
+  console.log('getStorageItems:', batches );
+  addTheseItemsToState( batches );
 
-  console.log('getStorageItems:', items );
-  addTheseItemsToState( batch );
-
-  return { items };
+  return { batches };
  
  }
 
+ function createThisBatch ( items: any, start: number ) {
+        
+    let fetchEnd = new Date();
+    let endMs = fetchEnd.getTime();
+
+    let batch: IECStorageBatch = {
+      start: start,
+      end: endMs,
+      duration: endMs - start,
+      count: items.results.length,
+      errMessage: '',
+      id: '',
+      items: [].concat( items.results ),
+      hasNext: items.hasNext,
+    };
+
+    return batch;
+
+ }
  export function analyzeStorage( oldItems: any[] ) {
   let items: any[] = [];
 

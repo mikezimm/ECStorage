@@ -23,6 +23,7 @@ export interface IECStorageBatch {
   errMessage: string;
   id: string;
   items: any[];
+  hasNext: boolean;
 }
 
 export interface IEcStorageState {

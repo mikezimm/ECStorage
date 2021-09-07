@@ -8,6 +8,25 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { Web, IList, Site } from "@pnp/sp/presets/all";
 
+import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
+
+import {
+  Spinner,
+  SpinnerSize,
+  // MessageBar,
+  // MessageBarType,
+  // SearchBox,
+  // Icon,
+  // Label,
+  // Pivot,
+  // PivotItem,
+  // IPivotItemProps,
+  // PivotLinkFormat,
+  // PivotLinkSize,
+  // Dropdown,
+  // IDropdownOption
+} from "office-ui-fabric-react";
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -107,7 +126,7 @@ public async updateWebInfo ( webUrl?: string ) {
   this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, pickedList: theList });
 
 
-  this.fetchStoredItems();
+  this.fetchStoredItems(pickedWeb, theList);
 
   return;
 
@@ -130,6 +149,15 @@ public async updateWebInfo ( webUrl?: string ) {
   }
 
   public render(): React.ReactElement<IEcStorageProps> {
+
+    let searchSpinner = this.state.isLoading ? <Spinner size={SpinnerSize.large} label={"fetching ..."} /> : null ;
+
+    let myProgress = 1 === 1 ? <ProgressIndicator 
+    label={ this.state.fetchLabel } 
+    description={ '' } 
+    percentComplete={ this.state.fetchPerComp } 
+    progressHidden={ !this.state.showProgress }/> : null;
+
     return (
       <div className={ styles.ecStorage }>
         <div className={ styles.container }>
@@ -146,38 +174,45 @@ public async updateWebInfo ( webUrl?: string ) {
               <ReactJson src={ this.state.batches } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
           </div>
 
+          { this.state.isLoading ? 
+              <div>
+                { searchSpinner }
+                { myProgress }
+              </div>
+            : null
+            } 
+
         </div>
       </div>
     );
   }
 
-  private fetchStoredItems() {
+  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList ) {
 
     this.setState({ 
       isLoading: true,
       errorMessage: '',
     });
-    getStorageItems( this.state.parentWeb , this.state.listTitle,  this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+    getStorageItems( pickedWeb, pickedList,  this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
 
-  private addTheseItemsToState ( batch: IECStorageBatch ) {
+  private addTheseItemsToState ( batches: IECStorageBatch[] ) {
 
     // let isLoading = this.props.showPrefetchedPermissions === true ? false : myPermissions.isLoading;
     // let showNeedToWait = this.state.showNeedToWait === false ? false :
     //   isLoading === true ?  true : false;
 
-    let batches: IECStorageBatch[] = this.state.batches.concat(batch);
 
     console.log('addTheseItemsToState');
     this.setState({ 
-      items: batch.items,
+      // items: batch.items,
       
       isLoading: false,
       // showNeedToWait: false,
 
-      errorMessage: batch.errMessage,
-      hasError: batch.errMessage.length > 0 ? true : false,
+      // errorMessage: batch.errMessage,
+      // hasError: batch.errMessage.length > 0 ? true : false,
 
       // fetchTotal: fetchTotal,
       // fetchCount: fetchCount,
