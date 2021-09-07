@@ -10,18 +10,30 @@ export interface IEcStorageState {
   pickedList? : IPickedList;
 
   currentUser: IUser;
-  
+
   parentWeb: string;
   listTitle: string;
 
   isCurrentWeb: boolean;
 
-  allLoaded: boolean;
+  isLoaded: boolean;
+  isLoading: boolean;
 
   allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
   showPane: boolean;
 
   stateError?: any[];
+  errorMessage: string;
+  hasError: boolean;
+
+  items: any[];
+
+  fetchTotal: number;
+  fetchCount: number;
+  showProgress: boolean;
+  fetchPerComp: number;
+  fetchLabel: string;
+
 
 }

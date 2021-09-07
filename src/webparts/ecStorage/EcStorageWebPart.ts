@@ -144,7 +144,7 @@ export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWe
         pickedWeb : null,
         theSite: null,
 
-        allLoaded: false,
+        isLoaded: false,
     
         currentUser: this.currentUser,
 

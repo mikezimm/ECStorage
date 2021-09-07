@@ -17,7 +17,7 @@ export interface IEcStorageProps {
       // 0 - Context
       wpContext: WebPartContext;
       pageContext: PageContext;
-      
+
       WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
         // 1 - Analytics options
@@ -34,7 +34,7 @@ export interface IEcStorageProps {
       pickedWeb : IPickedWebBasic;
       theSite: ISite;
 
-      allLoaded: boolean;
+      isLoaded: boolean;
   
       currentUser: IUser;
   

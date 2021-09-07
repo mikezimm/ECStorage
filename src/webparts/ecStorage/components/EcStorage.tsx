@@ -16,6 +16,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
+import { getStorageItems } from './EcFunctions';
+
 export default class EcStorage extends React.Component<IEcStorageProps, IEcStorageState> {
 
   
@@ -41,7 +43,11 @@ public constructor(props:IEcStorageProps){
 
         pickedList : null,
         pickedWeb : this.props.pickedWeb,
-        allLoaded: false,
+        isLoaded: false,
+        isLoading: true,
+        errorMessage: '',
+        stateError: [],
+        hasError: false,
       
         showPane: false,
         currentUser: null,
@@ -53,6 +59,13 @@ public constructor(props:IEcStorageProps){
         allowRailsOff: false,
 
         theSite: null,
+
+        items: [],
+        fetchTotal: 0,
+        fetchCount: 0,
+        fetchPerComp: 100,
+        fetchLabel: '',
+        showProgress: false,
   
   };
 }
@@ -86,6 +99,8 @@ public async updateWebInfo ( webUrl?: string ) {
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
   this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite });
 
+  this.fetchStoredItems();
+
   return;
 
 }
@@ -117,13 +132,66 @@ public async updateWebInfo ( webUrl?: string ) {
           <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div>
 
           <div style={{ overflowY: 'auto' }}>
-              <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+              <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.items } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
           </div>
 
         </div>
       </div>
     );
   }
+
+  private fetchStoredItems() {
+
+    this.setState({ 
+      isLoading: true,
+      errorMessage: '',
+    });
+    getStorageItems( this.state.parentWeb , this.state.listTitle,  this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+
+  }
+
+  private addTheseItemsToState ( items: any[], errMessage: string ) {
+
+    // let isLoading = this.props.showPrefetchedPermissions === true ? false : myPermissions.isLoading;
+    // let showNeedToWait = this.state.showNeedToWait === false ? false :
+    //   isLoading === true ?  true : false;
+
+    this.setState({ 
+      items: items,
+      
+      isLoading: false,
+      // showNeedToWait: false,
+
+      errorMessage: errMessage,
+      hasError: errMessage.length > 0 ? true : false,
+
+      // fetchTotal: fetchTotal,
+      // fetchCount: fetchCount,
+      // fetchPerComp: fetchPerComp,
+      // fetchLabel: fetchLabel,
+      showProgress: false,
+
+
+  });
+
+  }
+
+  private setProgress( fetchCount, fetchTotal, fetchLabel ) {
+    let fetchPerComp = fetchTotal > 0 ? fetchCount / fetchTotal : 0 ;
+    let showProgress = fetchCount !== fetchTotal ? true : false;
+
+    this.setState({
+      fetchTotal: fetchTotal,
+      fetchCount: fetchCount,
+      fetchPerComp: fetchPerComp,
+      fetchLabel: fetchLabel,
+      showProgress: showProgress,
+    });
+
+  }
+
 
   public async getCurrentUser(): Promise<void> {
     let currentUser : IUser =  null;
