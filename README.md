@@ -50,6 +50,17 @@ Version|Date|Comments
 
 > Include any additional steps as needed.
 
+## Installation steps
+```
+yo @microsoft/sharepoint --skip-install
+npm install
+npm install @pnp/spfx-controls-react --save --save-exact
+// npm install @pnp/spfx-property-controls 
+npm install --save office-ui-fabric-react
+npm install react-json-view
+npm install @mikezimm/npmfunctions
+```
+
 ## Features
 
 Description of the extension that expands upon high-level summary above.
