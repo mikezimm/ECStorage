@@ -1,11 +1,12 @@
 import * as React from 'react';
 import styles from './EcStorage.module.scss';
 import { IEcStorageProps } from './IEcStorageProps';
-import { IEcStorageState } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
+import { Web, IList, Site } from "@pnp/sp/presets/all";
 
 import ReactJson from "react-json-view";
 
@@ -60,6 +61,7 @@ public constructor(props:IEcStorageProps){
 
         theSite: null,
 
+        batches: [],
         items: [],
         fetchTotal: 0,
         fetchCount: 0,
@@ -75,7 +77,7 @@ public componentDidMount() {
   if ( this.props.currentUser === null ) {
     this.getCurrentUser();
   }
-  this.updateWebInfo( this.props.parentWeb );
+  this.updateWebInfo( this.state.parentWeb );
 }
 
 public async updateWebInfo ( webUrl?: string ) {
@@ -95,9 +97,15 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let theSite: ISite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
 
+  let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl'].join(',');
+
+  let thisWebInstance = Web(webUrl);
+  let theList: IECStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).select( listSelect ).get();
+
   let isCurrentWeb: boolean = false;
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-  this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite });
+  this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, pickedList: theList });
+
 
   this.fetchStoredItems();
 
@@ -134,7 +142,8 @@ public async updateWebInfo ( webUrl?: string ) {
           <div style={{ overflowY: 'auto' }}>
               <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-              <ReactJson src={ this.state.items } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.batches } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
           </div>
 
         </div>
@@ -152,26 +161,31 @@ public async updateWebInfo ( webUrl?: string ) {
 
   }
 
-  private addTheseItemsToState ( items: any[], errMessage: string ) {
+  private addTheseItemsToState ( batch: IECStorageBatch ) {
 
     // let isLoading = this.props.showPrefetchedPermissions === true ? false : myPermissions.isLoading;
     // let showNeedToWait = this.state.showNeedToWait === false ? false :
     //   isLoading === true ?  true : false;
 
+    let batches: IECStorageBatch[] = this.state.batches.concat(batch);
+
+    console.log('addTheseItemsToState');
     this.setState({ 
-      items: items,
+      items: batch.items,
       
       isLoading: false,
       // showNeedToWait: false,
 
-      errorMessage: errMessage,
-      hasError: errMessage.length > 0 ? true : false,
+      errorMessage: batch.errMessage,
+      hasError: batch.errMessage.length > 0 ? true : false,
 
       // fetchTotal: fetchTotal,
       // fetchCount: fetchCount,
       // fetchPerComp: fetchPerComp,
       // fetchLabel: fetchLabel,
       showProgress: false,
+
+      batches: batches,
 
 
   });

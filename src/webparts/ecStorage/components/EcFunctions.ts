@@ -29,17 +29,20 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-
+import { IECStorageBatch } from './IEcStorageState';
  /**
   * These properties throw error on fetching.
   * ,"ServerRedirectedPreviewURL", "SharedWithInternal"
   */
- const thisSelect = ["*","Title","FileRef","FileLeafRef","Author/Title","Editor/Title","Modified","Created","SharedWithDetails","ServerRedirectedEmbedURL","HasUniqueRoleAssignments"];
- const thisExpand = ["Author","Editor"];
+ const thisSelect = ['FileRef','FileLeafRef','Author/Title','Editor/Title','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename'];
+ const thisExpand = ['Author','Editor'];
 
  export async function getStorageItems( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any ) {
 
   let items: any[] = [];
+
+  let fetchStart = new Date();
+  let startMs = fetchStart.getTime();
 
   let isLoaded = false;
 
@@ -51,7 +54,7 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
     let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
 
     try {
-      items = await thisListObject.items.select(thisSelect).expand(thisExpand).filter('SharedWithUsersId ne null').get(); 
+      items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(5000).filter('').get(); 
       items = analyzeStorage( items );
 
     } catch( e ) {
@@ -65,8 +68,21 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
  
   }
 
+  let fetchEnd = new Date();
+  let endMs = fetchEnd.getTime();
+
+  let batch: IECStorageBatch = {
+    start: startMs,
+    end: endMs,
+    duration: endMs - startMs,
+    count: items.length,
+    errMessage: errMessage,
+    id: '',
+    items: items,
+  }
+
   console.log('getStorageItems:', items );
-  addTheseItemsToState( items, errMessage );
+  addTheseItemsToState( batch );
 
   return { items };
  

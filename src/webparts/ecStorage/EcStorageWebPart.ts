@@ -110,7 +110,8 @@ export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWe
 
     //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
     //If it's undefined, null or '', get current page context value
-    let parentWeb = this.properties.parentWeb && this.properties.parentWeb != '' ? this.properties.parentWeb : this.context.pageContext.web.absoluteUrl;
+    // let parentWeb = this.properties.parentWeb && this.properties.parentWeb != '' ? this.properties.parentWeb : this.context.pageContext.web.absoluteUrl;
+    let parentWeb = 'https://autoliv.sharepoint.com/sites/MSLV5Generaltasks/';
     let tenant = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,"");
 
     let urlVars : any = this.getUrlVars();
