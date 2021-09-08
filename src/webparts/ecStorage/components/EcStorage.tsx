@@ -37,6 +37,7 @@ import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getStorageItems } from './EcFunctions';
+import { getSearchedFiles } from './EcSearch';
 
 export default class EcStorage extends React.Component<IEcStorageProps, IEcStorageState> {
 
@@ -193,6 +194,7 @@ public async updateWebInfo ( webUrl?: string ) {
       isLoading: true,
       errorMessage: '',
     });
+    getSearchedFiles( this.props.tenant, pickedList, true);
     getStorageItems( pickedWeb, pickedList,  this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
@@ -223,7 +225,7 @@ public async updateWebInfo ( webUrl?: string ) {
       batches: batches,
 
 
-  });
+    });
 
   }
 
