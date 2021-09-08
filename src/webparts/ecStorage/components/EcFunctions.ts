@@ -8,6 +8,8 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { PageContext } from '@microsoft/sp-page-context';
 import { mergeAriaAttributeValues, IconNames } from "office-ui-fabric-react";
 
+import "@pnp/sp/search";
+import { Search, Suggest } from "@pnp/sp/search";
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -37,7 +39,15 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
   * These properties throw error on fetching.
   * ,"ServerRedirectedPreviewURL", "SharedWithInternal"
   */
- const thisSelect = ['ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename'];
+
+/**
+ * These size fields throw error when fetching:
+ * 'File_x0020_Size','SMTotalSize','File_x0020_Size','SMTotalFileStreamSize', 'DocumentSummarySize','tp_UIVersion','_UIVersionString','odata.UIVersionString'
+ * 
+  * FileSystemObjectType:  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15)#members
+  *  File=0; Folder=1; Web=0
+ */
+ const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
  const thisExpand = ['Author','Editor'];
 
  export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, addTheseItemsToState: any, setProgress: any, ) {
@@ -56,6 +66,15 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
   let batches: IECStorageBatch[] = [];
  
   try {
+    
+    // set the url for search
+    // const searcher = Search(webURL);
+
+    // This testing did not return anything I can understand that looks like a result.
+    // this can accept any of the query types (text, ISearchQuery, or SearchQueryBuilder)
+    // const results = await searcher("Frauenhofer");
+    // console.log('Test searcher results', results);
+
     thisWebInstance = Web(webURL);
     let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
     setProgress( 0 , pickedList.ItemCount, 'Getting ' + 'first' + ' batches of items' );
@@ -66,7 +85,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
       items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
 
       batches = batches.concat( createThisBatch( items, startMs ) );
-      for ( let i = 1; i < 3 ; i++ ) {
+      for ( let i = 1; i < 10 ; i++ ) {
         if ( items.hasNext ) {
           let thisBatchStart = i * batchSize ;
           setProgress( thisBatchStart , pickedList.ItemCount, `Fetching ${thisBatchStart} of ${ pickedList.ItemCount } items` );
@@ -98,23 +117,28 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
  
  }
 
- function createThisBatch ( items: any, start: number ) {
+ function createThisBatch ( results: any, start: number ) {
         
     let fetchEnd = new Date();
     let endMs = fetchEnd.getTime();
     let duration = endMs - start;
-    let count = items && items.results ? items.results.length : 0;
+    let items = results.results;
+    let count = items && items.length > 0 ? items.length : 0;
+    let firstCreated = items && items.length > -1 ? new Date( items[0].Created ) : null;
+    let lastCreated = items && items.length > -1 ? new Date( items[items.length - 1 ].Created ) : null;
 
     let batch: IECStorageBatch = {
       start: start,
       end: endMs,
       duration: duration,
       msPerItem: count > 0 ? duration / count : 0,
+      firstCreated: firstCreated,
+      lastCreated: lastCreated,
       count: count,
       errMessage: '',
       id: '',
-      items: [].concat( items.results ),
-      hasNext: items.hasNext,
+      items: [].concat( items ),
+      hasNext: results.hasNext,
     };
 
     return batch;

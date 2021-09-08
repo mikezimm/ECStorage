@@ -25,8 +25,16 @@ export interface IECStorageBatch {
   id: string;
   items: any[];
   hasNext: boolean;
+  firstCreated: Date;
+  lastCreated: Date;
 }
 
+export interface IECStorageFilter {
+  startDate: any;
+  endDate: any;
+  minSize: number;
+  maxSize: number;
+}
 export interface IEcStorageState {
 
   theSite: ISite;

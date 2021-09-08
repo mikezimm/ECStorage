@@ -13,6 +13,7 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 import {
   Spinner,
   SpinnerSize,
+  FloatingPeoplePicker,
   // MessageBar,
   // MessageBarType,
   // SearchBox,
@@ -151,7 +152,17 @@ public async updateWebInfo ( webUrl?: string ) {
 
   public render(): React.ReactElement<IEcStorageProps> {
 
-    let searchSpinner = this.state.isLoading ? <Spinner size={SpinnerSize.large} label={"fetching ..."} /> : null ;
+    let timeComment = null;
+    let etaMinutes = this.state.isLoading && this.state.pickedList && this.state.pickedList.ItemCount? (  this.state.pickedList.ItemCount * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : null;
+    if ( this.state.isLoading ) {
+      timeComment = etaMinutes ;
+    }
+    let loadingNote = this.state.isLoading ? <div>
+      Please do not interupt the process which could take { etaMinutes } minutes.
+    </div> : null;
+    let searchSpinner = this.state.isLoading ? 
+        <Spinner size={SpinnerSize.large} label={` fetching ${this.state.pickedList ? this.state.pickedList.ItemCount : 'TBD'} items...`} />
+     : null ;
 
     let myProgress = 1 === 1 ? <ProgressIndicator 
     label={ this.state.fetchLabel } 
@@ -169,14 +180,15 @@ public async updateWebInfo ( webUrl?: string ) {
           <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div>
 
           <div style={{ overflowY: 'auto' }}>
-              <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-              <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
               <ReactJson src={ this.state.batches } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
           </div>
 
           { this.state.isLoading ? 
               <div>
+                { loadingNote }
                 { searchSpinner }
                 { myProgress }
               </div>

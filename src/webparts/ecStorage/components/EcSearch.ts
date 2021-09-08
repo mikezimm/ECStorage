@@ -65,13 +65,19 @@ export function getSearchedFiles( tenant: string, pickedList: IECStorageList,  a
     console.log('tenant:', tenant );
     console.log('path:', path );
 
-    let query=`Path:"${path}"*` ;  // ServerRelativePath:${path}* AND ContentClass:STS_ListItem
-    let thisSelect = ["*","Title", "ServerRelativeUrl", "ServerRelativePath", "ID", "Id", "Path", "Filename","FileLeafRef", "Author","Editor", 'Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename'];
+    /**
+     * FileSystemObjectType:  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15)#members
+     *  File=0; Folder=1; Web=0
+     * 
+     * Source docs for testing:  https://docs.microsoft.com/en-us/sharepoint/technical-reference/query-variables
+     * This works to get files in path and date range:  let query=`Path:"${path}"* AND Created>=2021-08-02 AND Created<2021-08-10` ;
+     */
+
+    let query=`Path:"${path}"* AND Created>=2021-08-02 AND Created<2021-08-10` ;  // ServerRelativePath:${path}* AND ContentClass:STS_ListItem AND Created:2020-09-07
+    let thisSelect = ["*","Title", "ServerRelativeUrl", "ServerRelativePath", "ID", "Id", "Path", "Filename","FileLeafRef", "Author","Editor", 'Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','DocumentSummarySize','Size','SMTotalSize','File_x0020_Size','SMTotalFileStreamSize','FileSystemObjectType','OData__UIVersion','tp_UIVersion','OData__UIVersionString'];
 
     //Sort ascending by default
     let sortDirection = ascSort === false ? 1 : 0;
-
-
 
     /**
      *  Updated search query per pnpjs issue response:
@@ -80,9 +86,9 @@ export function getSearchedFiles( tenant: string, pickedList: IECStorageList,  a
      * GET Managed properties here:  https://tenanat-admin.sharepoint.com/_layouts/15/searchadmin/ta_listmanagedproperties.aspx?level=tenant
      */
     sp.search(<ISearchQuery>{
-        Querytext: query,
+          Querytext: query,
           SelectProperties: thisSelect,
-          "RowLimit": 500,
+          "RowLimit": 5000,
 //          "StartRow": 0,
           "ClientType": "ContentSearchRegular",
           TrimDuplicates: false, //This is needed in order to also get the hub itself.
