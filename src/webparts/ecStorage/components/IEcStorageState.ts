@@ -19,6 +19,7 @@ export interface IECStorageBatch {
   start: number;
   end: number;
   duration: number;
+  msPerItem: number;
   count: number;
   errMessage: string;
   id: string;

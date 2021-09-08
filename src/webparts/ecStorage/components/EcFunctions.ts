@@ -66,7 +66,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
       items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
 
       batches = batches.concat( createThisBatch( items, startMs ) );
-      for ( let i = 1; i < 100 ; i++ ) {
+      for ( let i = 1; i < 3 ; i++ ) {
         if ( items.hasNext ) {
           let thisBatchStart = i * batchSize ;
           setProgress( thisBatchStart , pickedList.ItemCount, `Fetching ${thisBatchStart} of ${ pickedList.ItemCount } items` );
@@ -102,12 +102,15 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
         
     let fetchEnd = new Date();
     let endMs = fetchEnd.getTime();
+    let duration = endMs - start;
+    let count = items && items.results ? items.results.length : 0;
 
     let batch: IECStorageBatch = {
       start: start,
       end: endMs,
-      duration: endMs - start,
-      count: items.results.length,
+      duration: duration,
+      msPerItem: count > 0 ? duration / count : 0,
+      count: count,
       errMessage: '',
       id: '',
       items: [].concat( items.results ),
