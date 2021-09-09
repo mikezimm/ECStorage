@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from './EcStorage.module.scss';
 import { IEcStorageProps } from './IEcStorageProps';
-import { IEcStorageState, IECStorageList, IECStorageBatch } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -28,6 +28,8 @@ import {
   // IDropdownOption
 } from "office-ui-fabric-react";
 
+import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -37,7 +39,9 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { getStorageItems } from './EcFunctions';
+import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
+
+import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
 import { getSearchedFiles } from './EcSearch';
 
 export default class EcStorage extends React.Component<IEcStorageProps, IEcStorageState> {
@@ -60,6 +64,9 @@ public constructor(props:IEcStorageProps){
   super(props);
 
   let parentWeb = cleanURL(this.props.parentWeb);
+
+  let currentYear = new Date();
+  let currentYearVal = currentYear.getFullYear();
 
   this.state = {
 
@@ -84,20 +91,25 @@ public constructor(props:IEcStorageProps){
 
         batches: [],
         items: [],
+
+        minYear: currentYearVal - 5 ,
+        maxYear: currentYearVal + 1 ,
+        yearSlider: currentYearVal,
+
+        fetchSlider: 0,
         fetchTotal: 0,
         fetchCount: 0,
         fetchPerComp: 100,
         fetchLabel: '',
         showProgress: false,
+        batchData: createBatchData(),
   
   };
 }
 
 
 public componentDidMount() {
-  if ( this.props.currentUser === null ) {
-    this.getCurrentUser();
-  }
+
   this.updateWebInfo( this.state.parentWeb );
 }
 
@@ -125,10 +137,30 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let isCurrentWeb: boolean = false;
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-  this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, pickedList: theList });
+
+  let minYear: any = new Date( theList.Created);
+  minYear = minYear.getFullYear();
+  let maxYear: any = new Date( theList.LastItemUserModifiedDate);
+  maxYear = maxYear.getFullYear() + 1;
+
+  let currentYear: any = new Date();
+  currentYear = currentYear.getFullYear();
+
+  let currentUser = this.props.currentUser === null ? await this.getCurrentUser() : this.props.currentUser;
 
 
-  this.fetchStoredItems(pickedWeb, theList);
+  //Automatically kick off if it's under 5k items
+  if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
+    this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
+        pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear });
+    this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser.Id );
+
+  } else {
+
+    this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
+      pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear });
+
+  }
 
   return;
 
@@ -153,7 +185,7 @@ public async updateWebInfo ( webUrl?: string ) {
   public render(): React.ReactElement<IEcStorageProps> {
 
     let timeComment = null;
-    let etaMinutes = this.state.isLoading && this.state.pickedList && this.state.pickedList.ItemCount? (  this.state.pickedList.ItemCount * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : null;
+    let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
     if ( this.state.isLoading ) {
       timeComment = etaMinutes ;
     }
@@ -161,7 +193,7 @@ public async updateWebInfo ( webUrl?: string ) {
       Please do not interupt the process which could take { etaMinutes } minutes.
     </div> : null;
     let searchSpinner = this.state.isLoading ? 
-        <Spinner size={SpinnerSize.large} label={` fetching ${this.state.pickedList ? this.state.pickedList.ItemCount : 'TBD'} items...`} />
+        <Spinner size={SpinnerSize.large} label={` fetching ${this.state.pickedList ? this.state.fetchSlider : 'TBD'} items...`} />
      : null ;
 
     let myProgress = 1 === 1 ? <ProgressIndicator 
@@ -170,14 +202,52 @@ public async updateWebInfo ( webUrl?: string ) {
     percentComplete={ this.state.fetchPerComp } 
     progressHidden={ !this.state.showProgress }/> : null;
 
+
+    let fetchButton = <PrimaryButton text={ 'Begin'} onClick={this.fetchStoredItemsClick.bind(this)} allowDisabledFocus disabled={ this.state.isLoading } />;
+
+    let currentYear = new Date();
+    let currentYearVal = currentYear.getFullYear();
+
+    let sliderYearItself = !this.state.pickedList ? null : 
+      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.yearSlider , this.state.minYear, this.state.maxYear, 1 , this._updateMaxYear.bind(this), this.state.isLoading, 350) }</div> ;
+
+    let sliderYearComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Ignore files Created > ${ this.state.yearSlider }` } </span>
+      { sliderYearItself }
+    </div>;
+
+    let sliderCountItself = !this.state.pickedList ? null : 
+      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, this.state.pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
+
+    let sliderCountComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${this.state.pickedList.ItemCount } Files` } </span>
+      { sliderCountItself }
+      <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
+      { fetchButton }
+    </div>;
+
+
+
     return (
       <div className={ styles.ecStorage }>
         <div className={ styles.container }>
 
-          <span className={ styles.title }>Welcome to SharePoint!</span>
-          <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
+          {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
+          {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
           <p className={ styles.description }>{escape(this.props.parentWeb)}</p>
-          <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div>
+          {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
+
+          { sliderYearComponent }
+          { sliderCountComponent }
+          { this.state.isLoading ? 
+              <div>
+                { loadingNote }
+                { searchSpinner }
+                { myProgress }
+                
+              </div>
+            : null
+          } 
 
           <div style={{ overflowY: 'auto' }}>
               {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
@@ -185,33 +255,39 @@ public async updateWebInfo ( webUrl?: string ) {
               <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
               <ReactJson src={ this.state.batches } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
           </div>
-
-          { this.state.isLoading ? 
-              <div>
-                { loadingNote }
-                { searchSpinner }
-                { myProgress }
-              </div>
-            : null
-            } 
-
         </div>
       </div>
     );
   }
+  
+  private _updateMaxYear(newValue: number){
+    this.setState({
+      yearSlider: newValue,
+    });
+  }
 
-  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList ) {
+  private _updateMaxFetch(newValue: number){
+    this.setState({
+      fetchSlider: newValue,
+    });
+  }
+
+  private fetchStoredItemsClick( ) {
+    this.fetchStoredItems( this.state.pickedWeb, this.state.pickedList, this.state.fetchSlider, this.state.currentUser.Id );
+  }
+
+  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, userId: number ) {
 
     this.setState({ 
       isLoading: true,
       errorMessage: '',
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
-    getStorageItems( pickedWeb, pickedList,  this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+    getStorageItems( pickedWeb, pickedList, getCount, userId, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
 
-  private addTheseItemsToState ( batches: IECStorageBatch[] ) {
+  private addTheseItemsToState ( batchInfo ) {
 
     // let isLoading = this.props.showPrefetchedPermissions === true ? false : myPermissions.isLoading;
     // let showNeedToWait = this.state.showNeedToWait === false ? false :
@@ -234,7 +310,8 @@ public async updateWebInfo ( webUrl?: string ) {
       // fetchLabel: fetchLabel,
       showProgress: false,
 
-      batches: batches,
+      batches: batchInfo.batches,
+      batchData: batchInfo.batchData,
 
 
     });
@@ -256,7 +333,7 @@ public async updateWebInfo ( webUrl?: string ) {
   }
 
 
-  public async getCurrentUser(): Promise<void> {
+  public async getCurrentUser(): Promise<IUser> {
     let currentUser : IUser =  null;
     await sp.web.currentUser.get().then((r) => {
       currentUser = {
@@ -272,9 +349,10 @@ public async updateWebInfo ( webUrl?: string ) {
         LoginName: r['LoginName'],
         Name: r['LoginName'],
       };
-      this.setState({ currentUser: currentUser });
+      // this.setState({ currentUser: currentUser });
+      
     });
-  
+    return currentUser;
   }
 
 }
