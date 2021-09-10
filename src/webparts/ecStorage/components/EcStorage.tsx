@@ -130,7 +130,7 @@ public constructor(props:IEcStorageProps){
         fetchPerComp: 100,
         fetchLabel: '',
         showProgress: false,
-        batchData: createBatchData(),
+        batchData: createBatchData( null ),
   
   };
 }
@@ -162,6 +162,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let thisWebInstance = Web(webUrl);
   let theList: IECStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).select( listSelect ).get();
+  theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
 
   let isCurrentWeb: boolean = false;
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
@@ -181,7 +182,7 @@ public async updateWebInfo ( webUrl?: string ) {
   if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear });
-    this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser.Id );
+    this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
 
   } else {
 
@@ -412,17 +413,17 @@ public async updateWebInfo ( webUrl?: string ) {
   }
 
   private fetchStoredItemsClick( ) {
-    this.fetchStoredItems( this.state.pickedWeb, this.state.pickedList, this.state.fetchSlider, this.state.currentUser.Id );
+    this.fetchStoredItems( this.state.pickedWeb, this.state.pickedList, this.state.fetchSlider, this.state.currentUser );
   }
 
-  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, userId: number ) {
+  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, currentUser: IUser ) {
 
     this.setState({ 
       isLoading: true,
       errorMessage: '',
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
-    getStorageItems( pickedWeb, pickedList, getCount, userId, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
 

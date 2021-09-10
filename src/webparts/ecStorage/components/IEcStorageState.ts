@@ -12,6 +12,7 @@ export interface IECStorageList extends IPickedList {
   BaseType: number;
   Id: string;
   DocumentTemplateUrl: string;
+  LibraryUrl: string;
 
 }
 
@@ -43,11 +44,23 @@ export interface IItemDetail {
 
 }
 
+export interface IBucketSummary {
+  title: string;
+  count: number;
+  size: number;
+  sizeGB: number;
+  countP: number;
+  sizeP: number;
+  users: string[];
+}
+
 export interface ILargeFiles {
   GT10G: IItemDetail[];
   GT01G: IItemDetail[];
   GT100M: IItemDetail[];
   GT10M: IItemDetail[];
+  summary: IBucketSummary;
+
 }
 
 export interface IOldFiles {
@@ -56,14 +69,21 @@ export interface IOldFiles {
   Age3Yr: IItemDetail[];
   Age2Yr: IItemDetail[];
   Age1Yr: IItemDetail[];
+  summary: IBucketSummary;
+
 }
 
-export interface IUserFiles {
-  items:  IItemDetail[];
-  large: ILargeFiles;
-  oldCreated: IOldFiles;
-  oldModified: IOldFiles;
-}
+
+// export interface IUserFiles {
+//   items:  IItemDetail[];
+//   large: ILargeFiles;
+//   oldCreated: IOldFiles;
+//   oldModified: IOldFiles;
+//   count: number;
+//   size: number;
+//   sizeGB: number;
+//   summary: IBucketSummary;
+// }
 
 export interface IUserSummary {
   userId: number;
@@ -79,12 +99,21 @@ export interface IUserSummary {
   modifyTotalSizeGB: number;
   createSizes: number[];
   modifiedSizes: number[];
+  summary: IBucketSummary;
+  oldCreated: IOldFiles;
+  oldModified: IOldFiles;
+  large: ILargeFiles;
+  items: IItemDetail[];
 }
 
 export interface IDuplicateFile {
   name: string;
   type: string;
+  count: number;
+  size: number;
+  sizeGB: number;
   items: IItemDetail[];
+  locations: string[];
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
@@ -110,7 +139,7 @@ export interface IBatchData {
   large: ILargeFiles;
   oldCreated: IOldFiles;
   oldModified: IOldFiles;
-  currentUser: IUserFiles;
+  currentUser: IUserSummary;
   folders:  IItemDetail[];
   creatorIds: number[];
   editorIds: number[];

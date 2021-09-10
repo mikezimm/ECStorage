@@ -30,7 +30,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IUserFiles, IOldFiles, IUserSummary, IFileType } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, IDuplicateFile, IBucketSummary } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -51,12 +51,40 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
  const thisExpand = ['Author','Editor'];
   export const batchSize = 500;
 
+  function getCurrentYear(){
+    let currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    return currentYear;
+  }
+
+  export function createBucketSummary( title: string ): IBucketSummary {
+    let summary: IBucketSummary = {
+      title: title,
+      count: 0,
+      size: 0,
+      sizeGB: 0,
+      countP: 0,
+      sizeP: 0,
+      users: [],
+    };
+    return summary;
+
+  }
+
+  export function updateBucketSummary( summary: IBucketSummary, detail: IItemDetail ): IBucketSummary {
+    summary.count ++;
+    summary.size += detail.size;
+    return summary;
+
+  }
+
 export function createLargeFiles() :ILargeFiles {
   return {  
     GT10G: [],
     GT01G: [],
     GT100M: [],
     GT10M: [],
+    summary: createBucketSummary( '' ),
   };
 }
 
@@ -67,15 +95,7 @@ export function createOldFiles () :IOldFiles {
     Age3Yr: [],
     Age2Yr: [],
     Age1Yr: [],
-  };
-}
-
-export function createUserFiles (): IUserFiles {
-  return {  
-    large: createLargeFiles(),
-    oldCreated: createOldFiles(),
-    oldModified: createOldFiles(),
-    items: [],
+    summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}` ),
   };
 }
 
@@ -95,6 +115,11 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     modifyTotalSizeGB: 0,
     createSizes: [],
     modifiedSizes: [],
+    large: createLargeFiles(),
+    oldCreated: createOldFiles(),
+    oldModified: createOldFiles(),
+    items: [],
+    summary: createBucketSummary( `Summary for ${userTitle}` ),
   };
 
   return userSummary;
@@ -135,6 +160,63 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
 
 }
 
+export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
+
+  let thisDup: IDuplicateFile = {
+      name: detail.FileLeafRef,
+      type: detail.docIcon, 
+      count: 0,
+      size: 0,
+      sizeGB: 0,
+      locations: [],
+      items: [],
+      sizes: [],
+      createdMs: [],
+      modifiedMs: [],
+    };
+
+  return thisDup;
+
+}
+
+export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, LibraryUrl: string ) : IDuplicateFile {
+
+  thisDup.count ++;
+  thisDup.size += detail.size;
+
+  thisDup.items.push( detail );
+  thisDup.sizes.push(detail.size);
+
+  thisDup.createdMs.push( detail.createMs ) ;
+  thisDup.modifiedMs.push( detail.modMs ) ;
+
+  // regex based on:  https://stackoverflow.com/a/17809074 and https://stackoverflow.com/a/494046
+  // let replaceName = RegExp( /12(?![\s\S]*12)/ )
+  let thisLocation = 'Unknown';
+  if ( detail.FileLeafRef && detail.FileRef ){
+    let lastIndex = detail.FileRef.lastIndexOf( detail.FileLeafRef );
+    if ( lastIndex > 0 ) {
+      thisLocation = detail.FileRef.substr(0, lastIndex );
+      thisLocation = thisLocation.replace( LibraryUrl , ''); //Just show folder level url
+    } else {
+      debugger;
+    }
+  } else {
+    debugger;
+  }
+
+
+  if ( thisDup.locations.indexOf(thisLocation ) < 0 ) { 
+    thisDup.locations.push( thisLocation ) ; } 
+  else { 
+    debugger; 
+  }
+
+
+  return thisDup;
+
+}
+
 export function createThisType ( docIcon: string ) :IFileType {
 
   let thisType: IFileType = {
@@ -152,6 +234,7 @@ export function createThisType ( docIcon: string ) :IFileType {
 
 }
 
+
 export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : IFileType {
 
   thisType.count ++;
@@ -168,7 +251,7 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
 }
 
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
-export function createBatchData ():IBatchData {
+export function createBatchData ( currentUser: IUser ):IBatchData {
   return {  
     count: 0,
     size: 0,
@@ -180,7 +263,7 @@ export function createBatchData ():IBatchData {
     large: createLargeFiles(),
     oldCreated: createOldFiles(),
     oldModified: createOldFiles(),
-    currentUser: createUserFiles(),
+    currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
     folders: [],
     creatorIds: [],
     editorIds: [],
@@ -190,9 +273,9 @@ export function createBatchData ():IBatchData {
   };
 }
 
- export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, userId: number, addTheseItemsToState: any, setProgress: any, ) {
+ export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
 
-  userId = 6;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
+  currentUser.Id = 6;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
 
   let webURL = pickedWeb.url;
   let listTitle = pickedList.Title;
@@ -249,10 +332,7 @@ export function createBatchData ():IBatchData {
     }
   }
 
-  let batchData = createBatchData();
-
-  let currentDate = new Date();
-  let currentYear = currentDate.getFullYear();
+  let batchData = createBatchData( currentUser );
 
   let analyzeStart = new Date();
   let startMs2 = analyzeStart.getTime();
@@ -265,11 +345,13 @@ export function createBatchData ():IBatchData {
   let userOldestCreate: IItemDetail = null;
   let userOldestModified: IItemDetail = null;
 
+  let allNameStrings: string[] = [];
+  let allNameItems: IDuplicateFile[] = [];
   batches.map( batch=> {
     batch.items.map( ( item, itemIndex )=> {
 
       //Get item summary
-      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, userId );
+      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser );
 
       batchData.count ++;
       batchData.size += detail.size;
@@ -285,8 +367,13 @@ export function createBatchData ():IBatchData {
       batchData.types[ typeIndex ] = updateThisType( batchData.types[ typeIndex ], detail );
 
       //Build up Duplicate list
-
-
+      let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+      if ( dupIndex < 0 ) {
+        allNameStrings.push( detail.FileLeafRef.toLowerCase() );
+        dupIndex = allNameStrings.length - 1;
+        allNameItems.push( createThisDuplicate(detail)  );
+      }
+      allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
 
       //Get index of authorId in array of all authorIds
       let createUserIndex = batchData.creatorIds.indexOf( detail.authorId );
@@ -361,45 +448,50 @@ export function createBatchData ():IBatchData {
         if ( detail.currentUser === true ) { batchData.currentUser.large.GT10M.push ( detail ) ; }    
 
       }
-
-      if ( detail.createYr < currentYear - 4 ) { 
-        batchData.oldCreated.Age5Yr.push ( detail ) ;
+      let theCurrentYear = getCurrentYear();
+      let oldCreated = batchData.oldCreated;
+      if ( detail.createYr < theCurrentYear - 4 ) { 
+        oldCreated.Age5Yr.push ( detail ) ;
+        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age5Yr.push ( detail ) ; }    
        }
-      else if ( detail.createYr < currentYear - 3 ) { 
-        batchData.oldCreated.Age4Yr.push ( detail ) ; 
+      else if ( detail.createYr < theCurrentYear - 3 ) { 
+        oldCreated.Age4Yr.push ( detail ) ; 
+        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age4Yr.push ( detail ) ; }  
       }
-      else if ( detail.createYr < currentYear - 2 ) { 
-        batchData.oldCreated.Age3Yr.push ( detail ) ; 
+      else if ( detail.createYr < theCurrentYear - 2 ) { 
+        oldCreated.Age3Yr.push ( detail ) ; 
+        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age3Yr.push ( detail ) ; }  
       }
-      else if ( detail.createYr < currentYear - 1 ) { 
-        batchData.oldCreated.Age2Yr.push ( detail ) ; 
+      else if ( detail.createYr < theCurrentYear - 1 ) { 
+        oldCreated.Age2Yr.push ( detail ) ; 
+        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age2Yr.push ( detail ) ; }  
       }
-      else if ( detail.createYr < currentYear - 0 ) { 
-        batchData.oldCreated.Age1Yr.push ( detail ) ; 
+      else if ( detail.createYr < theCurrentYear - 0 ) { 
+        oldCreated.Age1Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age1Yr.push ( detail ) ; }  
       }
 
-      if ( detail.modYr < currentYear - 4 ) { 
+      if ( detail.modYr < theCurrentYear - 4 ) { 
         batchData.oldModified.Age5Yr.push ( detail ) ;
         if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age5Yr.push ( detail ) ; }    
        }
-      else if ( detail.modYr < currentYear - 3 ) { 
+      else if ( detail.modYr < theCurrentYear - 3 ) { 
         batchData.oldModified.Age4Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age4Yr.push ( detail ) ; }  
       }
-      else if ( detail.modYr < currentYear - 2 ) { 
+      else if ( detail.modYr < theCurrentYear - 2 ) { 
         batchData.oldModified.Age3Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age3Yr.push ( detail ) ; }  
       }
-      else if ( detail.modYr < currentYear - 1 ) { 
+      else if ( detail.modYr < theCurrentYear - 1 ) { 
         batchData.oldModified.Age2Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age2Yr.push ( detail ) ; }  
       }
-      else if ( detail.modYr < currentYear - 0 ) { 
+      else if ( detail.modYr < theCurrentYear - 0 ) { 
         batchData.oldModified.Age1Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age1Yr.push ( detail ) ; }  
       }
@@ -415,6 +507,14 @@ export function createBatchData ():IBatchData {
   batchData.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
+  });
+
+  allNameItems.map( dup => {
+    dup.sizeGB = dup.size/1e9;
+    if ( dup.count > 1 ) {
+      batchData.duplicateNames.push( dup.name ) ;
+      batchData.duplicates.push( dup ) ;
+    }
   });
 
   let analyzeEnd = new Date();
@@ -449,15 +549,15 @@ export function createBatchData ():IBatchData {
  
  }
 
- function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, userId ) : IItemDetail {
+ function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser ) : IItemDetail {
   let created = new Date(item.Created);
   let modified = new Date(item.Modified);
 
   let createYr = created.getFullYear();
   let modYr = modified.getFullYear();
 
-  let currentUser = item.AuthorId === userId ? true : false;
-  currentUser = item.EditorId === userId ? true : currentUser;
+  let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
+  isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -472,7 +572,7 @@ export function createBatchData ():IBatchData {
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
     id: item.Id,
-    currentUser: currentUser,
+    currentUser: isCurrentUser,
     size: item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0,
     sizeMB: item.FileSizeDisplay ? Math.round( parseInt(item.FileSizeDisplay) / 1e6 * 100) / 100 : 0,
     createYr: createYr,
