@@ -84,7 +84,7 @@ export function createLargeFiles() :ILargeFiles {
     GT01G: [],
     GT100M: [],
     GT10M: [],
-    summary: createBucketSummary( '' ),
+    summary: createBucketSummary( `Files BIGGER than 100MB` ),
   };
 }
 
@@ -431,47 +431,51 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
       if ( detail.uniquePerms === true ) { batchData.uniqueRolls.push ( detail ) ; } 
 
       //Add to large bucket
+      let bigData = batchData.large;
       if ( detail.size > 1e10 ) { 
-        batchData.large.GT10G.push ( detail ) ;
+        bigData.GT10G.push ( detail ) ;
+        bigData.summary = updateBucketSummary (bigData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.large.GT10G.push ( detail ) ; }   
 
        } else if ( detail.size > 1e9 ) { 
-        batchData.large.GT01G.push ( detail ) ; 
+        bigData.GT01G.push ( detail ) ; 
+        bigData.summary = updateBucketSummary (bigData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.large.GT01G.push ( detail ) ; }  
 
       } else if ( detail.size > 1e8 ) { 
-        batchData.large.GT100M.push ( detail ) ; 
+        bigData.GT100M.push ( detail ) ; 
+        bigData.summary = updateBucketSummary (bigData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.large.GT100M.push ( detail ) ; }   
 
       } else if ( detail.size > 1e7 ) { 
-        batchData.large.GT10M.push ( detail ) ; 
+        bigData.GT10M.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.large.GT10M.push ( detail ) ; }    
 
       }
       let theCurrentYear = getCurrentYear();
-      let oldCreated = batchData.oldCreated;
+      let oldData = batchData.oldCreated;
       if ( detail.createYr < theCurrentYear - 4 ) { 
-        oldCreated.Age5Yr.push ( detail ) ;
-        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
+        oldData.Age5Yr.push ( detail ) ;
+        oldData.summary = updateBucketSummary (oldData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age5Yr.push ( detail ) ; }    
        }
       else if ( detail.createYr < theCurrentYear - 3 ) { 
-        oldCreated.Age4Yr.push ( detail ) ; 
-        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
+        oldData.Age4Yr.push ( detail ) ; 
+        oldData.summary = updateBucketSummary (oldData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age4Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < theCurrentYear - 2 ) { 
-        oldCreated.Age3Yr.push ( detail ) ; 
-        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
+        oldData.Age3Yr.push ( detail ) ; 
+        oldData.summary = updateBucketSummary (oldData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age3Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < theCurrentYear - 1 ) { 
-        oldCreated.Age2Yr.push ( detail ) ; 
-        oldCreated.summary = updateBucketSummary (oldCreated.summary , detail );
+        oldData.Age2Yr.push ( detail ) ; 
+        oldData.summary = updateBucketSummary (oldData.summary , detail );
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age2Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < theCurrentYear - 0 ) { 
-        oldCreated.Age1Yr.push ( detail ) ; 
+        oldData.Age1Yr.push ( detail ) ; 
         if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age1Yr.push ( detail ) ; }  
       }
 

@@ -279,6 +279,9 @@ public async updateWebInfo ( webUrl?: string ) {
     let agePivotContent = <div><div>
       <h3>Summary of files by Age</h3>
       </div>
+        <ReactJson src={ this.state.batchData.oldCreated.summary } name={ `Summary` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
         <ReactJson src={ this.state.batchData.oldCreated.Age5Yr } name={ `Created before ${ (this.currentYear -4 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
