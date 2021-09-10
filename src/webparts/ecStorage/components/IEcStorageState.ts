@@ -22,10 +22,12 @@ export interface IItemDetail {
   value: number | string; //value to highlight/sort for this detail
   created: any;
   modified: any;
-  createdId: number;
-  modifiedId: number;
-  createdTitle: string;
-  modifiedTitle: string;
+  authorId: number;
+  editorId: number;
+  authorTitle: string;
+  editorTitle: string;
+  FileLeafRef: string;
+  FileRef: string;
   checkedOutId?: number;
   docIcon?: string;
   uniquePerms?: boolean;
@@ -59,7 +61,7 @@ export interface IOldFiles {
 export interface IUserFiles {
   items:  IItemDetail[];
   large: ILargeFiles;
-  oldCreate: IOldFiles;
+  oldCreated: IOldFiles;
   oldModified: IOldFiles;
 }
 
@@ -73,14 +75,40 @@ export interface IUserSummary {
   folderCreateCount: number;
   createTotalSize: number;
   modifyTotalSize: number;
+  createTotalSizeGB: number;
+  modifyTotalSizeGB: number;
   createSizes: number[];
   modifiedSizes: number[];
 }
 
+export interface IDuplicateFile {
+  name: string;
+  type: string;
+  items: IItemDetail[];
+  sizes: number[];
+  createdMs: number[];
+  modifiedMs: number[];
+}
+
+export interface IFileType {
+  type: string;
+  count: number;
+  size: number;
+  sizeGB: number;
+  items: IItemDetail[];
+  sizes: number[];
+  createdMs: number[];
+  modifiedMs: number[];
+
+}
+
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export interface IBatchData {
+  count: number;
+  size: number;
+  sizeGB: number;
   large: ILargeFiles;
-  oldCreate: IOldFiles;
+  oldCreated: IOldFiles;
   oldModified: IOldFiles;
   currentUser: IUserFiles;
   folders:  IItemDetail[];
@@ -88,6 +116,11 @@ export interface IBatchData {
   editorIds: number[];
   allUsersIds: number[];
   allUsers: IUserSummary[];
+  uniqueRolls: IItemDetail[];
+  typeList: string[];
+  types: IFileType[];
+  duplicateNames: string[];
+  duplicates: IDuplicateFile[];
 
 }
 

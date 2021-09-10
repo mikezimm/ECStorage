@@ -30,6 +30,12 @@ import {
 
 import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 
+import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
+
+import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -44,8 +50,30 @@ import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
 import { getSearchedFiles } from './EcSearch';
 
+//copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
+const pivotStyles = {
+  root: {
+    whiteSpace: "normal",
+    marginTop: '30px',
+  //   textAlign: "center"
+  }};
+
+const pivotHeading1 = 'Summary';
+const pivotHeading2 = 'Types';
+const pivotHeading3 = 'Users';
+const pivotHeading4 = 'Size';
+const pivotHeading5 = 'Age';
+const pivotHeading6 = 'You';
+const pivotHeading7 = 'Perms';
+const pivotHeading8 = 'Dups';
+const pivotHeading9 = 'Folders';
+
+
+
 export default class EcStorage extends React.Component<IEcStorageProps, IEcStorageState> {
 
+  private currentDate = new Date();
+  private currentYear = this.currentDate.getFullYear();
   
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -226,7 +254,117 @@ public async updateWebInfo ( webUrl?: string ) {
       { fetchButton }
     </div>;
 
+    let typesPivotContent = <div><div>
+          <h3>File types found in this library</h3>
+          <p> { this.state.batchData.typeList.join(', ') }</p>
+      </div>
+      <ReactJson src={ this.state.batchData.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
+    let usersPivotContent = <div><div>
+        <h3>Summary of files by user</h3>
+        <p> { this.state.batchData.allUsers.map( user => { return user.userTitle; }).join(', ') }</p>
+      </div>
+      <ReactJson src={ this.state.batchData.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+
+    let sizePivotContent = <div><div>
+      <h3>Summary of files by Size</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ this.state.batchData.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ this.state.batchData.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ this.state.batchData.large.GT10M } name={ '> 10M per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </div>;
+
+    let agePivotContent = <div><div>
+      <h3>Summary of files by Age</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.oldCreated.Age5Yr } name={ `Created before ${ (this.currentYear -4 ) }` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+        <ReactJson src={ this.state.batchData.oldCreated.Age4Yr } name={ `Created in ${ (this.currentYear -4 ) }` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+        <ReactJson src={ this.state.batchData.oldCreated.Age3Yr } name={ `Created in ${ (this.currentYear -3 ) }` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+        <ReactJson src={ this.state.batchData.oldCreated.Age2Yr } name={ `Created in ${ (this.currentYear -2 ) }` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+        <ReactJson src={ this.state.batchData.oldCreated.Age1Yr } name={ `Created in ${ (this.currentYear -1 ) }` } 
+          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+      </div>;
+
+
+    let youPivotContent = <div><div>
+      <h3>Summary of files related to you</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.currentUser.large } name={ 'Your footprint' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ this.state.batchData.currentUser.oldCreated } name={ 'You created' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ this.state.batchData.currentUser.oldModified } name={ 'Last modified by you' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </div>;
+
+    let permsPivotContent = <div><div>
+      <h3>Summary of files with broken permissions</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </div>;
+
+    let dupsPivotContent = <div><div>
+      <h3>Summary of duplicate files</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </div>;
+
+    let folderPivotContent = <div><div>
+      <h3>Summary of Folders</h3>
+      </div>
+        <ReactJson src={ this.state.batchData.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </div>;
+
+    let listDefinitionSelectPivot = 
+    <Pivot
+        styles={ pivotStyles }
+        linkFormat={PivotLinkFormat.tabs}
+        linkSize={PivotLinkSize.normal}
+        // onLinkClick={this._selectedListDefIndex.bind(this)}
+    > 
+      <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        <ReactJson src={ this.state.batchData } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { typesPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { usersPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading4 } ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { sizePivotContent }
+      </PivotItem> 
+      
+      <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { agePivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { youPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading7 } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={ pivotHeading7 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { permsPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading8 } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={ pivotHeading8 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { dupsPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading9 } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={ pivotHeading9 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { folderPivotContent }
+      </PivotItem>
+    </Pivot>;
 
     return (
       <div className={ styles.ecStorage }>
@@ -244,16 +382,17 @@ public async updateWebInfo ( webUrl?: string ) {
                 { loadingNote }
                 { searchSpinner }
                 { myProgress }
-                
               </div>
             : null
           } 
 
+          { listDefinitionSelectPivot }
           <div style={{ overflowY: 'auto' }}>
               {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
-              <ReactJson src={ this.state.batches } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+              <ReactJson src={ this.state.batches } name={ 'All items' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
           </div>
         </div>
       </div>

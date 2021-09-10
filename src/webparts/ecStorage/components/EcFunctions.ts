@@ -30,7 +30,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IUserFiles, IOldFiles, IUserSummary } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IUserFiles, IOldFiles, IUserSummary, IFileType } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -73,7 +73,7 @@ export function createOldFiles () :IOldFiles {
 export function createUserFiles (): IUserFiles {
   return {  
     large: createLargeFiles(),
-    oldCreate: createOldFiles(),
+    oldCreated: createOldFiles(),
     oldModified: createOldFiles(),
     items: [],
   };
@@ -91,6 +91,8 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     folderCreateCount: 0,
     createTotalSize: 0,
     modifyTotalSize: 0,
+    createTotalSizeGB: 0,
+    modifyTotalSizeGB: 0,
     createSizes: [],
     modifiedSizes: [],
   };
@@ -101,7 +103,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
 export function updateThisEditor ( detail : IItemDetail, userSummary: IUserSummary ) {
 
-  if ( userSummary.userId === detail.modifiedId ) {
+  if ( userSummary.userId === detail.editorId ) {
     if ( detail.isFolder === true ) {
       //do nothing
     } else {
@@ -117,7 +119,7 @@ export function updateThisEditor ( detail : IItemDetail, userSummary: IUserSumma
 
 export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSummary ) {
 
-  if ( userSummary.userId === detail.createdId ) {
+  if ( userSummary.userId === detail.authorId ) {
     if ( detail.isFolder === true ) {
       userSummary.folderCreateCount ++;
 
@@ -133,11 +135,50 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
 
 }
 
+export function createThisType ( docIcon: string ) :IFileType {
+
+  let thisType: IFileType = {
+    type: docIcon,
+    count: 0,
+    size: 0,
+    sizeGB: 0,
+    items: [],
+    sizes: [],
+    createdMs: [],
+    modifiedMs: [],
+  };
+
+  return thisType;
+
+}
+
+export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : IFileType {
+
+  thisType.count ++;
+  thisType.size += detail.size;
+
+  thisType.items.push( detail );
+  thisType.sizes.push(detail.size);
+
+  thisType.createdMs.push( detail.createMs ) ;
+  thisType.modifiedMs.push( detail.modMs ) ;
+
+  return thisType;
+
+}
+
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export function createBatchData ():IBatchData {
   return {  
+    count: 0,
+    size: 0,
+    sizeGB: 0,
+    typeList: [],
+    types: [],
+    duplicateNames: [],
+    duplicates: [],
     large: createLargeFiles(),
-    oldCreate: createOldFiles(),
+    oldCreated: createOldFiles(),
     oldModified: createOldFiles(),
     currentUser: createUserFiles(),
     folders: [],
@@ -145,6 +186,7 @@ export function createBatchData ():IBatchData {
     editorIds: [],
     allUsersIds: [],
     allUsers: [],
+    uniqueRolls: [],
   };
 }
 
@@ -229,33 +271,50 @@ export function createBatchData ():IBatchData {
       //Get item summary
       let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, userId );
 
+      batchData.count ++;
+      batchData.size += detail.size;
+
+      //Build up Type list
+      let typeIndex = batchData.typeList.indexOf( detail.docIcon );
+
+      if ( typeIndex < 0 ) {
+        batchData.typeList.push( detail.docIcon );
+        typeIndex = batchData.typeList.length - 1;
+        batchData.types.push( createThisType(detail.docIcon) );
+      }
+      batchData.types[ typeIndex ] = updateThisType( batchData.types[ typeIndex ], detail );
+
+      //Build up Duplicate list
+
+
+
       //Get index of authorId in array of all authorIds
-      let createUserIndex = batchData.creatorIds.indexOf( detail.createdId );
+      let createUserIndex = batchData.creatorIds.indexOf( detail.authorId );
       if ( createUserIndex === -1 ) { 
-        batchData.creatorIds.push( detail.createdId  );
+        batchData.creatorIds.push( detail.authorId  );
         createUserIndex = batchData.creatorIds.length -1;
       }
 
       //Get index of editor in array of all editorIds
-      let editUserIndex = batchData.editorIds.indexOf( detail.modifiedId  );
+      let editUserIndex = batchData.editorIds.indexOf( detail.editorId  );
       if ( editUserIndex === -1 ) { 
-        batchData.editorIds.push( detail.modifiedId  );
+        batchData.editorIds.push( detail.editorId  );
         editUserIndex = batchData.editorIds.length -1;
       }
 
       //Get index of author in array of all allIds - to get the allUser Item for later use
-      let createUserAllIndex = batchData.allUsersIds.indexOf( detail.createdId );
+      let createUserAllIndex = batchData.allUsersIds.indexOf( detail.authorId );
       if ( createUserAllIndex === -1 ) { 
-        batchData.allUsersIds.push( detail.createdId  );
-        batchData.allUsers.push( createThisUser( detail, detail.createdId, detail.createdTitle )  );
+        batchData.allUsersIds.push( detail.authorId  );
+        batchData.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle )  );
         createUserAllIndex = batchData.allUsers.length -1;
       }
 
       //Get index of editor in array of all allIds - to get the allUser Item for later use
-      let editUserAllIndex = batchData.allUsersIds.indexOf( detail.modifiedId  );
+      let editUserAllIndex = batchData.allUsersIds.indexOf( detail.editorId  );
       if ( editUserAllIndex === -1 ) { 
-        batchData.allUsersIds.push( detail.modifiedId  );
-        batchData.allUsers.push( createThisUser( detail, detail.modifiedId, detail.modifiedTitle )  );
+        batchData.allUsersIds.push( detail.editorId  );
+        batchData.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle )  );
         editUserAllIndex = batchData.allUsers.length -1;
       }
 
@@ -282,6 +341,7 @@ export function createBatchData ():IBatchData {
 
       if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
       if ( detail.isFolder === true ) { batchData.folders.push ( detail ) ; } 
+      if ( detail.uniquePerms === true ) { batchData.uniqueRolls.push ( detail ) ; } 
 
       //Add to large bucket
       if ( detail.size > 1e10 ) { 
@@ -303,24 +363,24 @@ export function createBatchData ():IBatchData {
       }
 
       if ( detail.createYr < currentYear - 4 ) { 
-        batchData.oldCreate.Age5Yr.push ( detail ) ;
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreate.Age5Yr.push ( detail ) ; }    
+        batchData.oldCreated.Age5Yr.push ( detail ) ;
+        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age5Yr.push ( detail ) ; }    
        }
       else if ( detail.createYr < currentYear - 3 ) { 
-        batchData.oldCreate.Age4Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreate.Age4Yr.push ( detail ) ; }  
+        batchData.oldCreated.Age4Yr.push ( detail ) ; 
+        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age4Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < currentYear - 2 ) { 
-        batchData.oldCreate.Age3Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreate.Age3Yr.push ( detail ) ; }  
+        batchData.oldCreated.Age3Yr.push ( detail ) ; 
+        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age3Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < currentYear - 1 ) { 
-        batchData.oldCreate.Age2Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreate.Age2Yr.push ( detail ) ; }  
+        batchData.oldCreated.Age2Yr.push ( detail ) ; 
+        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age2Yr.push ( detail ) ; }  
       }
       else if ( detail.createYr < currentYear - 0 ) { 
-        batchData.oldCreate.Age1Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreate.Age1Yr.push ( detail ) ; }  
+        batchData.oldCreated.Age1Yr.push ( detail ) ; 
+        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age1Yr.push ( detail ) ; }  
       }
 
       if ( detail.modYr < currentYear - 4 ) { 
@@ -347,6 +407,16 @@ export function createBatchData ():IBatchData {
     });
   });
 
+  batchData.sizeGB += ( batchData.size / 1e9 );
+  batchData.types.map( docType => {
+    docType.sizeGB = docType.size/1e9;
+  });
+
+  batchData.allUsers.map( user => {
+    user.createTotalSizeGB = user.createTotalSize / 1e9;
+    user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
+  });
+
   let analyzeEnd = new Date();
   let endMs2 = analyzeEnd.getTime();
   let analyzeMs = endMs2 - startMs2;
@@ -360,7 +430,7 @@ export function createBatchData ():IBatchData {
 
   let batchInfo = {
     batches: batches,
-    data: batchData,
+    batchData: batchData,
     fetchMs: fetchMs,
     analyzeMs: analyzeMs,
     totalLength: totalLength,
@@ -395,10 +465,12 @@ export function createBatchData ():IBatchData {
     value: null, //value to highlight/sort for this detail
     created: created,
     modified: modified,
-    createdId: item.AuthorId,
-    modifiedId: item.EditorId,
-    createdTitle: item.Author.Title,
-    modifiedTitle: item.Editor.Title,
+    authorId: item.AuthorId,
+    editorId: item.EditorId,
+    authorTitle: item.Author.Title,
+    editorTitle: item.Editor.Title,
+    FileLeafRef: item.FileLeafRef,
+    FileRef: item.FileRef,
     id: item.Id,
     currentUser: currentUser,
     size: item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0,
@@ -410,10 +482,16 @@ export function createBatchData ():IBatchData {
     modMs: modified.getTime(),
   };
 
-  if ( item.DocIcon ) { itemDetail.docIcon = item.DocIcon; }
+
   if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
   if ( item.HasUniqueRoleAssignments ) { itemDetail.uniquePerms = item.HasUniqueRoleAssignments; }
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
+
+  if ( item.DocIcon ) { 
+    itemDetail.docIcon = item.DocIcon; 
+  } else if ( itemDetail.isFolder === true ) {
+    itemDetail.docIcon = 'folder'; 
+  }
 
   return itemDetail;
 
