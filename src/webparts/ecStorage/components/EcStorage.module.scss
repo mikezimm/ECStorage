@@ -8,6 +8,40 @@
     padding: 30px;
   }
 
+  //Copied from src\webparts\genericWebpart\components\Contents\contents.module.scss
+  .padLeft20 {
+    padding-left: 20px;
+  }
+
+  //Copied from src\webparts\genericWebpart\components\Contents\contents.module.scss
+  .floatRight {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  //Copied from src\webparts\genericWebpart\components\Contents\contents.module.scss
+  .searchContainer {
+    display: flex;
+    align-items: left;
+    vertical-align: middle;
+  }
+
+  //Copied from src\webparts\genericWebpart\components\Contents\contents.module.scss
+  .searchBox {
+    width: 100%;
+  }
+
+  //Copied from src\webparts\genericWebpart\components\Contents\contents.module.scss
+  .searchStatus {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 20px;
+    padding-right: 60px;
+  }
+  
+
   // .row {
   //   @include ms-Grid-row;
   //   @include ms-fontColor-white;

@@ -30,7 +30,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, IDuplicateFile, IBucketSummary } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, IDuplicateFile, IBucketSummary, IUserRanks } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -279,7 +279,27 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     allUsersIds: [],
     allUsers: [],
     uniqueRolls: [],
+    userRanks: null,
   };
+}
+
+function createUserRanks ( count: number ) : IUserRanks {
+  let userRanks = {
+    createSizeRank: [],
+    createCountRank: [],
+    modifySizeRank: [],
+    modifyCountRank: [],
+  };
+
+  for (let index = 0; index < count; index++) {
+    userRanks.createSizeRank.push( null );
+    userRanks.createCountRank.push( null );
+    userRanks.modifySizeRank.push( null );
+    userRanks.modifyCountRank.push( null );
+  }
+
+  return userRanks;
+
 }
 
  export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
@@ -525,6 +545,9 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
   let allUserModifySize: number[] = [];
   let allUserModifyCount: number[] = [];
 
+  batchData.userRanks = createUserRanks( batchData.allUsers.length );
+  let userRanks = batchData.userRanks;
+
   batchData.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
@@ -549,11 +572,19 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
   allUserModifyCount = sortNumberArray( allUserModifyCount , 'dec');
 
   //Rank users based on all users counts and sizes
-  batchData.allUsers.map( user => {
+  batchData.allUsers.map( ( user, userIndex) => {
     user.createSizeRank = allUserCreateSize.indexOf( user.createTotalSize );
+    userRanks.createSizeRank = updateNextOpenIndex( userRanks.createSizeRank, user.createSizeRank, userIndex );
+
     user.createCountRank = allUserCreateCount.indexOf( user.createCount );
+    userRanks.createCountRank = updateNextOpenIndex( userRanks.createCountRank, user.createCountRank, userIndex );
+
     user.modifySizeRank = allUserModifySize.indexOf( user.modifyTotalSize );
+    userRanks.modifySizeRank = updateNextOpenIndex( userRanks.modifySizeRank, user.modifySizeRank, userIndex );
+
     user.modifyCountRank = allUserModifyCount.indexOf( user.modifyCount );
+    userRanks.modifyCountRank = updateNextOpenIndex( userRanks.modifyCountRank, user.modifyCountRank, userIndex );
+
   });
 
   bigData.summary.sizeGB = bigData.summary.size / 1e9;
@@ -586,11 +617,13 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     fetchMs: fetchMs,
     analyzeMs: analyzeMs,
     totalLength: totalLength,
+    userRanks: userRanks,
   };
 
   console.log('getStorageItems: fetchMs', fetchMs );
   console.log('getStorageItems: analyzeMs', analyzeMs );
   console.log('getStorageItems: totalLength', totalLength );
+  console.log('getStorageItems: userRanks', userRanks );
 
   console.log('getStorageItems: batches', batches );
   console.log('getStorageItems: batchData', batchData );
@@ -599,6 +632,19 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
 
   return { batches };
  
+ }
+
+ function updateNextOpenIndex( targetArray: any[], start: number, value: any ): any[] {
+  let exit: boolean = false;
+
+  for (let index = start; index < targetArray.length; index++) {
+    if ( !exit && targetArray[ index ] === null ) { 
+      targetArray[ index ] = value ;
+      exit = true;
+     }
+  }
+  return targetArray;
+
  }
 
  function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser ) : IItemDetail {

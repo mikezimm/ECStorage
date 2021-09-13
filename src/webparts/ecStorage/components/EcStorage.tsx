@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from './EcStorage.module.scss';
 import { IEcStorageProps } from './IEcStorageProps';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -29,6 +29,7 @@ import {
 } from "office-ui-fabric-react";
 
 import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
@@ -124,6 +125,9 @@ public constructor(props:IEcStorageProps){
         maxYear: currentYearVal + 1 ,
         yearSlider: currentYearVal,
 
+        rankSlider: 5,
+        userSearch: '',
+
         fetchSlider: 0,
         fetchTotal: 0,
         fetchCount: 0,
@@ -213,6 +217,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
   public render(): React.ReactElement<IEcStorageProps> {
 
+    let batchData = this.state.batchData;
     let timeComment = null;
     let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
     if ( this.state.isLoading ) {
@@ -257,46 +262,66 @@ public async updateWebInfo ( webUrl?: string ) {
 
     let typesPivotContent = <div><div>
           <h3>File types found in this library</h3>
-          <p> { this.state.batchData.typeList.join(', ') }</p>
+          <p> { batchData.typeList.join(', ') }</p>
       </div>
-      <ReactJson src={ this.state.batchData.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      <ReactJson src={ batchData.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
-    let usersPivotContent = <div><div>
+    let usersPivotContent = null;
+    
+    if ( batchData.userRanks !== null ) {
+      let rankSlider = this.state.rankSlider;
+      let sliderMin = batchData.allUsers.length < 3 ? batchData.allUsers.length : 3;
+      let sliderUserCount = batchData.allUsers.length < 5 ? null : 
+        <div style={{margin: '0 50px'}}> { createSlider( 'Show Top' , rankSlider , sliderMin, batchData.allUsers.length, 1 , this._updateRankShow.bind(this), this.state.isLoading, 350) }</div> ;
+      
+      usersPivotContent = <div><div>
         <h3>Summary of files by user</h3>
-        <p> { this.state.batchData.allUsers.map( user => { return user.userTitle; }).join(', ') }</p>
+        <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+          <div> { sliderUserCount } </div>
+          <div> { this.buildSearchBox() } </div>
+        </div>
+
+        <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+          { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userRanks.createCountRank, batchData.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userRanks.modifyCountRank, batchData.allUsers, 'modifyCountRank', rankSlider, this.state.userSearch )}
+        </div>
+        {/* <p> { batchData.allUsers.map( user => { return user.userTitle; }).join(', ') }</p> */}
       </div>
-      <ReactJson src={ this.state.batchData.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      <ReactJson src={ batchData.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+    }
 
     let sizePivotContent = <div><div>
       <h3>Summary of files by Size</h3>
       </div>
-        <ReactJson src={ this.state.batchData.large.summary } name={ `Summary` } 
+        <ReactJson src={ batchData.large.summary } name={ `Summary` } 
             collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.large.GT10M } name={ '> 10M per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.large.GT10M } name={ '> 10M per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let agePivotContent = <div><div>
       <h3>Summary of files by Age</h3>
       </div>
-        <ReactJson src={ this.state.batchData.oldCreated.summary } name={ `Summary` } 
+        <ReactJson src={ batchData.oldCreated.summary } name={ `Summary` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-        <ReactJson src={ this.state.batchData.oldCreated.Age5Yr } name={ `Created before ${ (this.currentYear -4 ) }` } 
+        <ReactJson src={ batchData.oldCreated.Age5Yr } name={ `Created before ${ (this.currentYear -4 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-        <ReactJson src={ this.state.batchData.oldCreated.Age4Yr } name={ `Created in ${ (this.currentYear -4 ) }` } 
+        <ReactJson src={ batchData.oldCreated.Age4Yr } name={ `Created in ${ (this.currentYear -4 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-        <ReactJson src={ this.state.batchData.oldCreated.Age3Yr } name={ `Created in ${ (this.currentYear -3 ) }` } 
+        <ReactJson src={ batchData.oldCreated.Age3Yr } name={ `Created in ${ (this.currentYear -3 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-        <ReactJson src={ this.state.batchData.oldCreated.Age2Yr } name={ `Created in ${ (this.currentYear -2 ) }` } 
+        <ReactJson src={ batchData.oldCreated.Age2Yr } name={ `Created in ${ (this.currentYear -2 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-        <ReactJson src={ this.state.batchData.oldCreated.Age1Yr } name={ `Created in ${ (this.currentYear -1 ) }` } 
+        <ReactJson src={ batchData.oldCreated.Age1Yr } name={ `Created in ${ (this.currentYear -1 ) }` } 
           collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
       </div>;
@@ -305,27 +330,27 @@ public async updateWebInfo ( webUrl?: string ) {
     let youPivotContent = <div><div>
       <h3>Summary of files related to you</h3>
       </div>
-        <ReactJson src={ this.state.batchData.currentUser.large } name={ 'Your footprint' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.currentUser.oldCreated } name={ 'You created' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ this.state.batchData.currentUser.oldModified } name={ 'Last modified by you' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.currentUser.large } name={ 'Your footprint' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.currentUser.oldCreated } name={ 'You created' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.currentUser.oldModified } name={ 'Last modified by you' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let permsPivotContent = <div><div>
       <h3>Summary of files with broken permissions</h3>
       </div>
-        <ReactJson src={ this.state.batchData.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let dupsPivotContent = <div><div>
       <h3>Summary of duplicate files</h3>
       </div>
-        <ReactJson src={ this.state.batchData.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let folderPivotContent = <div><div>
       <h3>Summary of Folders</h3>
       </div>
-        <ReactJson src={ this.state.batchData.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let listDefinitionSelectPivot = 
@@ -336,7 +361,7 @@ public async updateWebInfo ( webUrl?: string ) {
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
       <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        <ReactJson src={ this.state.batchData } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
@@ -404,6 +429,95 @@ public async updateWebInfo ( webUrl?: string ) {
       </div>
     );
   }
+
+  private buildSearchBox() {
+    /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
+    let searchBox =  
+    <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
+      <SearchBox
+        className={styles.searchBox}
+        styles={{ root: { maxWidth: 200 } }}
+        placeholder="Search"
+        onSearch={ this._searchForItems.bind(this) }
+        onFocus={ () => console.log('this.state',  this.state) }
+        onBlur={ () => console.log('onBlur called') }
+        onChange={ this._searchForItems.bind(this) }
+      />
+      <div className={styles.searchStatus}>
+        { 'Searching ' + this.state.batchData.allUsers.length + ' users' }
+        { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+      </div>
+    </div>;
+
+    return searchBox;
+
+  }
+
+  public _searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+
+    this.setState({ userSearch: item });
+  }
+
+  private buildUserTables( indexs: number[], users: IUserSummary[] , data: string, countToShow: number, userSearch: string ): any {
+
+    // { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.allUsers, 'createSizeRank') }
+    // { this.buildUserTables( batchData.userRanks.createCountRank, batchData.allUsers, 'createCountRank') }
+    // { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.allUsers, 'modifySizeRank') }
+    // { this.buildUserTables( batchData.userRanks.modifyCountRank, batchData.allUsers, 'modifyCountRank') }
+
+    let elements = [];
+    let tableTitle = data;
+
+    indexs.map( ( allUserIndex, index ) => {
+
+      if ( index < countToShow || userSearch.length > 0 ) {
+        let user = users[ allUserIndex ];
+        let label = '' ;
+  
+        switch (data) {
+          case 'createSizeRank':
+            label = `${user.userTitle} [${ (user.createTotalSizeGB* 1e3).toFixed(0) }MB]` ;
+            break;
+          case 'createCountRank':
+            label = `${user.userTitle} [${user.createCount}]` ;
+            break;
+          case 'modifySizeRank':
+            label = `${user.userTitle} [${ (user.modifySizeRank* 1e3).toFixed(0)}MB]` ;
+            break;
+          case 'modifyCountRank':
+            label = `${user.userTitle} [${user.modifyCountRank}]` ;
+            break;
+  
+          default:
+            break;
+        }
+        
+        let title = `${user.userTitle} created ${user.createTotalSizeGB.toFixed(3)}GB, modified ${user.modifyTotalSizeGB.toFixed(3)}GB` ;
+
+        if ( userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ) {
+          elements.push(<li title={ title}>
+            <span>{ label }</span>
+          </li>);
+        }
+
+      }
+
+    });
+
+    let table = <div style={{marginRight: '10px'}}>
+      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
+      <ol>
+        { elements }
+      </ol>
+    </div>;
+    return table;
+
+  }
   
   private _updateMaxYear(newValue: number){
     this.setState({
@@ -414,6 +528,12 @@ public async updateWebInfo ( webUrl?: string ) {
   private _updateMaxFetch(newValue: number){
     this.setState({
       fetchSlider: newValue,
+    });
+  }
+
+  private _updateRankShow(newValue: number){
+    this.setState({
+      rankSlider: newValue,
     });
   }
 

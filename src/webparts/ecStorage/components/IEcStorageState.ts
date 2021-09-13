@@ -140,6 +140,13 @@ export interface IFileType {
 
 }
 
+export interface IUserRanks {
+  createSizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  createCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  modifySizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  modifyCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+}
+
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export interface IBatchData {
   count: number;
@@ -159,7 +166,7 @@ export interface IBatchData {
   types: IFileType[];
   duplicateNames: string[];
   duplicates: IDuplicateFile[];
-
+  userRanks: IUserRanks;
 }
 
 export interface IECStorageBatch {
@@ -215,6 +222,9 @@ export interface IEcStorageState {
   minYear: number;
   maxYear: number;
   yearSlider: number;
+
+  rankSlider: number;
+  userSearch: string;
 
   fetchSlider: number;
   fetchTotal: number;
