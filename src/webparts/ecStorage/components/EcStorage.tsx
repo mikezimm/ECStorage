@@ -499,11 +499,19 @@ public async updateWebInfo ( webUrl?: string ) {
         
         let title = `${user.userTitle} created ${user.createTotalSizeGB.toFixed(3)}GB, modified ${user.modifyTotalSizeGB.toFixed(3)}GB` ;
 
-        if ( userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ) {
-          elements.push(<li title={ title}>
-            <span>{ label }</span>
-          </li>);
-        }
+        let showUser = userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ? true : false;
+
+        let liStyle : React.CSSProperties = showUser === true ?
+        {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+        } : { display: 'none' };
+
+        elements.push(<li title={ title} style= { liStyle }>
+          <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
+        </li>);
 
       }
 
@@ -511,9 +519,9 @@ public async updateWebInfo ( webUrl?: string ) {
 
     let table = <div style={{marginRight: '10px'}}>
       <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
-      <ol>
+      <ul>
         { elements }
-      </ol>
+      </ul>
     </div>;
     return table;
 
