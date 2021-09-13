@@ -270,6 +270,8 @@ public async updateWebInfo ( webUrl?: string ) {
     let sizePivotContent = <div><div>
       <h3>Summary of files by Size</h3>
       </div>
+        <ReactJson src={ this.state.batchData.large.summary } name={ `Summary` } 
+            collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
         <ReactJson src={ this.state.batchData.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
         <ReactJson src={ this.state.batchData.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
         <ReactJson src={ this.state.batchData.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>

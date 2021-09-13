@@ -90,18 +90,27 @@ export interface IUserSummary {
   userTitle: string;
   userFirst: any;
   userLast: any;
-  createCount: number;
-  modifyCount: number;
+
   folderCreateCount: number;
-  createTotalSize: number;
-  modifyTotalSize: number;
-  createTotalSizeGB: number;
-  modifyTotalSizeGB: number;
+
+  createCount: number;
   createSizes: number[];
-  modifiedSizes: number[];
-  summary: IBucketSummary;
+  createTotalSize: number;
+  createTotalSizeGB: number;
+  createSizeRank: number;
+  createCountRank: number;
   oldCreated: IOldFiles;
+
+  modifyCount: number;
+  modifiedSizes: number[];
+  modifyTotalSize: number;
+  modifyTotalSizeGB: number;
+  modifySizeRank: number;
+  modifyCountRank: number;
   oldModified: IOldFiles;
+
+  summary: IBucketSummary;
+
   large: ILargeFiles;
   items: IItemDetail[];
 }

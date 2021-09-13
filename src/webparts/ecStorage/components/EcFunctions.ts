@@ -24,7 +24,7 @@ import { Search, Suggest } from "@pnp/sp/search";
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-import { sortObjectArrayByNumberKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
@@ -106,18 +106,27 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     userTitle: userTitle,
     userFirst: null,
     userLast: null,
+
     createCount: 0,
-    modifyCount: 0,
-    folderCreateCount: 0,
-    createTotalSize: 0,
-    modifyTotalSize: 0,
-    createTotalSizeGB: 0,
-    modifyTotalSizeGB: 0,
     createSizes: [],
-    modifiedSizes: [],
-    large: createLargeFiles(),
+    createTotalSize: 0,
+    createTotalSizeGB: 0,
+    createSizeRank: 0,
+    createCountRank: 0,
     oldCreated: createOldFiles(),
+
+    modifyCount: 0,
+    modifyTotalSize: 0,
+    modifiedSizes: [],
+    modifyTotalSizeGB: 0,
+    modifySizeRank: 0,
+    modifyCountRank: 0,
     oldModified: createOldFiles(),
+
+    folderCreateCount: 0,
+
+    large: createLargeFiles(),
+
     items: [],
     summary: createBucketSummary( `Summary for ${userTitle}` ),
   };
@@ -333,6 +342,9 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
   }
 
   let batchData = createBatchData( currentUser );
+  //Add to large bucket
+  let bigData = batchData.large;
+  let oldData = batchData.oldCreated;
 
   let analyzeStart = new Date();
   let startMs2 = analyzeStart.getTime();
@@ -430,8 +442,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
       if ( detail.isFolder === true ) { batchData.folders.push ( detail ) ; } 
       if ( detail.uniquePerms === true ) { batchData.uniqueRolls.push ( detail ) ; } 
 
-      //Add to large bucket
-      let bigData = batchData.large;
+
       if ( detail.size > 1e10 ) { 
         bigData.GT10G.push ( detail ) ;
         bigData.summary = updateBucketSummary (bigData.summary , detail );
@@ -453,7 +464,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
 
       }
       let theCurrentYear = getCurrentYear();
-      let oldData = batchData.oldCreated;
+
       if ( detail.createYr < theCurrentYear - 4 ) { 
         oldData.Age5Yr.push ( detail ) ;
         oldData.summary = updateBucketSummary (oldData.summary , detail );
@@ -508,10 +519,47 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     docType.sizeGB = docType.size/1e9;
   });
 
+  //summarize Users data
+  let allUserCreateSize: number[] = [];
+  let allUserCreateCount: number[] = [];
+  let allUserModifySize: number[] = [];
+  let allUserModifyCount: number[] = [];
+
   batchData.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
+
+    user.summary.size = user.createTotalSize;
+    user.summary.count = user.createCount;
+    user.summary.sizeGB = user.summary.size / 1e9;
+    user.summary.sizeP = user.summary.size / batchData.size;
+    user.summary.countP = user.summary.count / batchData.count;
+
+    allUserCreateSize.push( user.createTotalSize );
+    allUserCreateCount.push( user.createCount );
+    allUserModifySize.push( user.modifyTotalSize );
+    allUserModifyCount.push( user.modifyCount );
+
   });
+
+  //Sort totals by largest first
+  allUserCreateSize = sortNumberArray( allUserCreateSize , 'dec');
+  allUserCreateCount = sortNumberArray( allUserCreateCount , 'dec');
+  allUserModifySize = sortNumberArray( allUserModifySize , 'dec');
+  allUserModifyCount = sortNumberArray( allUserModifyCount , 'dec');
+
+  //Rank users based on all users counts and sizes
+  batchData.allUsers.map( user => {
+    user.createSizeRank = allUserCreateSize.indexOf( user.createTotalSize );
+    user.createCountRank = allUserCreateCount.indexOf( user.createCount );
+    user.modifySizeRank = allUserModifySize.indexOf( user.modifyTotalSize );
+    user.modifyCountRank = allUserModifyCount.indexOf( user.modifyCount );
+  });
+
+  bigData.summary.sizeGB = bigData.summary.size / 1e9;
+  bigData.summary.sizeP = bigData.summary.size / batchData.size;
+  oldData.summary.sizeGB = bigData.summary.size / 1e9;
+  oldData.summary.sizeGB = oldData.summary.size / batchData.size;
 
   allNameItems.map( dup => {
     dup.sizeGB = dup.size/1e9;
