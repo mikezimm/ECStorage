@@ -457,7 +457,7 @@ public async updateWebInfo ( webUrl?: string ) {
       isBlocking={true}
       onDismiss={ this._onCloseUser.bind(this) }
       closeButtonAriaLabel="Close"
-      type = { PanelType.medium }
+      type = { PanelType.large }
       isLightDismiss = { true }
       >
         { panelContent }

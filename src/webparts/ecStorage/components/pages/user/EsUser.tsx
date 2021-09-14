@@ -156,8 +156,8 @@ public componentDidMount() {
 
     let componentHeading = <div className={ [styles.flexWrapStart, styles.margRight40Divs ].join(' ') }>
       <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
-        <div style={{whiteSpace: 'nowrap'}} >[ { this.props.currentUser.Id } ]</div>
-        <div style={{whiteSpace: 'nowrap'}}>{ this.props.currentUser.Title }</div>
+        <div style={{whiteSpace: 'nowrap'}} >[ { this.props.userSummary.userId } ]</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ this.props.userSummary.userTitle }</div>
       </div>
 
       <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
