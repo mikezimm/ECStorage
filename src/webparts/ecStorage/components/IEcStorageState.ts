@@ -222,6 +222,7 @@ export interface IEcStorageState {
   allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
   showPane: boolean;
+  showUser: number;
 
   stateError?: any[];
   errorMessage: string;

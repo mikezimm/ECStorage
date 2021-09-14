@@ -154,22 +154,22 @@ public componentDidMount() {
     const pickedList = this.props.pickedList;
     const pickedWeb = this.props.pickedWeb;
 
-    let componentHeading = <div>
-      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
-        <div>[ { this.props.currentUser.Id } ]</div>
-        <div>{ this.props.currentUser.Title }</div>
+    let componentHeading = <div className={ [styles.flexWrapStart, styles.margRight40Divs ].join(' ') }>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
+        <div style={{whiteSpace: 'nowrap'}} >[ { this.props.currentUser.Id } ]</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ this.props.currentUser.Title }</div>
       </div>
 
-      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
         <div>Created</div>
-        <div>{ userSummary.createCount } files</div>
-        <div>{ userSummary.createTotalSizeLabel }</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.createCount } / { userSummary.summary.countP.toFixed(1) }% files</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.createTotalSizeLabel } / { userSummary.summary.sizeP.toFixed(1) }%</div>
       </div>
 
-      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
         <div>Modified</div>
-        <div>{ userSummary.modifyCount } files</div>
-        <div>{ userSummary.modifyTotalSizeLabel }</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.modifyCount } files</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.modifyTotalSizeLabel }</div>
       </div>
 
     </div>;
@@ -284,9 +284,9 @@ public componentDidMount() {
         linkSize={PivotLinkSize.normal}
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
-      <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+      {/* <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         <ReactJson src={ userSummary.summary } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </PivotItem>
+      </PivotItem> */}
 
       <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { typesPivotContent }

@@ -4,7 +4,6 @@ import { IEcStorageProps } from './IEcStorageProps';
 import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from './IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
-
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { Web, IList, Site } from "@pnp/sp/presets/all";
 
@@ -110,6 +109,7 @@ public constructor(props:IEcStorageProps){
         hasError: false,
       
         showPane: false,
+        showUser: -1,
         currentUser: null,
         isCurrentWeb: null,
 
@@ -277,7 +277,7 @@ public async updateWebInfo ( webUrl?: string ) {
       let rankSlider = this.state.rankSlider;
       let sliderMin = batchData.allUsers.length < 3 ? batchData.allUsers.length : 3;
       let sliderUserCount = batchData.allUsers.length < 5 ? null : 
-        <div style={{margin: '0 50px'}}> { createSlider( 'Show Top' , rankSlider , sliderMin, batchData.allUsers.length, 1 , this._updateRankShow.bind(this), this.state.isLoading, 350) }</div> ;
+        <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , rankSlider , sliderMin, batchData.allUsers.length, 1 , this._updateRankShow.bind(this), this.state.isLoading, 350) }</div> ;
       
       usersPivotContent = <div><div>
         <h3>Summary of files by user</h3>
@@ -422,6 +422,48 @@ public async updateWebInfo ( webUrl?: string ) {
       </PivotItem>
     </Pivot>;
 
+    let userPanel = null;
+    
+    if ( this.state.showUser > -1 ) { 
+      let panelContent = <EsUser 
+        pageContext = { this.context.pageContext }
+        wpContext = { this.context }
+        tenant = { this.props.tenant }
+    
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        isLoaded = {false }
+    
+        currentUser = {this.state.currentUser }
+        isCurrentUser = { true }
+        userSummary = { batchData.allUsers[ this.state.showUser ] }
+        batches = { batches }
+        batchData = { batchData }
+      >
+    </EsUser>;
+
+      userPanel = <div><Panel
+      isOpen={ this.state.showUser > -1 ? true : false }
+      // this prop makes the panel non-modal
+      isBlocking={true}
+      onDismiss={ this._onCloseUser.bind(this) }
+      closeButtonAriaLabel="Close"
+      type = { PanelType.medium }
+      isLightDismiss = { true }
+      >
+        { panelContent }
+      </Panel></div>;
+
+    }
     return (
       <div className={ styles.ecStorage }>
         <div className={ styles.container }>
@@ -450,6 +492,7 @@ public async updateWebInfo ( webUrl?: string ) {
               <ReactJson src={ batches } name={ 'All items' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
           </div>
+          { userPanel }
         </div>
       </div>
     );
@@ -528,9 +571,9 @@ public async updateWebInfo ( webUrl?: string ) {
         
         let title = `( #${ allUserIndex } Id: ${user.userId} ) ${user.userTitle} created ${ createTotalSizeLabel }, modified ${modifyTotalSizeLabel}` ;
 
-        let showUser = userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ? true : false;
+        let showListItem = userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ? true : false;
 
-        let liStyle : React.CSSProperties = showUser === true ?
+        let liStyle : React.CSSProperties = showListItem === true ?
         {
           display: 'flex',
           flexDirection: 'row',
@@ -538,7 +581,7 @@ public async updateWebInfo ( webUrl?: string ) {
           alignItems: 'center',
         } : { display: 'none' };
 
-        elements.push(<li title={ title} style= { liStyle }>
+        elements.push(<li title={ title} style= { liStyle } onClick={ this._onClickUser.bind(this)} id={ allUserIndex.toFixed(0) }>
           <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
         </li>);
 
@@ -555,7 +598,22 @@ public async updateWebInfo ( webUrl?: string ) {
     return table;
 
   }
-  
+    
+  private _onClickUser( event ){
+    console.log( event );
+    console.log( event.currentTarget.id );
+    let showUserId = parseInt(event.currentTarget.id);
+    this.setState({
+      showUser: showUserId,
+    });
+  }
+    
+  private _onCloseUser( event ){
+    this.setState({
+      showUser: -1,
+    });
+  }
+
   private _updateMaxYear(newValue: number){
     this.setState({
       yearSlider: newValue,

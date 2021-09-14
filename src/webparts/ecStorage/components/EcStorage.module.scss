@@ -135,12 +135,23 @@
 
   }
 
-  .margRight20 div {
+  .margRight15Divs > div {
+    margin-right: 15px;
+  }
+
+  .margRight20Divs > div {
     margin-right: 20px;
   }
 
-  .margRight40 div {
+  .margRight40Divs > div {
     margin-right: 40px;
   }
 
+  .margRight60Divs > div {
+    margin-right: 40px;
+  }
+
+  .noWrapDivs > div {
+    white-space: nowrap;
+  }
 }
