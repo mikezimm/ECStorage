@@ -93,15 +93,11 @@ export default class EcStorage extends React.Component<IEcUserProps, IEcUserStat
 public constructor(props:IEcUserProps){
   super(props);
 
-  let parentWeb = cleanURL(this.props.parentWeb);
-
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
 
   this.state = {
 
-        pickedList : null,
-        pickedWeb : this.props.pickedWeb,
         isLoaded: false,
         isLoading: true,
         errorMessage: '',
@@ -109,13 +105,6 @@ public constructor(props:IEcUserProps){
         hasError: false,
       
         showPane: false,
-        currentUser: null,
-        isCurrentWeb: null,
-
-        parentWeb: parentWeb,
-        listTitle: this.props.listTitle,
-
-        theSite: null,
 
         items: [],
 
@@ -162,49 +151,51 @@ public componentDidMount() {
 
     const batches = this.props.batches;
     const userSummary = this.props.userSummary;
+    const pickedList = this.props.pickedList;
+    const pickedWeb = this.props.pickedWeb;
 
-    let timeComment = null;
-    let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
-    if ( this.state.isLoading ) {
-      timeComment = etaMinutes ;
-    }
+    // let timeComment = null;
+    // let etaMinutes = pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
+    // if ( this.state.isLoading ) {
+    //   timeComment = etaMinutes ;
+    // }
 
-    let loadingNote = this.state.isLoading ? <div>
-      Please do not interupt the process which could take { etaMinutes } minutes.
-    </div> : null;
-    let searchSpinner = this.state.isLoading ? 
-        <Spinner size={SpinnerSize.large} label={` fetching ${this.state.pickedList ? this.state.fetchSlider : 'TBD'} items...`} />
-     : null ;
+    // let loadingNote = this.state.isLoading ? <div>
+    //   Please do not interupt the process which could take { etaMinutes } minutes.
+    // </div> : null;
+    // let searchSpinner = this.state.isLoading ? 
+    //     <Spinner size={SpinnerSize.large} label={` fetching ${pickedList ? this.state.fetchSlider : 'TBD'} items...`} />
+    //  : null ;
 
-    let myProgress = 1 === 1 ? <ProgressIndicator 
-    label={ this.state.fetchLabel } 
-    description={ '' } 
-    percentComplete={ this.state.fetchPerComp } 
-    progressHidden={ !this.state.showProgress }/> : null;
+    // let myProgress = 1 === 1 ? <ProgressIndicator 
+    // label={ this.state.fetchLabel } 
+    // description={ '' } 
+    // percentComplete={ this.state.fetchPerComp } 
+    // progressHidden={ !this.state.showProgress }/> : null;
 
 
-    let fetchButton = <PrimaryButton text={ 'Begin'} onClick={this.fetchStoredItemsClick.bind(this)} allowDisabledFocus disabled={ this.state.isLoading } />;
+    // let fetchButton = <PrimaryButton text={ 'Begin'} onClick={this.fetchStoredItemsClick.bind(this)} allowDisabledFocus disabled={ this.state.isLoading } />;
 
-    let currentYear = new Date();
-    let currentYearVal = currentYear.getFullYear();
+    // let currentYear = new Date();
+    // let currentYearVal = currentYear.getFullYear();
 
-    let sliderYearItself = !this.state.pickedList ? null : 
-      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.yearSlider , this.state.minYear, this.state.maxYear, 1 , this._updateMaxYear.bind(this), this.state.isLoading, 350) }</div> ;
+    // let sliderYearItself = !pickedList ? null : 
+    //   <div style={{margin: '0 50px'}}> { createSlider( null , this.state.yearSlider , this.state.minYear, this.state.maxYear, 1 , this._updateMaxYear.bind(this), this.state.isLoading, 350) }</div> ;
 
-    let sliderYearComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
-      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Ignore files Created > ${ this.state.yearSlider }` } </span>
-      { sliderYearItself }
-    </div>;
+    // let sliderYearComponent = !pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+    //   <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Ignore files Created > ${ this.state.yearSlider }` } </span>
+    //   { sliderYearItself }
+    // </div>;
 
-    let sliderCountItself = !this.state.pickedList ? null : 
-      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, this.state.pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
+    // let sliderCountItself = !pickedList ? null : 
+    //   <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
 
-    let sliderCountComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
-      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${this.state.pickedList.ItemCount } Files` } </span>
-      { sliderCountItself }
-      <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
-      { fetchButton }
-    </div>;
+    // let sliderCountComponent = !pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+    //   <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${pickedList.ItemCount } Files` } </span>
+    //   { sliderCountItself }
+    //   <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
+    //   { fetchButton }
+    // </div>;
 
     let typesPivotContent = <div><div>
           <h3>File types found in this library</h3>
@@ -309,16 +300,16 @@ public componentDidMount() {
 
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
           {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
-          <p className={ styles.description }>{escape(this.props.parentWeb)}</p>
+          {/* <p className={ styles.description }>{escape(this.props.parentWeb)}</p> */}
           {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
 
-          { sliderYearComponent }
-          { sliderCountComponent }
+          {/* { sliderYearComponent }
+          { sliderCountComponent } */}
           { this.state.isLoading ? 
               <div>
-                { loadingNote }
+                {/* { loadingNote }
                 { searchSpinner }
-                { myProgress }
+                { myProgress } */}
               </div>
             : null
           } 
@@ -327,7 +318,7 @@ public componentDidMount() {
           <div style={{ overflowY: 'auto' }}>
               {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-              <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
+              <ReactJson src={ pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
               <ReactJson src={ batches } name={ 'All items' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
           </div>
@@ -451,7 +442,7 @@ public componentDidMount() {
   }
 
   private fetchStoredItemsClick( ) {
-    this.fetchStoredItems( this.state.pickedWeb, this.state.pickedList, this.state.fetchSlider, this.state.currentUser );
+    this.fetchStoredItems( this.props.pickedWeb, this.props.pickedList, this.state.fetchSlider, this.props.currentUser );
   }
 
   private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, currentUser: IUser ) {

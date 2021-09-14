@@ -7,17 +7,6 @@ import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSumm
 
 export interface IEcUserState {
 
-  theSite: ISite;
-  pickedWeb : IPickedWebBasic;
-  pickedList? : IECStorageList;
-
-  currentUser: IUser;
-
-  parentWeb: string;
-  listTitle: string;
-
-  isCurrentWeb: boolean;
-
   isLoaded: boolean;
   isLoading: boolean;
 

@@ -51,6 +51,8 @@ import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
 import { getSearchedFiles } from './EcSearch';
 
+import EcUser from './pages/user/EcUser';
+
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
   root: {
@@ -219,6 +221,8 @@ public async updateWebInfo ( webUrl?: string ) {
 
     let batchData = this.state.batchData;
     const batches = this.state.batches;
+
+    
     let timeComment = null;
     let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
     if ( this.state.isLoading ) {
@@ -331,9 +335,31 @@ public async updateWebInfo ( webUrl?: string ) {
     let youPivotContent = <div><div>
       <h3>Summary of files related to you</h3>
       </div>
-        <ReactJson src={ batchData.currentUser.large } name={ 'Your footprint' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.currentUser.oldCreated } name={ 'You created' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.currentUser.oldModified } name={ 'Last modified by you' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <EcUser 
+          pageContext = { this.context.pageContext }
+          wpContext = { this.context }
+          tenant = { this.props.tenant }
+      
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartElement = { this.props.WebpartElement }
+  
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartHeight = { this.props.WebpartHeight }
+          WebpartWidth = { this.props.WebpartWidth }
+      
+          pickedWeb  = { this.state.pickedWeb }
+          pickedList = { this.state.pickedList }
+          theSite = {null }
+  
+          isLoaded = {false }
+      
+          currentUser = {this.state.currentUser }
+          isCurrentUser = { true }
+          userSummary = { batchData.currentUser }
+          batches = { batches }
+          batchData = { batchData }
+        >
+        </EcUser>
       </div>;
 
     let permsPivotContent = <div><div>

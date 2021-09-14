@@ -22,17 +22,14 @@ export interface IEcUserProps {
       WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
         // 1 - Analytics options
-      useListAnalytics: boolean;
-      analyticsWeb: string;
-      analyticsList: string;
+      // useListAnalytics: boolean;
+      // analyticsWeb: string;
+      // analyticsList: string;
       tenant: string;
-      urlVars: {};
-
-      parentWeb: string;
-      listTitle: string;
   
-      pickedWeb : IPickedWebBasic;
       theSite: ISite;
+      pickedWeb : IPickedWebBasic;
+      pickedList? : IECStorageList;
 
       isLoaded: boolean;
   
