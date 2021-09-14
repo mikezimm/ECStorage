@@ -267,13 +267,13 @@ public async updateWebInfo ( webUrl?: string ) {
 
     let typesPivotContent = <div><div>
           <h3>File types found in this library</h3>
-          <p> { batchData.typeList.join(', ') }</p>
+          <p> { batchData.typeInfo.typeList.join(', ') }</p>
       </div>
-      <ReactJson src={ batchData.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      <ReactJson src={ batchData.typeInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
     let usersPivotContent = null;
     
-    if ( batchData.userRanks !== null ) {
+    if ( batchData.userInfo !== null ) {
       let rankSlider = this.state.rankSlider;
       let sliderMin = batchData.allUsers.length < 3 ? batchData.allUsers.length : 3;
       let sliderUserCount = batchData.allUsers.length < 5 ? null : 
@@ -287,10 +287,10 @@ public async updateWebInfo ( webUrl?: string ) {
         </div>
 
         <div className={ styles.inflexWrapCenter}>
-          { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userRanks.createCountRank, batchData.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userRanks.modifyCountRank, batchData.allUsers, 'modifyCountRank', rankSlider, this.state.userSearch )}
+          { this.buildUserTables( batchData.userInfo.createSizeRank, batchData.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.createCountRank, batchData.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.modifySizeRank, batchData.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.modifyCountRank, batchData.allUsers, 'modifyCountRank', rankSlider, this.state.userSearch )}
         </div>
         {/* <p> { batchData.allUsers.map( user => { return user.userTitle; }).join(', ') }</p> */}
       </div>
@@ -363,19 +363,19 @@ public async updateWebInfo ( webUrl?: string ) {
     let permsPivotContent = <div><div>
       <h3>Summary of files with broken permissions</h3>
       </div>
-        <ReactJson src={ batchData.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let dupsPivotContent = <div><div>
       <h3>Summary of duplicate files</h3>
       </div>
-        <ReactJson src={ batchData.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.duplicateInfo.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let folderPivotContent = <div><div>
       <h3>Summary of Folders</h3>
       </div>
-        <ReactJson src={ batchData.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ batchData.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let componentPivot = 

@@ -150,26 +150,35 @@ export interface IFileType {
 
 }
 
-export interface IUserRanks {
+export interface IUserInfo {
   createSizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   createCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   modifySizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   modifyCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
 
-export interface ITypeRanks {
+export interface ITypeInfo {
+  typeList: string[];
+  types: IFileType[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
 
-export interface IDupRanks {
+export interface IDuplicateInfo {
+  duplicateNames: string[];
+  duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
 
-export interface IFolderRanks {
+export interface IFolderInfo {
+  folders:  IItemDetail[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+}
+
+export interface IUniqueInfo {
+  uniqueRolls: IItemDetail[];
 }
 
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
@@ -178,23 +187,25 @@ export interface IBatchData {
   size: number;
   sizeGB: number;
   large: ILargeFiles;
+
   oldCreated: IOldFiles;
   oldModified: IOldFiles;
   currentUser: IUserSummary;
-  folders:  IItemDetail[];
-  folderRanks: IFolderRanks;
+
+  folderInfo: IFolderInfo;
+
   creatorIds: number[];
   editorIds: number[];
   allUsersIds: number[];
   allUsers: IUserSummary[];
-  uniqueRolls: IItemDetail[];
-  typeList: string[];
-  types: IFileType[];
-  typeRanks: ITypeRanks;
-  duplicateNames: string[];
-  duplicates: IDuplicateFile[];
-  duplicateRanks: IDupRanks;
-  userRanks: IUserRanks;
+  userInfo: IUserInfo;
+
+  uniqueInfo: IUniqueInfo;
+
+  typeInfo: ITypeInfo;
+
+  duplicateInfo: IDuplicateInfo;
+
 }
 
 export interface IECStorageBatch {

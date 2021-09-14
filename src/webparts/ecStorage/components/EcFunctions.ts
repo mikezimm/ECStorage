@@ -31,7 +31,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserRanks, ITypeRanks, IFolderRanks, IDupRanks } from './IEcStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from './IEcStorageState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -276,71 +276,94 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     count: 0,
     size: 0,
     sizeGB: 0,
-    typeList: [],
-    types: [],
-    duplicateNames: [],
-    duplicates: [],
+    typeInfo: {
+      typeList: [],
+      types: [],
+      countRank: [],
+      sizeRank: [],
+    },
+    
+    duplicateInfo: {
+      duplicateNames: [],
+      duplicates: [],
+      countRank: [],
+      sizeRank: [],
+    },
+
+    folderInfo: {
+      folders: [],
+      countRank: [],
+      sizeRank: [],
+    },
+
+    uniqueInfo: {
+      uniqueRolls: [],
+    },
+
     large: createLargeFiles(),
     oldCreated: createOldFiles(),
     oldModified: createOldFiles(),
     currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
-    folders: [],
+
     creatorIds: [],
     editorIds: [],
     allUsersIds: [],
     allUsers: [],
-    uniqueRolls: [],
-    userRanks: null,
-    typeRanks: null,
-    duplicateRanks: null,
-    folderRanks: null,
+    
+    userInfo: null,
+
   };
 }
 
-function createTypeRanks ( count: number ) : ITypeRanks {
-  let theseRanks : ITypeRanks = {
+function createTypeRanks ( count: number ) : ITypeInfo {
+  let theseInfos : ITypeInfo = {
+    countRank: [],
+    sizeRank: [],
+    typeList: [],
+    types: [],
+  };
+
+  for (let index = 0; index < count; index++) {
+    theseInfos.countRank.push( null );
+    theseInfos.sizeRank.push( null );
+  }
+
+  return theseInfos;
+}
+
+function createDupRanks ( count: number ) : IDuplicateInfo {
+  let theseInfos : IDuplicateInfo = {
+    duplicates: [],
+    duplicateNames: [],
     countRank: [],
     sizeRank: [],
   };
 
   for (let index = 0; index < count; index++) {
-    theseRanks.countRank.push( null );
-    theseRanks.sizeRank.push( null );
+    theseInfos.countRank.push( null );
+    theseInfos.sizeRank.push( null );
   }
 
-  return theseRanks;
+  return theseInfos;
 }
 
-function createDupRanks ( count: number ) : IDupRanks {
-  let theseRanks : IDupRanks = {
+function createFolderRanks ( count: number ) : IFolderInfo {
+  let theseInfos : IFolderInfo = {
+    folders: [],
     countRank: [],
     sizeRank: [],
   };
 
   for (let index = 0; index < count; index++) {
-    theseRanks.countRank.push( null );
-    theseRanks.sizeRank.push( null );
+    theseInfos.countRank.push( null );
+    theseInfos.sizeRank.push( null );
   }
 
-  return theseRanks;
+  return theseInfos;
 }
 
-function createFolderRanks ( count: number ) : IFolderRanks {
-  let theseRanks : IFolderRanks = {
-    countRank: [],
-    sizeRank: [],
-  };
-
-  for (let index = 0; index < count; index++) {
-    theseRanks.countRank.push( null );
-    theseRanks.sizeRank.push( null );
-  }
-
-  return theseRanks;
-}
-
-function createUserRanks ( count: number ) : IUserRanks {
-  let theseRanks: IUserRanks = {
+function createUserRanks ( count: number ) : IUserInfo {
+  let theseInfos: IUserInfo = {
     createSizeRank: [],
     createCountRank: [],
     modifySizeRank: [],
@@ -348,13 +371,13 @@ function createUserRanks ( count: number ) : IUserRanks {
   };
 
   for (let index = 0; index < count; index++) {
-    theseRanks.createSizeRank.push( null );
-    theseRanks.createCountRank.push( null );
-    theseRanks.modifySizeRank.push( null );
-    theseRanks.modifyCountRank.push( null );
+    theseInfos.createSizeRank.push( null );
+    theseInfos.createCountRank.push( null );
+    theseInfos.modifySizeRank.push( null );
+    theseInfos.modifyCountRank.push( null );
   }
 
-  return theseRanks;
+  return theseInfos;
 
 }
 
@@ -610,7 +633,6 @@ function createUserRanks ( count: number ) : IUserRanks {
 
   batchData.userRanks = createUserRanks( batchData.allUsers.length );
   let userRanks = batchData.userRanks;
-
   
   batchData.typeRanks = createTypeRanks( batchData.allUsers.length );
   let typeRanks = batchData.typeRanks;
