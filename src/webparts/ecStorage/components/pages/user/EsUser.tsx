@@ -155,18 +155,18 @@ public componentDidMount() {
     const pickedWeb = this.props.pickedWeb;
 
     let componentHeading = <div>
-      <div className={styles.flexWrapStart}>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
         <div>[ { this.props.currentUser.Id } ]</div>
         <div>{ this.props.currentUser.Title }</div>
       </div>
 
-      <div className={styles.inflexNoWrapStart}>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
         <div>Created</div>
         <div>{ userSummary.createCount } files</div>
         <div>{ userSummary.createTotalSizeLabel }</div>
       </div>
 
-      <div className={styles.inflexNoWrapStart}>
+      <div className={ [styles.inflexNoWrapStart, styles.margRight20 ].join(' ') }>
         <div>Modified</div>
         <div>{ userSummary.modifyCount } files</div>
         <div>{ userSummary.modifyTotalSizeLabel }</div>

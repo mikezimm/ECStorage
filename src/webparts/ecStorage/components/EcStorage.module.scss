@@ -123,9 +123,6 @@
     justify-content: 'center';
     flex-wrap: 'nowrap';
     margin-top: '20px';
-    div {
-      margin-right: 20px;
-    }
   }
 
   .flexWrapStart {
@@ -135,6 +132,15 @@
     align-content: center;
     justify-content: flex-start;
     align-items: center;
+
+  }
+
+  .margRight20 div {
+    margin-right: 20px;
+  }
+
+  .margRight40 div {
+    margin-right: 40px;
   }
 
 }
