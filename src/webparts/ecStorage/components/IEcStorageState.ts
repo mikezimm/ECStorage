@@ -157,6 +157,21 @@ export interface IUserRanks {
   modifyCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
 
+export interface ITypeRanks {
+  sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+}
+
+export interface IDupRanks {
+  sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+}
+
+export interface IFolderRanks {
+  sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+}
+
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export interface IBatchData {
   count: number;
@@ -167,6 +182,7 @@ export interface IBatchData {
   oldModified: IOldFiles;
   currentUser: IUserSummary;
   folders:  IItemDetail[];
+  folderRanks: IFolderRanks;
   creatorIds: number[];
   editorIds: number[];
   allUsersIds: number[];
@@ -174,8 +190,10 @@ export interface IBatchData {
   uniqueRolls: IItemDetail[];
   typeList: string[];
   types: IFileType[];
+  typeRanks: ITypeRanks;
   duplicateNames: string[];
   duplicates: IDuplicateFile[];
+  duplicateRanks: IDupRanks;
   userRanks: IUserRanks;
 }
 

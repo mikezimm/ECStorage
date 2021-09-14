@@ -30,7 +30,9 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, IDuplicateFile, IBucketSummary, IUserRanks } from './IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
+    IDuplicateFile, IBucketSummary, IUserRanks, ITypeRanks, IFolderRanks, IDupRanks } from './IEcStorageState';
+
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -289,11 +291,56 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     allUsers: [],
     uniqueRolls: [],
     userRanks: null,
+    typeRanks: null,
+    duplicateRanks: null,
+    folderRanks: null,
   };
 }
 
+function createTypeRanks ( count: number ) : ITypeRanks {
+  let theseRanks : ITypeRanks = {
+    countRank: [],
+    sizeRank: [],
+  };
+
+  for (let index = 0; index < count; index++) {
+    theseRanks.countRank.push( null );
+    theseRanks.sizeRank.push( null );
+  }
+
+  return theseRanks;
+}
+
+function createDupRanks ( count: number ) : IDupRanks {
+  let theseRanks : IDupRanks = {
+    countRank: [],
+    sizeRank: [],
+  };
+
+  for (let index = 0; index < count; index++) {
+    theseRanks.countRank.push( null );
+    theseRanks.sizeRank.push( null );
+  }
+
+  return theseRanks;
+}
+
+function createFolderRanks ( count: number ) : IFolderRanks {
+  let theseRanks : IFolderRanks = {
+    countRank: [],
+    sizeRank: [],
+  };
+
+  for (let index = 0; index < count; index++) {
+    theseRanks.countRank.push( null );
+    theseRanks.sizeRank.push( null );
+  }
+
+  return theseRanks;
+}
+
 function createUserRanks ( count: number ) : IUserRanks {
-  let userRanks = {
+  let theseRanks: IUserRanks = {
     createSizeRank: [],
     createCountRank: [],
     modifySizeRank: [],
@@ -301,13 +348,13 @@ function createUserRanks ( count: number ) : IUserRanks {
   };
 
   for (let index = 0; index < count; index++) {
-    userRanks.createSizeRank.push( null );
-    userRanks.createCountRank.push( null );
-    userRanks.modifySizeRank.push( null );
-    userRanks.modifyCountRank.push( null );
+    theseRanks.createSizeRank.push( null );
+    theseRanks.createCountRank.push( null );
+    theseRanks.modifySizeRank.push( null );
+    theseRanks.modifyCountRank.push( null );
   }
 
-  return userRanks;
+  return theseRanks;
 
 }
 
@@ -563,6 +610,16 @@ function createUserRanks ( count: number ) : IUserRanks {
 
   batchData.userRanks = createUserRanks( batchData.allUsers.length );
   let userRanks = batchData.userRanks;
+
+  
+  batchData.typeRanks = createTypeRanks( batchData.allUsers.length );
+  let typeRanks = batchData.typeRanks;
+  
+  batchData.duplicateRanks = createDupRanks( batchData.allUsers.length );
+  let duplicateRanks = batchData.duplicateRanks;
+
+  batchData.folderRanks = createFolderRanks( batchData.allUsers.length );
+  let folderRanks = batchData.folderRanks;
 
   batchData.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
