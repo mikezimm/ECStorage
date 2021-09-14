@@ -13,7 +13,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from '../../IEcStorageState';
 
-export interface IEcUserProps {
+export interface IEsUserProps {
 
       // 0 - Context
       wpContext: WebPartContext;

@@ -51,7 +51,7 @@ import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
 import { getSearchedFiles } from './EcSearch';
 
-import EcUser from './pages/user/EcUser';
+import EsUser from './pages/user/EsUser';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -250,7 +250,7 @@ public async updateWebInfo ( webUrl?: string ) {
     let sliderYearItself = !this.state.pickedList ? null : 
       <div style={{margin: '0 50px'}}> { createSlider( null , this.state.yearSlider , this.state.minYear, this.state.maxYear, 1 , this._updateMaxYear.bind(this), this.state.isLoading, 350) }</div> ;
 
-    let sliderYearComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+    let sliderYearComponent = !this.state.pickedList ? null : <div className={ styles.inflexWrapCenter}>
       <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Ignore files Created > ${ this.state.yearSlider }` } </span>
       { sliderYearItself }
     </div>;
@@ -258,7 +258,7 @@ public async updateWebInfo ( webUrl?: string ) {
     let sliderCountItself = !this.state.pickedList ? null : 
       <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, this.state.pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
 
-    let sliderCountComponent = !this.state.pickedList ? null : <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+    let sliderCountComponent = !this.state.pickedList ? null : <div className={ styles.inflexWrapCenter}>
       <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${this.state.pickedList.ItemCount } Files` } </span>
       { sliderCountItself }
       <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
@@ -281,12 +281,12 @@ public async updateWebInfo ( webUrl?: string ) {
       
       usersPivotContent = <div><div>
         <h3>Summary of files by user</h3>
-        <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+        <div className={ styles.inflexWrapCenter}>
           <div> { sliderUserCount } </div>
           <div> { this.buildSearchBox() } </div>
         </div>
 
-        <div style={{display:'inline-flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px' }}>
+        <div className={ styles.inflexWrapCenter}>
           { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
           { this.buildUserTables( batchData.userRanks.createCountRank, batchData.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
           { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
@@ -332,10 +332,8 @@ public async updateWebInfo ( webUrl?: string ) {
       </div>;
 
 
-    let youPivotContent = <div><div>
-      <h3>Summary of files related to you</h3>
-      </div>
-        <EcUser 
+    let youPivotContent = <div>
+        <EsUser 
           pageContext = { this.context.pageContext }
           wpContext = { this.context }
           tenant = { this.props.tenant }
@@ -359,7 +357,7 @@ public async updateWebInfo ( webUrl?: string ) {
           batches = { batches }
           batchData = { batchData }
         >
-        </EcUser>
+        </EsUser>
       </div>;
 
     let permsPivotContent = <div><div>
@@ -380,7 +378,7 @@ public async updateWebInfo ( webUrl?: string ) {
         <ReactJson src={ batchData.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
-    let listDefinitionSelectPivot = 
+    let componentPivot = 
     <Pivot
         styles={ pivotStyles }
         linkFormat={PivotLinkFormat.tabs}
@@ -444,7 +442,7 @@ public async updateWebInfo ( webUrl?: string ) {
             : null
           } 
 
-          { listDefinitionSelectPivot }
+          { componentPivot }
           <div style={{ overflowY: 'auto' }}>
               {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
@@ -505,20 +503,20 @@ public async updateWebInfo ( webUrl?: string ) {
       if ( index < countToShow || userSearch.length > 0 ) {
         let user = users[ allUserIndex ];
         let label = '' ;
-        let createTotalSize = user.createTotalSize > 1e9 ? `${ (user.createTotalSize / 1e9).toFixed(1) } GB` : `${ (user.createTotalSize / 1e6).toFixed(1) } MB`;
-        let modifyTotalSize = user.modifyTotalSize > 1e9 ? `${ (user.modifyTotalSize / 1e9).toFixed(1) } GB` : `${ (user.modifyTotalSize / 1e6).toFixed(1) } MB`;
+        let createTotalSizeLabel = user.createTotalSizeLabel;
+        let modifyTotalSizeLabel = user.modifyTotalSizeLabel;
         let createPercent = ( user.summary.sizeP * 100 ).toFixed( 0 );
         let countPercent = ( user.summary.countP * 100 ).toFixed( 0 );
 
         switch (data) {
           case 'createSizeRank':
-            label = `${user.userTitle}  [ ${ createTotalSize } / ${ createPercent }% ]` ;
+            label = `${user.userTitle}  [ ${ createTotalSizeLabel } / ${ createPercent }% ]` ;
             break;
           case 'createCountRank':
             label = `${user.userTitle}  [ ${user.createCount} / ${ countPercent }% ]` ;
             break;
           case 'modifySizeRank':
-            label = `${user.userTitle}  [ ${ modifyTotalSize } ]` ;
+            label = `${user.userTitle}  [ ${ modifyTotalSizeLabel } ]` ;
             break;
           case 'modifyCountRank':
             label = `${user.userTitle}  [ ${user.modifyCount} ]` ;
@@ -528,7 +526,7 @@ public async updateWebInfo ( webUrl?: string ) {
             break;
         }
         
-        let title = `( #${ allUserIndex } Id: ${user.userId} ) ${user.userTitle} created ${ createTotalSize }, modified ${modifyTotalSize}` ;
+        let title = `( #${ allUserIndex } Id: ${user.userId} ) ${user.userTitle} created ${ createTotalSizeLabel }, modified ${modifyTotalSizeLabel}` ;
 
         let showUser = userSearch.length === 0 || (userSearch.length > 0 && user.userTitle.toLowerCase().indexOf(userSearch.toLowerCase() )  > -1  ) ? true : false;
 

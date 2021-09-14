@@ -61,6 +61,9 @@ npm install react-json-view
 npm install @mikezimm/npmfunctions
 ```
 
+At time of creation:
+npm install @mikezimm/npmfunctions@1.0.98
+
 ## Features
 
 Description of the extension that expands upon high-level summary above.

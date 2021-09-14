@@ -107,4 +107,34 @@
       display: inline-block;
     }
   }
+
+  .inflexWrapCenter {
+    display:'inline-flex';
+    align-items: 'center';
+    justify-content: 'center';
+    flex-wrap: 'wrap';
+    margin-top: '20px';
+  }
+
+  
+  .inflexNoWrapStart {
+    display:'inline-flex';
+    align-items: '';
+    justify-content: 'center';
+    flex-wrap: 'nowrap';
+    margin-top: '20px';
+    div {
+      margin-right: 20px;
+    }
+  }
+
+  .flexWrapStart {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
 }

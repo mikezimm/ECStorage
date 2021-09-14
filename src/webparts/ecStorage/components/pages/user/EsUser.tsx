@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from '../../EcStorage.module.scss';
-import { IEcUserProps } from './IEcUserProps';
-import { IEcUserState } from './IEcUserState';
+import { IEsUserProps } from './IEsUserProps';
+import { IEsUserState } from './IEsUserState';
 import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from '../../IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -72,7 +72,7 @@ const pivotHeading9 = 'Folders';
 
 
 
-export default class EcStorage extends React.Component<IEcUserProps, IEcUserState> {
+export default class EsUser extends React.Component<IEsUserProps, IEsUserState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -90,7 +90,7 @@ export default class EcStorage extends React.Component<IEcUserProps, IEcUserStat
 
 
 
-public constructor(props:IEcUserProps){
+public constructor(props:IEsUserProps){
   super(props);
 
   let currentYear = new Date();
@@ -147,13 +147,32 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IEcUserProps> {
+  public render(): React.ReactElement<IEsUserProps> {
 
     const batches = this.props.batches;
     const userSummary = this.props.userSummary;
     const pickedList = this.props.pickedList;
     const pickedWeb = this.props.pickedWeb;
 
+    let componentHeading = <div>
+      <div className={styles.flexWrapStart}>
+        <div>[ { this.props.currentUser.Id } ]</div>
+        <div>{ this.props.currentUser.Title }</div>
+      </div>
+
+      <div className={styles.inflexNoWrapStart}>
+        <div>Created</div>
+        <div>{ userSummary.createCount } files</div>
+        <div>{ userSummary.createTotalSizeLabel }</div>
+      </div>
+
+      <div className={styles.inflexNoWrapStart}>
+        <div>Modified</div>
+        <div>{ userSummary.modifyCount } files</div>
+        <div>{ userSummary.modifyTotalSizeLabel }</div>
+      </div>
+
+    </div>;
     // let timeComment = null;
     // let etaMinutes = pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
     // if ( this.state.isLoading ) {
@@ -258,10 +277,10 @@ public componentDidMount() {
         <ReactJson src={ userSummary.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
-    let listDefinitionSelectPivot = 
+    let componentPivot = 
     <Pivot
         styles={ pivotStyles }
-        linkFormat={PivotLinkFormat.tabs}
+        linkFormat={PivotLinkFormat.links}
         linkSize={PivotLinkSize.normal}
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
@@ -305,6 +324,7 @@ public componentDidMount() {
 
           {/* { sliderYearComponent }
           { sliderCountComponent } */}
+          { componentHeading }
           { this.state.isLoading ? 
               <div>
                 {/* { loadingNote }
@@ -314,7 +334,7 @@ public componentDidMount() {
             : null
           } 
 
-          { listDefinitionSelectPivot }
+          { componentPivot }
           <div style={{ overflowY: 'auto' }}>
               {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
               <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>

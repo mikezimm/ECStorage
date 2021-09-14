@@ -96,6 +96,7 @@ export interface IUserSummary {
   createCount: number;
   createSizes: number[];
   createTotalSize: number;
+  createTotalSizeLabel: string;
   createTotalSizeGB: number;
   createSizeRank: number;
   createCountRank: number;
@@ -104,6 +105,7 @@ export interface IUserSummary {
   modifyCount: number;
   modifiedSizes: number[];
   modifyTotalSize: number;
+  modifyTotalSizeLabel: string;
   modifyTotalSizeGB: number;
   modifySizeRank: number;
   modifyCountRank: number;

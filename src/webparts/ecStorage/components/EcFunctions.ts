@@ -110,6 +110,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     createCount: 0,
     createSizes: [],
     createTotalSize: 0,
+    createTotalSizeLabel: '',
     createTotalSizeGB: 0,
     createSizeRank: 0,
     createCountRank: 0,
@@ -117,6 +118,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
     modifyCount: 0,
     modifyTotalSize: 0,
+    modifyTotalSizeLabel: '',
     modifiedSizes: [],
     modifyTotalSizeGB: 0,
     modifySizeRank: 0,
@@ -465,29 +467,36 @@ function createUserRanks ( count: number ) : IUserRanks {
         }
       }
 
-      if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
-      if ( detail.isFolder === true ) { batchData.folders.push ( detail ) ; } 
-      if ( detail.uniquePerms === true ) { batchData.uniqueRolls.push ( detail ) ; } 
+      // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
+      batchData.allUsers[ createUserAllIndex ].items.push ( detail ) ;
+      if ( detail.isFolder === true ) { 
+        batchData.folders.push ( detail ) ;
+        batchData.allUsers[ createUserAllIndex ].folders.push ( detail ) ;
+      } 
 
+      if ( detail.uniquePerms === true ) { 
+        batchData.uniqueRolls.push ( detail ) ;
+        batchData.allUsers[ createUserAllIndex ].uniqueRolls.push ( detail ) ;
+      }
 
       if ( detail.size > 1e10 ) { 
         bigData.GT10G.push ( detail ) ;
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.large.GT10G.push ( detail ) ; }   
+        batchData.allUsers[ createUserAllIndex ].large.GT10G.push ( detail ) ;
 
        } else if ( detail.size > 1e9 ) { 
         bigData.GT01G.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.large.GT01G.push ( detail ) ; }  
+        batchData.allUsers[ createUserAllIndex ].large.GT01G.push ( detail ) ;
 
       } else if ( detail.size > 1e8 ) { 
         bigData.GT100M.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.large.GT100M.push ( detail ) ; }   
+        batchData.allUsers[ createUserAllIndex ].large.GT100M.push ( detail ) ; 
 
       } else if ( detail.size > 1e7 ) { 
         bigData.GT10M.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.large.GT10M.push ( detail ) ; }    
+        batchData.allUsers[ createUserAllIndex ].large.GT10M.push ( detail ) ;
 
       }
       let theCurrentYear = getCurrentYear();
@@ -495,47 +504,47 @@ function createUserRanks ( count: number ) : IUserRanks {
       if ( detail.createYr < theCurrentYear - 4 ) { 
         oldData.Age5Yr.push ( detail ) ;
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age5Yr.push ( detail ) ; }    
+        batchData.allUsers[ createUserAllIndex ].oldCreated.Age5Yr.push ( detail ) ;
        }
       else if ( detail.createYr < theCurrentYear - 3 ) { 
         oldData.Age4Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age4Yr.push ( detail ) ; }  
+        batchData.allUsers[ createUserAllIndex ].oldCreated.Age4Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 2 ) { 
         oldData.Age3Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age3Yr.push ( detail ) ; }  
+        batchData.allUsers[ createUserAllIndex ].oldCreated.Age3Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 1 ) { 
         oldData.Age2Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age2Yr.push ( detail ) ; }  
+        batchData.allUsers[ createUserAllIndex ].oldCreated.Age2Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 0 ) { 
         oldData.Age1Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldCreated.Age1Yr.push ( detail ) ; }  
+        batchData.allUsers[ createUserAllIndex ].oldCreated.Age1Yr.push ( detail ) ;
       }
 
       if ( detail.modYr < theCurrentYear - 4 ) { 
         batchData.oldModified.Age5Yr.push ( detail ) ;
-        if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age5Yr.push ( detail ) ; }    
+        batchData.allUsers[ editUserAllIndex ].oldModified.Age5Yr.push ( detail ) ;  
        }
       else if ( detail.modYr < theCurrentYear - 3 ) { 
         batchData.oldModified.Age4Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age4Yr.push ( detail ) ; }  
+        batchData.allUsers[ editUserAllIndex ].oldModified.Age4Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 2 ) { 
         batchData.oldModified.Age3Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age3Yr.push ( detail ) ; }  
+        batchData.allUsers[ editUserAllIndex ].oldModified.Age3Yr.push ( detail ) ; 
       }
       else if ( detail.modYr < theCurrentYear - 1 ) { 
         batchData.oldModified.Age2Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age2Yr.push ( detail ) ; }  
+        batchData.allUsers[ editUserAllIndex ].oldModified.Age2Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 0 ) { 
         batchData.oldModified.Age1Yr.push ( detail ) ; 
-        if ( detail.currentUser === true ) { batchData.currentUser.oldModified.Age1Yr.push ( detail ) ; }  
+        batchData.allUsers[ editUserAllIndex ].oldModified.Age1Yr.push ( detail ) ;
       }
 
     });
@@ -592,6 +601,9 @@ function createUserRanks ( count: number ) : IUserRanks {
     user.modifyCountRank = allUserModifyCount.indexOf( user.modifyCount );
     userRanks.modifyCountRank = updateNextOpenIndex( userRanks.modifyCountRank, user.modifyCountRank, userIndex );
 
+    user.createTotalSizeLabel = user.createTotalSize > 1e9 ? `${ (user.createTotalSize / 1e9).toFixed(1) } GB` : `${ (user.createTotalSize / 1e6).toFixed(1) } MB`;
+    user.modifyTotalSizeLabel = user.modifyTotalSize > 1e9 ? `${ (user.modifyTotalSize / 1e9).toFixed(1) } GB` : `${ (user.modifyTotalSize / 1e6).toFixed(1) } MB`;
+
   });
 
   bigData.summary.sizeGB = bigData.summary.size / 1e9;
@@ -618,6 +630,8 @@ function createUserRanks ( count: number ) : IUserRanks {
     totalLength += batch.items.length;
   });
 
+  let currentUserAllIndex = batchData.allUsersIds.indexOf( currentUser.Id );
+  batchData.currentUser = batchData.allUsers [ currentUserAllIndex ];
   let batchInfo = {
     batches: batches,
     batchData: batchData,
