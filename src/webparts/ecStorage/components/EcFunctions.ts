@@ -129,6 +129,13 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
     items: [],
     summary: createBucketSummary( `Summary for ${userTitle}` ),
+
+    uniqueRolls: [],
+    typeList: [],
+    types: [],
+    duplicateNames: [],
+    duplicates: [],
+    folders: [],
   };
 
   return userSummary;
@@ -304,7 +311,7 @@ function createUserRanks ( count: number ) : IUserRanks {
 
  export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
 
-  currentUser.Id = 6;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
+  currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
 
   let webURL = pickedWeb.url;
   let listTitle = pickedList.Title;
