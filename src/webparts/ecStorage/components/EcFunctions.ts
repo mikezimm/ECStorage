@@ -379,7 +379,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 }
 
 function expandArray ( count: number ) : any[] {
-  let theseInfos: any[];
+  let theseInfos: any[] = [];
 
   for (let index = 0; index < count; index++) {
     theseInfos.push( null );
@@ -724,7 +724,7 @@ function expandArray ( count: number ) : any[] {
 
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
-  
+
   let batchInfo = {
     batches: batches,
     batchData: batchData,
