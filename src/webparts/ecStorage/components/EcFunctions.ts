@@ -277,6 +277,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     size: 0,
     sizeGB: 0,
     typeInfo: {
+      count: 0,
       typeList: [],
       types: [],
       countRank: [],
@@ -284,6 +285,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     },
     
     duplicateInfo: {
+      count: 0,
       duplicateNames: [],
       duplicates: [],
       countRank: [],
@@ -291,32 +293,44 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     },
 
     folderInfo: {
+      count: 0,
       folders: [],
       countRank: [],
       sizeRank: [],
     },
 
     uniqueInfo: {
+      count: 0,
       uniqueRolls: [],
     },
 
     large: createLargeFiles(),
     oldCreated: createOldFiles(),
     oldModified: createOldFiles(),
-    currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
-
-    creatorIds: [],
-    editorIds: [],
-    allUsersIds: [],
-    allUsers: [],
     
-    userInfo: null,
+    userInfo: {
+
+      count: 0,
+
+      currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
+
+      creatorIds: [],
+      editorIds: [],
+      allUsersIds: [],
+      allUsers: [],
+
+      createSizeRank: [],
+      createCountRank: [],
+      modifySizeRank: [],
+      modifyCountRank: [],
+    },
 
   };
 }
 
 function createTypeRanks ( count: number ) : ITypeInfo {
   let theseInfos : ITypeInfo = {
+    count: 0,
     countRank: [],
     sizeRank: [],
     typeList: [],
@@ -333,6 +347,7 @@ function createTypeRanks ( count: number ) : ITypeInfo {
 
 function createDupRanks ( count: number ) : IDuplicateInfo {
   let theseInfos : IDuplicateInfo = {
+    count: 0,
     duplicates: [],
     duplicateNames: [],
     countRank: [],
@@ -349,6 +364,7 @@ function createDupRanks ( count: number ) : IDuplicateInfo {
 
 function createFolderRanks ( count: number ) : IFolderInfo {
   let theseInfos : IFolderInfo = {
+    count: 0,
     folders: [],
     countRank: [],
     sizeRank: [],
@@ -362,19 +378,11 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   return theseInfos;
 }
 
-function createUserRanks ( count: number ) : IUserInfo {
-  let theseInfos: IUserInfo = {
-    createSizeRank: [],
-    createCountRank: [],
-    modifySizeRank: [],
-    modifyCountRank: [],
-  };
+function expandArray ( count: number ) : any[] {
+  let theseInfos: any[];
 
   for (let index = 0; index < count; index++) {
-    theseInfos.createSizeRank.push( null );
-    theseInfos.createCountRank.push( null );
-    theseInfos.modifySizeRank.push( null );
-    theseInfos.modifyCountRank.push( null );
+    theseInfos.push( null );
   }
 
   return theseInfos;
@@ -468,14 +476,14 @@ function createUserRanks ( count: number ) : IUserInfo {
       batchData.size += detail.size;
 
       //Build up Type list
-      let typeIndex = batchData.typeList.indexOf( detail.docIcon );
+      let typeIndex = batchData.typeInfo.typeList.indexOf( detail.docIcon );
 
       if ( typeIndex < 0 ) {
-        batchData.typeList.push( detail.docIcon );
-        typeIndex = batchData.typeList.length - 1;
-        batchData.types.push( createThisType(detail.docIcon) );
+        batchData.typeInfo.typeList.push( detail.docIcon );
+        typeIndex = batchData.typeInfo.typeList.length - 1;
+        batchData.typeInfo.types.push( createThisType(detail.docIcon) );
       }
-      batchData.types[ typeIndex ] = updateThisType( batchData.types[ typeIndex ], detail );
+      batchData.typeInfo.types[ typeIndex ] = updateThisType( batchData.typeInfo.types[ typeIndex ], detail );
 
       //Build up Duplicate list
       let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
@@ -487,37 +495,37 @@ function createUserRanks ( count: number ) : IUserInfo {
       allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
 
       //Get index of authorId in array of all authorIds
-      let createUserIndex = batchData.creatorIds.indexOf( detail.authorId );
+      let createUserIndex = batchData.userInfo.creatorIds.indexOf( detail.authorId );
       if ( createUserIndex === -1 ) { 
-        batchData.creatorIds.push( detail.authorId  );
-        createUserIndex = batchData.creatorIds.length -1;
+        batchData.userInfo.creatorIds.push( detail.authorId  );
+        createUserIndex = batchData.userInfo.creatorIds.length -1;
       }
 
       //Get index of editor in array of all editorIds
-      let editUserIndex = batchData.editorIds.indexOf( detail.editorId  );
+      let editUserIndex = batchData.userInfo.editorIds.indexOf( detail.editorId  );
       if ( editUserIndex === -1 ) { 
-        batchData.editorIds.push( detail.editorId  );
-        editUserIndex = batchData.editorIds.length -1;
+        batchData.userInfo.editorIds.push( detail.editorId  );
+        editUserIndex = batchData.userInfo.editorIds.length -1;
       }
 
       //Get index of author in array of all allIds - to get the allUser Item for later use
-      let createUserAllIndex = batchData.allUsersIds.indexOf( detail.authorId );
+      let createUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.authorId );
       if ( createUserAllIndex === -1 ) { 
-        batchData.allUsersIds.push( detail.authorId  );
-        batchData.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle )  );
-        createUserAllIndex = batchData.allUsers.length -1;
+        batchData.userInfo.allUsersIds.push( detail.authorId  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle )  );
+        createUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
       //Get index of editor in array of all allIds - to get the allUser Item for later use
-      let editUserAllIndex = batchData.allUsersIds.indexOf( detail.editorId  );
+      let editUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.editorId  );
       if ( editUserAllIndex === -1 ) { 
-        batchData.allUsersIds.push( detail.editorId  );
-        batchData.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle )  );
-        editUserAllIndex = batchData.allUsers.length -1;
+        batchData.userInfo.allUsersIds.push( detail.editorId  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle )  );
+        editUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
-      batchData.allUsers[ createUserAllIndex ] = updateThisAuthor( detail, batchData.allUsers[ createUserAllIndex ]);
-      batchData.allUsers[ editUserAllIndex ] = updateThisEditor( detail, batchData.allUsers[ editUserAllIndex ]);
+      batchData.userInfo.allUsers[ createUserAllIndex ] = updateThisAuthor( detail, batchData.userInfo.allUsers[ createUserAllIndex ]);
+      batchData.userInfo.allUsers[ editUserAllIndex ] = updateThisEditor( detail, batchData.userInfo.allUsers[ editUserAllIndex ]);
 
       //Set default high items
       if ( !detail.isFolder ) {
@@ -538,35 +546,35 @@ function createUserRanks ( count: number ) : IUserInfo {
       }
 
       // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
-      batchData.allUsers[ createUserAllIndex ].items.push ( detail ) ;
+      batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
       if ( detail.isFolder === true ) { 
-        batchData.folders.push ( detail ) ;
-        batchData.allUsers[ createUserAllIndex ].folders.push ( detail ) ;
+        batchData.folderInfo.folders.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].folders.push ( detail ) ;
       } 
 
       if ( detail.uniquePerms === true ) { 
-        batchData.uniqueRolls.push ( detail ) ;
-        batchData.allUsers[ createUserAllIndex ].uniqueRolls.push ( detail ) ;
+        batchData.uniqueInfo.uniqueRolls.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].uniqueRolls.push ( detail ) ;
       }
 
       if ( detail.size > 1e10 ) { 
         bigData.GT10G.push ( detail ) ;
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].large.GT10G.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].large.GT10G.push ( detail ) ;
 
        } else if ( detail.size > 1e9 ) { 
         bigData.GT01G.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].large.GT01G.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].large.GT01G.push ( detail ) ;
 
       } else if ( detail.size > 1e8 ) { 
         bigData.GT100M.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].large.GT100M.push ( detail ) ; 
+        batchData.userInfo.allUsers[ createUserAllIndex ].large.GT100M.push ( detail ) ; 
 
       } else if ( detail.size > 1e7 ) { 
         bigData.GT10M.push ( detail ) ; 
-        batchData.allUsers[ createUserAllIndex ].large.GT10M.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].large.GT10M.push ( detail ) ;
 
       }
       let theCurrentYear = getCurrentYear();
@@ -574,54 +582,56 @@ function createUserRanks ( count: number ) : IUserInfo {
       if ( detail.createYr < theCurrentYear - 4 ) { 
         oldData.Age5Yr.push ( detail ) ;
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].oldCreated.Age5Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age5Yr.push ( detail ) ;
        }
       else if ( detail.createYr < theCurrentYear - 3 ) { 
         oldData.Age4Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].oldCreated.Age4Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age4Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 2 ) { 
         oldData.Age3Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].oldCreated.Age3Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age3Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 1 ) { 
         oldData.Age2Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
-        batchData.allUsers[ createUserAllIndex ].oldCreated.Age2Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age2Yr.push ( detail ) ;
       }
       else if ( detail.createYr < theCurrentYear - 0 ) { 
         oldData.Age1Yr.push ( detail ) ; 
-        batchData.allUsers[ createUserAllIndex ].oldCreated.Age1Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age1Yr.push ( detail ) ;
       }
 
       if ( detail.modYr < theCurrentYear - 4 ) { 
         batchData.oldModified.Age5Yr.push ( detail ) ;
-        batchData.allUsers[ editUserAllIndex ].oldModified.Age5Yr.push ( detail ) ;  
+        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age5Yr.push ( detail ) ;  
        }
       else if ( detail.modYr < theCurrentYear - 3 ) { 
         batchData.oldModified.Age4Yr.push ( detail ) ; 
-        batchData.allUsers[ editUserAllIndex ].oldModified.Age4Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age4Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 2 ) { 
         batchData.oldModified.Age3Yr.push ( detail ) ; 
-        batchData.allUsers[ editUserAllIndex ].oldModified.Age3Yr.push ( detail ) ; 
+        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age3Yr.push ( detail ) ; 
       }
       else if ( detail.modYr < theCurrentYear - 1 ) { 
         batchData.oldModified.Age2Yr.push ( detail ) ; 
-        batchData.allUsers[ editUserAllIndex ].oldModified.Age2Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age2Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 0 ) { 
         batchData.oldModified.Age1Yr.push ( detail ) ; 
-        batchData.allUsers[ editUserAllIndex ].oldModified.Age1Yr.push ( detail ) ;
+        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age1Yr.push ( detail ) ;
       }
 
     });
   });
 
+  batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
-  batchData.types.map( docType => {
+
+  batchData.typeInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
   });
 
@@ -631,19 +641,22 @@ function createUserRanks ( count: number ) : IUserInfo {
   let allUserModifySize: number[] = [];
   let allUserModifyCount: number[] = [];
 
-  batchData.userRanks = createUserRanks( batchData.allUsers.length );
-  let userRanks = batchData.userRanks;
+  batchData.userInfo.createSizeRank = expandArray( batchData.userInfo.count );
+  batchData.userInfo.createCountRank = expandArray( batchData.userInfo.count );
+  batchData.userInfo.modifySizeRank = expandArray( batchData.userInfo.count );
+  batchData.userInfo.modifyCountRank = expandArray( batchData.userInfo.count );
+  let userInfo = batchData.userInfo;
   
-  batchData.typeRanks = createTypeRanks( batchData.allUsers.length );
-  let typeRanks = batchData.typeRanks;
+  // batchData.typeInfo = createTypeRanks( batchData.typeInfo.count );
+  // let typeRanks = batchData.typeRanks;
   
-  batchData.duplicateRanks = createDupRanks( batchData.allUsers.length );
-  let duplicateRanks = batchData.duplicateRanks;
+  // batchData.duplicateRanks = createDupRanks( batchData.duplicateInfo.count );
+  // let duplicateRanks = batchData.duplicateRanks;
 
-  batchData.folderRanks = createFolderRanks( batchData.allUsers.length );
-  let folderRanks = batchData.folderRanks;
+  // batchData.folderRanks = createFolderRanks( batchData.folderInfo.count );
+  // let folderRanks = batchData.folderRanks;
 
-  batchData.allUsers.map( user => {
+  batchData.userInfo.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
 
@@ -667,18 +680,18 @@ function createUserRanks ( count: number ) : IUserInfo {
   allUserModifyCount = sortNumberArray( allUserModifyCount , 'dec');
 
   //Rank users based on all users counts and sizes
-  batchData.allUsers.map( ( user, userIndex) => {
+  batchData.userInfo.allUsers.map( ( user, userIndex) => {
     user.createSizeRank = allUserCreateSize.indexOf( user.createTotalSize );
-    userRanks.createSizeRank = updateNextOpenIndex( userRanks.createSizeRank, user.createSizeRank, userIndex );
+    userInfo.createSizeRank = updateNextOpenIndex( userInfo.createSizeRank, user.createSizeRank, userIndex );
 
     user.createCountRank = allUserCreateCount.indexOf( user.createCount );
-    userRanks.createCountRank = updateNextOpenIndex( userRanks.createCountRank, user.createCountRank, userIndex );
+    userInfo.createCountRank = updateNextOpenIndex( userInfo.createCountRank, user.createCountRank, userIndex );
 
     user.modifySizeRank = allUserModifySize.indexOf( user.modifyTotalSize );
-    userRanks.modifySizeRank = updateNextOpenIndex( userRanks.modifySizeRank, user.modifySizeRank, userIndex );
+    userInfo.modifySizeRank = updateNextOpenIndex( userInfo.modifySizeRank, user.modifySizeRank, userIndex );
 
     user.modifyCountRank = allUserModifyCount.indexOf( user.modifyCount );
-    userRanks.modifyCountRank = updateNextOpenIndex( userRanks.modifyCountRank, user.modifyCountRank, userIndex );
+    userInfo.modifyCountRank = updateNextOpenIndex( userInfo.modifyCountRank, user.modifyCountRank, userIndex );
 
     user.createTotalSizeLabel = user.createTotalSize > 1e9 ? `${ (user.createTotalSize / 1e9).toFixed(1) } GB` : `${ (user.createTotalSize / 1e6).toFixed(1) } MB`;
     user.modifyTotalSizeLabel = user.modifyTotalSize > 1e9 ? `${ (user.modifyTotalSize / 1e9).toFixed(1) } GB` : `${ (user.modifyTotalSize / 1e6).toFixed(1) } MB`;
@@ -693,8 +706,8 @@ function createUserRanks ( count: number ) : IUserInfo {
   allNameItems.map( dup => {
     dup.sizeGB = dup.size/1e9;
     if ( dup.count > 1 ) {
-      batchData.duplicateNames.push( dup.name ) ;
-      batchData.duplicates.push( dup ) ;
+      batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
+      batchData.duplicateInfo.duplicates.push( dup ) ;
     }
   });
 
@@ -709,21 +722,22 @@ function createUserRanks ( count: number ) : IUserInfo {
     totalLength += batch.items.length;
   });
 
-  let currentUserAllIndex = batchData.allUsersIds.indexOf( currentUser.Id );
-  batchData.currentUser = batchData.allUsers [ currentUserAllIndex ];
+  let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
+  batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
+  
   let batchInfo = {
     batches: batches,
     batchData: batchData,
     fetchMs: fetchMs,
     analyzeMs: analyzeMs,
     totalLength: totalLength,
-    userRanks: userRanks,
+    userInfo: userInfo,
   };
 
   console.log('getStorageItems: fetchMs', fetchMs );
   console.log('getStorageItems: analyzeMs', analyzeMs );
   console.log('getStorageItems: totalLength', totalLength );
-  console.log('getStorageItems: userRanks', userRanks );
+  console.log('getStorageItems: userInfo', userInfo );
 
   console.log('getStorageItems: batches', batches );
   console.log('getStorageItems: batchData', batchData );

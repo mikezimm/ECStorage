@@ -151,6 +151,16 @@ export interface IFileType {
 }
 
 export interface IUserInfo {
+  
+  currentUser: IUserSummary;
+
+  count: number;
+
+  creatorIds: number[];
+  editorIds: number[];
+  allUsersIds: number[];
+  allUsers: IUserSummary[];
+
   createSizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   createCountRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   modifySizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
@@ -158,6 +168,7 @@ export interface IUserInfo {
 }
 
 export interface ITypeInfo {
+  count: number;
   typeList: string[];
   types: IFileType[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
@@ -165,6 +176,7 @@ export interface ITypeInfo {
 }
 
 export interface IDuplicateInfo {
+  count: number;
   duplicateNames: string[];
   duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
@@ -172,12 +184,14 @@ export interface IDuplicateInfo {
 }
 
 export interface IFolderInfo {
+  count: number;
   folders:  IItemDetail[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
 
 export interface IUniqueInfo {
+  count: number;
   uniqueRolls: IItemDetail[];
 }
 
@@ -190,14 +204,9 @@ export interface IBatchData {
 
   oldCreated: IOldFiles;
   oldModified: IOldFiles;
-  currentUser: IUserSummary;
 
   folderInfo: IFolderInfo;
 
-  creatorIds: number[];
-  editorIds: number[];
-  allUsersIds: number[];
-  allUsers: IUserSummary[];
   userInfo: IUserInfo;
 
   uniqueInfo: IUniqueInfo;

@@ -275,9 +275,9 @@ public async updateWebInfo ( webUrl?: string ) {
     
     if ( batchData.userInfo !== null ) {
       let rankSlider = this.state.rankSlider;
-      let sliderMin = batchData.allUsers.length < 3 ? batchData.allUsers.length : 3;
-      let sliderUserCount = batchData.allUsers.length < 5 ? null : 
-        <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , rankSlider , sliderMin, batchData.allUsers.length, 1 , this._updateRankShow.bind(this), this.state.isLoading, 350) }</div> ;
+      let sliderMin = batchData.userInfo.allUsers.length < 3 ? batchData.userInfo.allUsers.length : 3;
+      let sliderUserCount = batchData.userInfo.allUsers.length < 5 ? null : 
+        <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , rankSlider , sliderMin, batchData.userInfo.allUsers.length, 1 , this._updateRankShow.bind(this), this.state.isLoading, 350) }</div> ;
       
       usersPivotContent = <div><div>
         <h3>Summary of files by user</h3>
@@ -287,14 +287,14 @@ public async updateWebInfo ( webUrl?: string ) {
         </div>
 
         <div className={ styles.inflexWrapCenter}>
-          { this.buildUserTables( batchData.userInfo.createSizeRank, batchData.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userInfo.createCountRank, batchData.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userInfo.modifySizeRank, batchData.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
-          { this.buildUserTables( batchData.userInfo.modifyCountRank, batchData.allUsers, 'modifyCountRank', rankSlider, this.state.userSearch )}
+          { this.buildUserTables( batchData.userInfo.createSizeRank, batchData.userInfo.allUsers, 'createSizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.createCountRank, batchData.userInfo.allUsers, 'createCountRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.modifySizeRank, batchData.userInfo.allUsers, 'modifySizeRank', rankSlider, this.state.userSearch ) }
+          { this.buildUserTables( batchData.userInfo.modifyCountRank, batchData.userInfo.allUsers, 'modifyCountRank', rankSlider, this.state.userSearch )}
         </div>
-        {/* <p> { batchData.allUsers.map( user => { return user.userTitle; }).join(', ') }</p> */}
+        {/* <p> { batchData.userInfo.allUsers.map( user => { return user.userTitle; }).join(', ') }</p> */}
       </div>
-      <ReactJson src={ batchData.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      <ReactJson src={ batchData.userInfo.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
     }
 
     let sizePivotContent = <div><div>
@@ -353,7 +353,7 @@ public async updateWebInfo ( webUrl?: string ) {
       
           currentUser = {this.state.currentUser }
           isCurrentUser = { true }
-          userSummary = { batchData.currentUser }
+          userSummary = { batchData.userInfo.currentUser }
           batches = { batches }
           batchData = { batchData }
         >
@@ -445,7 +445,7 @@ public async updateWebInfo ( webUrl?: string ) {
     
         currentUser = {this.state.currentUser }
         isCurrentUser = { true }
-        userSummary = { batchData.allUsers[ this.state.showUser ] }
+        userSummary = { batchData.userInfo.allUsers[ this.state.showUser ] }
         batches = { batches }
         batchData = { batchData }
       >
@@ -512,7 +512,7 @@ public async updateWebInfo ( webUrl?: string ) {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { 'Searching ' + this.state.batchData.allUsers.length + ' users' }
+        { 'Searching ' + this.state.batchData.userInfo.allUsers.length + ' users' }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -533,10 +533,10 @@ public async updateWebInfo ( webUrl?: string ) {
 
   private buildUserTables( indexs: number[], users: IUserSummary[] , data: string, countToShow: number, userSearch: string ): any {
 
-    // { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.allUsers, 'createSizeRank') }
-    // { this.buildUserTables( batchData.userRanks.createCountRank, batchData.allUsers, 'createCountRank') }
-    // { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.allUsers, 'modifySizeRank') }
-    // { this.buildUserTables( batchData.userRanks.modifyCountRank, batchData.allUsers, 'modifyCountRank') }
+    // { this.buildUserTables( batchData.userRanks.createSizeRank, batchData.userInfo.allUsers, 'createSizeRank') }
+    // { this.buildUserTables( batchData.userRanks.createCountRank, batchData.userInfo.allUsers, 'createCountRank') }
+    // { this.buildUserTables( batchData.userRanks.modifySizeRank, batchData.userInfo.allUsers, 'modifySizeRank') }
+    // { this.buildUserTables( batchData.userRanks.modifyCountRank, batchData.userInfo.allUsers, 'modifyCountRank') }
 
     let elements = [];
     let tableTitle = data;
