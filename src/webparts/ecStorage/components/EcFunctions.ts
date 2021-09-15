@@ -188,6 +188,9 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       count: 0,
       size: 0,
       sizeGB: 0,
+      sizeP: 0,
+      countP: 0,
+      sizeLabel: '',
       locations: [],
       items: [],
       sizes: [],
@@ -244,6 +247,9 @@ export function createThisType ( docIcon: string ) :IFileType {
     count: 0,
     size: 0,
     sizeGB: 0,
+    sizeLabel: '',
+    sizeP: 0,
+    countP: 0,
     items: [],
     sizes: [],
     createdMs: [],
@@ -276,7 +282,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     count: 0,
     size: 0,
     sizeGB: 0,
-    typeInfo: {
+    typesInfo: {
       count: 0,
       typeList: [],
       types: [],
@@ -476,14 +482,14 @@ function expandArray ( count: number ) : any[] {
       batchData.size += detail.size;
 
       //Build up Type list
-      let typeIndex = batchData.typeInfo.typeList.indexOf( detail.docIcon );
+      let typeIndex = batchData.typesInfo.typeList.indexOf( detail.docIcon );
 
       if ( typeIndex < 0 ) {
-        batchData.typeInfo.typeList.push( detail.docIcon );
-        typeIndex = batchData.typeInfo.typeList.length - 1;
-        batchData.typeInfo.types.push( createThisType(detail.docIcon) );
+        batchData.typesInfo.typeList.push( detail.docIcon );
+        typeIndex = batchData.typesInfo.typeList.length - 1;
+        batchData.typesInfo.types.push( createThisType(detail.docIcon) );
       }
-      batchData.typeInfo.types[ typeIndex ] = updateThisType( batchData.typeInfo.types[ typeIndex ], detail );
+      batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
 
       //Build up Duplicate list
       let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
@@ -631,8 +637,12 @@ function expandArray ( count: number ) : any[] {
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
 
-  batchData.typeInfo.types.map( docType => {
+  batchData.typesInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
+    docType.sizeLabel = getSizeLabel( docType.size );
+    docType.sizeP = docType.size / batchData.size;
+    docType.sizeP = docType.count / batchData.count;
+
   });
 
   //summarize Users data
@@ -647,7 +657,7 @@ function expandArray ( count: number ) : any[] {
   batchData.userInfo.modifyCountRank = expandArray( batchData.userInfo.count );
   let userInfo = batchData.userInfo;
   
-  // batchData.typeInfo = createTypeRanks( batchData.typeInfo.count );
+  // batchData.typesInfo = createTypeRanks( batchData.typesInfo.count );
   // let typeRanks = batchData.typeRanks;
   
   // batchData.duplicateRanks = createDupRanks( batchData.duplicateInfo.count );
@@ -693,8 +703,8 @@ function expandArray ( count: number ) : any[] {
     user.modifyCountRank = allUserModifyCount.indexOf( user.modifyCount );
     userInfo.modifyCountRank = updateNextOpenIndex( userInfo.modifyCountRank, user.modifyCountRank, userIndex );
 
-    user.createTotalSizeLabel = user.createTotalSize > 1e9 ? `${ (user.createTotalSize / 1e9).toFixed(1) } GB` : `${ (user.createTotalSize / 1e6).toFixed(1) } MB`;
-    user.modifyTotalSizeLabel = user.modifyTotalSize > 1e9 ? `${ (user.modifyTotalSize / 1e9).toFixed(1) } GB` : `${ (user.modifyTotalSize / 1e6).toFixed(1) } MB`;
+    user.createTotalSizeLabel = getSizeLabel( user.createTotalSize ); 
+    user.modifyTotalSizeLabel = getSizeLabel( user.modifyTotalSize );
 
   });
 
@@ -704,8 +714,11 @@ function expandArray ( count: number ) : any[] {
   oldData.summary.sizeGB = oldData.summary.size / batchData.size;
 
   allNameItems.map( dup => {
-    dup.sizeGB = dup.size/1e9;
     if ( dup.count > 1 ) {
+      dup.sizeGB = dup.size/1e9;
+      dup.sizeLabel = getSizeLabel( dup.size );
+      dup.sizeP = dup.size / batchData.size;
+      dup.sizeP = dup.count / batchData.count;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
@@ -746,6 +759,10 @@ function expandArray ( count: number ) : any[] {
 
   return { batches };
  
+ }
+
+ function getSizeLabel ( size: number) {
+  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : `${ ( size / 1e6).toFixed(1) } MB`;
  }
 
  function updateNextOpenIndex( targetArray: any[], start: number, value: any ): any[] {

@@ -51,6 +51,7 @@ import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
 import { getSearchedFiles } from './EcSearch';
 
 import EsUser from './pages/user/EsUser';
+import EsTypes from './pages/types/EsTypes';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -267,9 +268,24 @@ public async updateWebInfo ( webUrl?: string ) {
 
     let typesPivotContent = <div><div>
           <h3>File types found in this library</h3>
-          <p> { batchData.typeInfo.typeList.join(', ') }</p>
+          <p> { batchData.typesInfo.typeList.join(', ') }</p>
       </div>
-      <ReactJson src={ batchData.typeInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      <EsTypes 
+  
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartHeight = { this.props.WebpartHeight }
+          WebpartWidth = { this.props.WebpartWidth }
+      
+          pickedWeb  = { this.state.pickedWeb }
+          pickedList = { this.state.pickedList }
+          theSite = {null }
+
+          typesInfo = { batchData.typesInfo }
+          batches = { batches }
+          batchData = { batchData }
+      >
+      </EsTypes>
+      <ReactJson src={ batchData.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
     let usersPivotContent = null;
     

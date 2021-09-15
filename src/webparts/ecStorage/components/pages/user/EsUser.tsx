@@ -113,7 +113,7 @@ public constructor(props:IEsUserProps){
         yearSlider: currentYearVal,
 
         rankSlider: 5,
-        userSearch: '',
+        textSearch: '',
 
         fetchSlider: 0,
         fetchTotal: 0,
@@ -377,7 +377,7 @@ public componentDidMount() {
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
-    this.setState({ userSearch: item });
+    this.setState({ textSearch: item });
   }
 
   private buildUserTables( indexs: number[], users: IUserSummary[] , data: string, countToShow: number, userSearch: string ): any {
@@ -459,76 +459,6 @@ public componentDidMount() {
     this.setState({
       rankSlider: newValue,
     });
-  }
-
-  private fetchStoredItemsClick( ) {
-    this.fetchStoredItems( this.props.pickedWeb, this.props.pickedList, this.state.fetchSlider, this.props.currentUser );
-  }
-
-  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, currentUser: IUser ) {
-
-    this.setState({ 
-      isLoading: true,
-      errorMessage: '',
-    });
-    getSearchedFiles( this.props.tenant, pickedList, true);
-    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
-
-  }
-
-  private addTheseItemsToState ( batchInfo ) {
-
-    // let isLoading = this.props.showPrefetchedPermissions === true ? false : myPermissions.isLoading;
-    // let showNeedToWait = this.state.showNeedToWait === false ? false :
-    //   isLoading === true ?  true : false;
-
-
-    console.log('addTheseItemsToState');
-    this.setState({ 
-      // items: batch.items,
-      
-      isLoading: false,
-      // showProgress: false,
-
-    });
-
-  }
-
-  private setProgress( fetchCount, fetchTotal, fetchLabel ) {
-    let fetchPerComp = fetchTotal > 0 ? fetchCount / fetchTotal : 0 ;
-    let showProgress = fetchCount !== fetchTotal ? true : false;
-
-    this.setState({
-      // fetchTotal: fetchTotal,
-      // fetchCount: fetchCount,
-      // fetchPerComp: fetchPerComp,
-      // fetchLabel: fetchLabel,
-      showProgress: showProgress,
-    });
-
-  }
-
-
-  public async getCurrentUser(): Promise<IUser> {
-    let currentUser : IUser =  null;
-    await sp.web.currentUser.get().then((r) => {
-      currentUser = {
-        title: r['Title'] , //
-        Title: r['Title'] , //
-        initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
-        email: r['Email'] , //Single person column
-        id: r['Id'] , //
-        Id: r['Id'] , //
-        ID: r['Id'] , //
-        remoteID: null,
-        isSiteAdmin: r['IsSiteAdmin'],
-        LoginName: r['LoginName'],
-        Name: r['LoginName'],
-      };
-      // this.setState({ currentUser: currentUser });
-      
-    });
-    return currentUser;
   }
 
 }

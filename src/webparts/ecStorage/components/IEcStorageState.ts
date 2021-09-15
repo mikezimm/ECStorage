@@ -131,6 +131,9 @@ export interface IDuplicateFile {
   count: number;
   size: number;
   sizeGB: number;
+  sizeP: number;
+  countP: number;
+  sizeLabel: string;
   items: IItemDetail[];
   locations: string[];
   sizes: number[];
@@ -143,6 +146,9 @@ export interface IFileType {
   count: number;
   size: number;
   sizeGB: number;
+  sizeP: number;
+  countP: number;
+  sizeLabel: string;
   items: IItemDetail[];
   sizes: number[];
   createdMs: number[];
@@ -211,7 +217,7 @@ export interface IBatchData {
 
   uniqueInfo: IUniqueInfo;
 
-  typeInfo: ITypeInfo;
+  typesInfo: ITypeInfo;
 
   duplicateInfo: IDuplicateInfo;
 

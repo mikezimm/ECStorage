@@ -5,7 +5,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from '../../IEcStorageState';
 
-export interface IEsUserState {
+export interface IEsTypesState {
 
   isLoaded: boolean;
   isLoading: boolean;
