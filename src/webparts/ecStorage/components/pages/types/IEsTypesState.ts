@@ -18,7 +18,6 @@ export interface IEsTypesState {
 
   minYear: number;
   maxYear: number;
-  yearSlider: number;
 
   rankSlider: number;
   textSearch: string;

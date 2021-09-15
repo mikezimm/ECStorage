@@ -644,7 +644,8 @@ function expandArray ( count: number ) : any[] {
     docType.sizeP = docType.count / batchData.count;
 
   });
-
+  batchData.typesInfo.count = batchData.typesInfo.typeList.length;
+  
   //summarize Users data
   let allUserCreateSize: number[] = [];
   let allUserCreateCount: number[] = [];

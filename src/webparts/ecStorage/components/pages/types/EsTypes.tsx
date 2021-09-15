@@ -80,8 +80,8 @@ public constructor(props:IEsTypesProps){
 
   this.state = {
 
-        isLoaded: false,
-        isLoading: true,
+        isLoaded: true,
+        isLoading: false,
         errorMessage: '',
 
         hasError: false,
@@ -92,7 +92,6 @@ public constructor(props:IEsTypesProps){
 
         minYear: currentYearVal - 5 ,
         maxYear: currentYearVal + 1 ,
-        yearSlider: currentYearVal,
 
         rankSlider: 5,
         textSearch: '',
@@ -136,18 +135,25 @@ public componentDidMount() {
     const pickedList = this.props.pickedList;
     const pickedWeb = this.props.pickedWeb;
 
-    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'Types sorted by size', 10, '', 'size' );
-    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'Types sorted by size', 10, '', 'size' );
+    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'Types sorted by size', this.state.rankSlider, this.state.textSearch, 'size' );
+    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'Types sorted by count', this.state.rankSlider, this.state.textSearch, 'count' );
 
     let component = <div className={ styles.inflexWrapCenter}>
       { bySize }
       { byCount }
     </div>;
 
+    let sliderTypeCount = this.props.batchData.typesInfo.count < 5 ? null : 
+      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , this.state.rankSlider , 3, this.props.batchData.typesInfo.count, 1 , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
+
     return (
       <div className={ styles.ecStorage }>
         <div className={ styles.container }>
 
+          <div className={ styles.inflexWrapCenter}>
+            <div> { sliderTypeCount } </div>
+            <div> { this.buildSearchBox() } </div>
+          </div>
           { component }
           { this.state.isLoading ? 
               <div>
@@ -199,14 +205,15 @@ public componentDidMount() {
 
     let elements = [];
     let tableTitle = data;
-
+    let originalTypesOrder: string[] = types.map( type => { return type.type })
     const typesSorted = sortObjectArrayByNumberKey( types, 'dec', sortKey );
 
     typesSorted.map( ( type, index ) => {
 
       if ( index < countToShow || textSearch.length > 0 ) {
+        let originalIndex = originalTypesOrder.indexOf( type.type );
         let typePercent = ( type.sizeP * 100 ).toFixed( 0 );
-        let label = `#${ index } ${type.type}  [ ${ type.sizeLabel } / ${ typePercent }% ]` ;
+        let label = `${type.type}  [ ${ type.sizeLabel } / ${ typePercent }% ]` ;
 
         let showType = textSearch.length === 0 || (textSearch.length > 0 && type.type.toLowerCase().indexOf(textSearch.toLowerCase() )  > -1  ) ? true : false;
 
@@ -218,7 +225,7 @@ public componentDidMount() {
           alignItems: 'center',
         } : { display: 'none' };
 
-        elements.push(<li title={ label } style= { liStyle }>
+        elements.push(<li title={ `# ${originalIndex}  ${label}` } style= { liStyle }>
           <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
         </li>);
 
@@ -236,15 +243,9 @@ public componentDidMount() {
 
   }
   
-  private _updateMaxYear(newValue: number){
+  private _typeSlider(newValue: number){
     this.setState({
-      yearSlider: newValue,
-    });
-  }
-
-  private _updateMaxFetch(newValue: number){
-    this.setState({
-      fetchSlider: newValue,
+      rankSlider: newValue,
     });
   }
 
