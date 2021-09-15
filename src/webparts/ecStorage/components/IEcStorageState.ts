@@ -116,12 +116,14 @@ export interface IUserSummary {
   large: ILargeFiles;
   items: IItemDetail[];
 
-  uniqueRolls: IItemDetail[];
-  typeList: string[];
-  types: IFileType[];
-  duplicateNames: string[];
-  duplicates: IDuplicateFile[];
-  folders:  IItemDetail[];
+
+  folderInfo: IFolderInfo;
+
+  uniqueInfo: IUniqueInfo;
+
+  typesInfo: ITypeInfo;
+
+  duplicateInfo: IDuplicateInfo;
 
 }
 

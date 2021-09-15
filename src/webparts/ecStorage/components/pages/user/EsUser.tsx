@@ -52,6 +52,8 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../EcFunctions';
 import { getSearchedFiles } from '../../EcSearch';
 
+import EsTypes from '../../pages/types/EsTypes';
+
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
   root: {
@@ -216,11 +218,23 @@ public componentDidMount() {
     //   { fetchButton }
     // </div>;
 
-    let typesPivotContent = <div><div>
-          <h3>File types found in this library</h3>
-          <p> { userSummary.typeList.join(', ') }</p>
-      </div>
-      <ReactJson src={ userSummary.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+    let typesPivotContent = <div>
+      <EsTypes 
+  
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartHeight = { this.props.WebpartHeight }
+          WebpartWidth = { this.props.WebpartWidth }
+      
+          pickedWeb  = { this.props.pickedWeb }
+          pickedList = { this.props.pickedList }
+          theSite = {null }
+
+          typesInfo = { userSummary.typesInfo }
+          batches = { batches }
+          batchData = { this.props.batchData }
+      >
+      </EsTypes>
+      <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
     let usersPivotContent = null;
 
@@ -262,19 +276,19 @@ public componentDidMount() {
     let permsPivotContent = <div><div>
       <h3>Summary of files with broken permissions</h3>
       </div>
-        <ReactJson src={ userSummary.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ userSummary.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let dupsPivotContent = <div><div>
       <h3>Summary of duplicate files</h3>
       </div>
-        <ReactJson src={ userSummary.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ userSummary.duplicateInfo.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let folderPivotContent = <div><div>
       <h3>Summary of Folders</h3>
       </div>
-        <ReactJson src={ userSummary.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        <ReactJson src={ userSummary.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
     let componentPivot = 

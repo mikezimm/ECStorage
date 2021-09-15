@@ -266,10 +266,7 @@ public async updateWebInfo ( webUrl?: string ) {
       { fetchButton }
     </div>;
 
-    let typesPivotContent = <div><div>
-          <h3>File types found in this library</h3>
-          <p> { batchData.typesInfo.typeList.join(', ') }</p>
-      </div>
+    let typesPivotContent = <div>
       <EsTypes 
   
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/

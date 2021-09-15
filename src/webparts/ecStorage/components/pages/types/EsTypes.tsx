@@ -149,7 +149,10 @@ public componentDidMount() {
     return (
       <div className={ styles.ecStorage }>
         <div className={ styles.container }>
-
+          <div>
+            <h3>File types found in this library</h3>
+            <p> { this.props.typesInfo.typeList.join(', ') }</p>
+          </div>
           <div className={ styles.inflexWrapCenter}>
             <div> { sliderTypeCount } </div>
             <div> { this.buildSearchBox() } </div>
@@ -201,19 +204,17 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: string ): any {
+  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' ): any {
 
     let elements = [];
     let tableTitle = data;
-    let originalTypesOrder: string[] = types.map( type => { return type.type })
     const typesSorted = sortObjectArrayByNumberKey( types, 'dec', sortKey );
 
     typesSorted.map( ( type, index ) => {
 
       if ( index < countToShow || textSearch.length > 0 ) {
-        let originalIndex = originalTypesOrder.indexOf( type.type );
-        let typePercent = ( type.sizeP * 100 ).toFixed( 0 );
-        let label = `${type.type}  [ ${ type.sizeLabel } / ${ typePercent }% ]` ;
+        let typePercent = (( sortKey === 'size' ? type.sizeP : type.countP ) * 100).toFixed( 0 );
+        let label = `${type.type}  [ ${ sortKey === 'size' ? type.sizeLabel : type.count } / ${ typePercent }% ]` ;
 
         let showType = textSearch.length === 0 || (textSearch.length > 0 && type.type.toLowerCase().indexOf(textSearch.toLowerCase() )  > -1  ) ? true : false;
 
@@ -225,7 +226,7 @@ public componentDidMount() {
           alignItems: 'center',
         } : { display: 'none' };
 
-        elements.push(<li title={ `# ${originalIndex}  ${label}` } style= { liStyle }>
+        elements.push(<li title={ `${label}` } style= { liStyle }>
           <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
         </li>);
 

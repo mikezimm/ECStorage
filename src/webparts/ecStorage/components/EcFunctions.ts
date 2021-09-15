@@ -134,12 +134,34 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     items: [],
     summary: createBucketSummary( `Summary for ${userTitle}` ),
 
-    uniqueRolls: [],
-    typeList: [],
-    types: [],
-    duplicateNames: [],
-    duplicates: [],
-    folders: [],
+    typesInfo: {
+      count: 0,
+      typeList: [],
+      types: [],
+      countRank: [],
+      sizeRank: [],
+    },
+    
+    duplicateInfo: {
+      count: 0,
+      duplicateNames: [],
+      duplicates: [],
+      countRank: [],
+      sizeRank: [],
+    },
+
+    folderInfo: {
+      count: 0,
+      folders: [],
+      countRank: [],
+      sizeRank: [],
+    },
+
+    uniqueInfo: {
+      count: 0,
+      uniqueRolls: [],
+    },
+
   };
 
   return userSummary;
@@ -555,12 +577,12 @@ function expandArray ( count: number ) : any[] {
       batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
       if ( detail.isFolder === true ) { 
         batchData.folderInfo.folders.push ( detail ) ;
-        batchData.userInfo.allUsers[ createUserAllIndex ].folders.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( detail ) ;
       } 
 
       if ( detail.uniquePerms === true ) { 
         batchData.uniqueInfo.uniqueRolls.push ( detail ) ;
-        batchData.userInfo.allUsers[ createUserAllIndex ].uniqueRolls.push ( detail ) ;
+        batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.uniqueRolls.push ( detail ) ;
       }
 
       if ( detail.size > 1e10 ) { 
@@ -641,11 +663,11 @@ function expandArray ( count: number ) : any[] {
     docType.sizeGB = docType.size/1e9;
     docType.sizeLabel = getSizeLabel( docType.size );
     docType.sizeP = docType.size / batchData.size;
-    docType.sizeP = docType.count / batchData.count;
+    docType.countP = docType.count / batchData.count;
 
   });
   batchData.typesInfo.count = batchData.typesInfo.typeList.length;
-  
+
   //summarize Users data
   let allUserCreateSize: number[] = [];
   let allUserCreateCount: number[] = [];
@@ -719,7 +741,7 @@ function expandArray ( count: number ) : any[] {
       dup.sizeGB = dup.size/1e9;
       dup.sizeLabel = getSizeLabel( dup.size );
       dup.sizeP = dup.size / batchData.size;
-      dup.sizeP = dup.count / batchData.count;
+      dup.countP = dup.count / batchData.count;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
