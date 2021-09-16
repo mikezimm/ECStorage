@@ -167,9 +167,17 @@ public async updateWebInfo ( webUrl?: string ) {
   let theSite: ISite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
 
   let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl'].join(',');
+  // let listSelect = ['*'].join(',');
 
   let thisWebInstance = Web(webUrl);
-  let theList: IECStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).select( listSelect ).get();
+
+  const listObject = thisWebInstance.lists.getByTitle(this.state.listTitle);
+  
+  //https://github.com/pnp/pnpjs/issues/160#issuecomment-793849161
+  listObject.query.set('t', new Date().getTime().toString()); // <-- forces unique Get path
+
+  let theList: IECStorageList = await listObject.select( listSelect ).get();
+  // let theList: IECStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
   theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
 
   let isCurrentWeb: boolean = false;

@@ -149,11 +149,16 @@ public componentDidMount() {
     let sliderTypeCount = this.props.items.length < 5 ? null : 
       <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
+    let iconArray = this.props.icons.map( icon => {
+      return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
+    });
+
+
     return (
       <div className={ styles.ecStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
-          <div>
-          <h3>{ this.props.items.length } Items found { this.props.heading }</h3>
+          <div className={styles.flexWrapStart}>
+            <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
           </div>
           <div className={ styles.inflexWrapCenter}>
             <div> { sliderTypeCount } </div>
@@ -264,13 +269,23 @@ public componentDidMount() {
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`}
       >
-      { <Icon iconName= {'OpenFolderHorizontal'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+      { <Icon iconName= {'FabricFolderSearch'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
     </td> );  
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
+
+
+    const iconStyles: any = { root: {
+      fontSize: 'larger',
+      color: item.iconColor,
+      padding: '0px 4px 0px 10px',
+    }};
+
     cells.push( <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
         id={ item.id.toFixed(0) } 
         title={ `Item ID: ${item.id}`}
-      >{ item.FileLeafRef }</td> );
+      >
+        { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.FileLeafRef }</td> );
   
     let cellRow = <tr> { cells } </tr>;
 

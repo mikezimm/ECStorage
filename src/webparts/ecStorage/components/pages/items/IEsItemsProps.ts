@@ -13,6 +13,11 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IEcStorageState, IItemDetail, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IEcStorageState';
 
+export interface IIconArray {
+      iconTitle: string;
+      iconName: string;
+      iconColor: string;
+}
 export interface IEsItemsProps {
 
       // 0 - Context
@@ -30,6 +35,7 @@ export interface IEsItemsProps {
       // currentUser: IUser;
   
       items: IItemDetail[];
+      icons: IIconArray[];
 
       heading: string;
 

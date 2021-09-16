@@ -28,7 +28,7 @@ import {
   // Dropdown,
   // IDropdownOption
 } from "office-ui-fabric-react";
-
+import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 
@@ -166,6 +166,7 @@ public componentDidMount() {
           items = { this.state.items }
           heading = { ` of type: ${this.state.items[0].docIcon}` }
           batches = { batches }
+          icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
 
         >
       </EsItems>;
@@ -277,7 +278,7 @@ public componentDidMount() {
           default:
             break;
         }
-
+//                  { <Icon iconName= { type.type} style={{ padding: '0px 4px 0px 10px', }}></Icon> }
         let showType = textSearch.length === 0 || (textSearch.length > 0 && type.type.toLowerCase().indexOf(textSearch.toLowerCase() )  > -1  ) ? true : false;
 
         let liStyle : React.CSSProperties = showType === true ?
@@ -289,7 +290,7 @@ public componentDidMount() {
         } : { display: 'none' };
 
         elements.push(<li title={ `${label}` } style= { liStyle } onClick={ this._onClickItems.bind(this)} id={ type.type }>
-          <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
+                  <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
         </li>);
 
       }

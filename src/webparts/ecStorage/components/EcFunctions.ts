@@ -49,15 +49,49 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
   * FileSystemObjectType:  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15)#members
   *  File=0; Folder=1; Web=0
  */
+
+ /***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 
+ *    8P      88    88 88V8o 88 `8bo.      88    
+ *    8b      88    88 88 V8o88   `Y8b.    88    
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    
+ *                                               
+ *                                               
+ */
+
  const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
  const thisExpand = ['Author','Editor'];
   export const batchSize = 500;
+
+ /***
+ *     d888b  d88888b d888888b       .o88b. db    db d8888b. d8888b. d88888b d8b   db d888888b      db    db d88888b  .d8b.  d8888b. 
+ *    88' Y8b 88'     `~~88~~'      d8P  Y8 88    88 88  `8D 88  `8D 88'     888o  88 `~~88~~'      `8b  d8' 88'     d8' `8b 88  `8D 
+ *    88      88ooooo    88         8P      88    88 88oobY' 88oobY' 88ooooo 88V8o 88    88          `8bd8'  88ooooo 88ooo88 88oobY' 
+ *    88  ooo 88~~~~~    88         8b      88    88 88`8b   88`8b   88~~~~~ 88 V8o88    88            88    88~~~~~ 88~~~88 88`8b   
+ *    88. ~8~ 88.        88         Y8b  d8 88b  d88 88 `88. 88 `88. 88.     88  V888    88            88    88.     88   88 88 `88. 
+ *     Y888P  Y88888P    YP          `Y88P' ~Y8888P' 88   YD 88   YD Y88888P VP   V8P    YP            YP    Y88888P YP   YP 88   YD 
+ *                                                                                                                                   
+ *                                                                                                                                   
+ */
 
   function getCurrentYear(){
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();
     return currentYear;
   }
+
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      .d8888. db    db .88b  d88. .88b  d88.  .d8b.  d8888b. db    db 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88'  YP 88    88 88'YbdP`88 88'YbdP`88 d8' `8b 88  `8D `8b  d8' 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      `8bo.   88    88 88  88  88 88  88  88 88ooo88 88oobY'  `8bd8'  
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~        `Y8b. 88    88 88  88  88 88  88  88 88~~~88 88`8b      88    
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          db   8D 88b  d88 88  88  88 88  88  88 88   88 88 `88.    88    
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      `8888Y' ~Y8888P' YP  YP  YP YP  YP  YP YP   YP 88   YD    YP    
+ *                                                                                                                          
+ *                                                                                                                          
+ */
 
   export function createBucketSummary( title: string ): IBucketSummary {
     let summary: IBucketSummary = {
@@ -73,12 +107,34 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
   }
 
+  /***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. db    db .88b  d88. .88b  d88.  .d8b.  d8888b. db    db 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP 88    88 88'YbdP`88 88'YbdP`88 d8' `8b 88  `8D `8b  d8' 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.   88    88 88  88  88 88  88  88 88ooo88 88oobY'  `8bd8'  
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b. 88    88 88  88  88 88  88  88 88~~~88 88`8b      88    
+ *    88b  d88 88      88  .8D 88   88    88    88.          db   8D 88b  d88 88  88  88 88  88  88 88   88 88 `88.    88    
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y' ~Y8888P' YP  YP  YP YP  YP  YP YP   YP 88   YD    YP    
+ *                                                                                                                           
+ *                                                                                                                           
+ */
+
   export function updateBucketSummary( summary: IBucketSummary, detail: IItemDetail ): IBucketSummary {
     summary.count ++;
     summary.size += detail.size;
     return summary;
 
   }
+
+  /***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db       .d8b.  d8888b.  d888b  d88888b 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88      d8' `8b 88  `8D 88' Y8b 88'     
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88      88ooo88 88oobY' 88      88ooooo 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88      88~~~88 88`8b   88  ooo 88~~~~~ 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          88booo. 88   88 88 `88. 88. ~8~ 88.     
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y88888P YP   YP 88   YD  Y888P  Y88888P 
+ *                                                                                                  
+ *                                                                                                  
+ */
 
 export function createLargeFiles() :ILargeFiles {
   return {  
@@ -90,6 +146,16 @@ export function createLargeFiles() :ILargeFiles {
   };
 }
 
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b       .d88b.  db      d8888b. 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          .8P  Y8. 88      88  `8D 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88    88 88      88   88 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88    88 88      88   88 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          `8b  d8' 88booo. 88  .8D 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P       `Y88P'  Y88888P Y8888D' 
+ *                                                                                   
+ *                                                                                   
+ */
 export function createOldFiles () :IOldFiles {
   return {  
     Age5Yr: [],
@@ -100,6 +166,17 @@ export function createOldFiles () :IOldFiles {
     summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}` ),
   };
 }
+
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db    db .d8888. d88888b d8888b. 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88    88 88'  YP 88'     88  `8D 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88    88 `8bo.   88ooooo 88oobY' 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88    88   `Y8b. 88~~~~~ 88`8b   
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          88b  d88 db   8D 88.     88 `88. 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      ~Y8888P' `8888Y' Y88888P 88   YD 
+ *                                                                                           
+ *                                                                                           
+ */
 
 export function createThisUser( detail : IItemDetail, userId: number, userTitle: string ) :IUserSummary {
 
@@ -152,6 +229,9 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
     folderInfo: {
       count: 0,
+      size: 0,
+      totalCount: 0,
+      totalSize: 0,
       folders: [],
       countRank: [],
       sizeRank: [],
@@ -168,6 +248,17 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
 }
 
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      d88888b d8888b. d888888b d888888b  .d88b.  d8888b. 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'     88  `8D   `88'   `~~88~~' .8P  Y8. 88  `8D 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      88ooooo 88   88    88       88    88    88 88oobY' 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      88~~~~~ 88   88    88       88    88    88 88`8b   
+ *    88b  d88 88      88  .8D 88   88    88    88.          88.     88  .8D   .88.      88    `8b  d8' 88 `88. 
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      Y88888P Y8888D' Y888888P    YP     `Y88P'  88   YD 
+ *                                                                                                              
+ *                                                                                                              
+ */
+
 export function updateThisEditor ( detail : IItemDetail, userSummary: IUserSummary ) {
 
   if ( userSummary.userId === detail.editorId ) {
@@ -183,6 +274,17 @@ export function updateThisEditor ( detail : IItemDetail, userSummary: IUserSumma
   return userSummary;
 
 }
+
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b       .d8b.  db    db d888888b db   db  .d88b.  d8888b. 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          d8' `8b 88    88 `~~88~~' 88   88 .8P  Y8. 88  `8D 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      88ooo88 88    88    88    88ooo88 88    88 88oobY' 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      88~~~88 88    88    88    88~~~88 88    88 88`8b   
+ *    88b  d88 88      88  .8D 88   88    88    88.          88   88 88b  d88    88    88   88 `8b  d8' 88 `88. 
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      YP   YP ~Y8888P'    YP    YP   YP  `Y88P'  88   YD 
+ *                                                                                                              
+ *                                                                                                              
+ */
 
 export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSummary ) {
 
@@ -201,6 +303,17 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
   return userSummary;
 
 }
+
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88  `8D 88    88 88  `8D 88        `88'   d8P  Y8 d8' `8b `~~88~~' 88'     
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88   88 88    88 88oodD' 88         88    8P      88ooo88    88    88ooooo 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88   88 88    88 88~~~   88         88    8b      88~~~88    88    88~~~~~ 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          88  .8D 88b  d88 88      88booo.   .88.   Y8b  d8 88   88    88    88.     
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y8888D' ~Y8888P' 88      Y88888P Y888888P  `Y88P' YP   YP    YP    Y88888P 
+ *                                                                                                                                     
+ *                                                                                                                                     
+ */
 
 export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
 
@@ -224,6 +337,16 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
 
 }
 
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88  `8D 88    88 88  `8D 88        `88'   d8P  Y8 d8' `8b `~~88~~' 88'     
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      88   88 88    88 88oodD' 88         88    8P      88ooo88    88    88ooooo 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      88   88 88    88 88~~~   88         88    8b      88~~~88    88    88~~~~~ 
+ *    88b  d88 88      88  .8D 88   88    88    88.          88  .8D 88b  d88 88      88booo.   .88.   Y8b  d8 88   88    88    88.     
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      Y8888D' ~Y8888P' 88      Y88888P Y888888P  `Y88P' YP   YP    YP    Y88888P 
+ *                                                                                                                                      
+ *                                                                                                                                      
+ */
 export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, LibraryUrl: string ) : IDuplicateFile {
 
   thisDup.count ++;
@@ -262,10 +385,25 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
 
 }
 
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d888888b db    db d8888b. d88888b 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          `~~88~~' `8b  d8' 88  `8D 88'     
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo         88     `8bd8'  88oodD' 88ooooo 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~         88       88    88~~~   88~~~~~ 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.             88       88    88      88.     
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P         YP       YP    88      Y88888P 
+ *                                                                                            
+ *                                                                                            
+ */
 export function createThisType ( docIcon: string ) :IFileType {
+
+  let iconInfo = getIconInfo( docIcon );
 
   let thisType: IFileType = {
     type: docIcon,
+    iconName: iconInfo.iconName,
+    iconColor: iconInfo.iconColor,
+    iconTitle: iconInfo.iconTitle,
     count: 0,
     size: 0,
     sizeGB: 0,
@@ -286,7 +424,16 @@ export function createThisType ( docIcon: string ) :IFileType {
 
 }
 
-
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      d888888b db    db d8888b. d88888b 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          `~~88~~' `8b  d8' 88  `8D 88'     
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo         88     `8bd8'  88oodD' 88ooooo 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~         88       88    88~~~   88~~~~~ 
+ *    88b  d88 88      88  .8D 88   88    88    88.             88       88    88      88.     
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P         YP       YP    88      Y88888P 
+ *                                                                                             
+ *                                                                                             
+ */
 export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : IFileType {
 
   thisType.count ++;
@@ -302,6 +449,16 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
 
 }
 
+/***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d8888b.  .d8b.  d888888b  .o88b. db   db        d8888b.  .d8b.  d888888b  .d8b.  
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88  `8D d8' `8b `~~88~~' d8P  Y8 88   88        88  `8D d8' `8b `~~88~~' d8' `8b 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88oooY' 88ooo88    88    8P      88ooo88        88   88 88ooo88    88    88ooo88 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88~~~b. 88~~~88    88    8b      88~~~88 C8888D 88   88 88~~~88    88    88~~~88 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.          88   8D 88   88    88    Y8b  d8 88   88        88  .8D 88   88    88    88   88 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y8888P' YP   YP    YP     `Y88P' YP   YP        Y8888D' YP   YP    YP    YP   YP 
+ *                                                                                                                                           
+ *                                                                                                                                           
+ */
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export function createBatchData ( currentUser: IUser ):IBatchData {
   return {  
@@ -326,6 +483,9 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
 
     folderInfo: {
       count: 0,
+      size: 0,
+      totalCount: 0,
+      totalSize: 0,
       folders: [],
       countRank: [],
       sizeRank: [],
@@ -360,6 +520,16 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
   };
 }
 
+/***
+ *    d8b   db  .d88b.  d888888b      db    db .d8888. d88888b d8888b. 
+ *    888o  88 .8P  Y8. `~~88~~'      88    88 88'  YP 88'     88  `8D 
+ *    88V8o 88 88    88    88         88    88 `8bo.   88ooooo 88   88 
+ *    88 V8o88 88    88    88         88    88   `Y8b. 88~~~~~ 88   88 
+ *    88  V888 `8b  d8'    88         88b  d88 db   8D 88.     88  .8D 
+ *    VP   V8P  `Y88P'     YP         ~Y8888P' `8888Y' Y88888P Y8888D' 
+ *                                                                     
+ *                                                                     
+ */
 function createTypeRanks ( count: number ) : ITypeInfo {
   let theseInfos : ITypeInfo = {
     count: 0,
@@ -397,6 +567,9 @@ function createDupRanks ( count: number ) : IDuplicateInfo {
 function createFolderRanks ( count: number ) : IFolderInfo {
   let theseInfos : IFolderInfo = {
     count: 0,
+    size: 0,
+    totalCount: 0,
+    totalSize: 0,
     folders: [],
     countRank: [],
     sizeRank: [],
@@ -410,6 +583,16 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   return theseInfos;
 }
 
+/***
+ *    d88888b db    db d8888b.  .d8b.  d8b   db d8888b.       .d8b.  d8888b. d8888b.  .d8b.  db    db 
+ *    88'     `8b  d8' 88  `8D d8' `8b 888o  88 88  `8D      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
+ *    88ooooo  `8bd8'  88oodD' 88ooo88 88V8o 88 88   88      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
+ *    88~~~~~  .dPYb.  88~~~   88~~~88 88 V8o88 88   88      88~~~88 88`8b   88`8b   88~~~88    88    
+ *    88.     .8P  Y8. 88      88   88 88  V888 88  .8D      88   88 88 `88. 88 `88. 88   88    88    
+ *    Y88888P YP    YP 88      YP   YP VP   V8P Y8888D'      YP   YP 88   YD 88   YD YP   YP    YP    
+ *                                                                                                    
+ *                                                                                                    
+ */
 function expandArray ( count: number ) : any[] {
   let theseInfos: any[] = [];
 
@@ -421,6 +604,16 @@ function expandArray ( count: number ) : any[] {
 
 }
 
+/***
+ *     d888b  d88888b d888888b      d888888b d888888b d88888b .88b  d88. .d8888. 
+ *    88' Y8b 88'     `~~88~~'        `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
+ *    88      88ooooo    88            88       88    88ooooo 88  88  88 `8bo.   
+ *    88  ooo 88~~~~~    88            88       88    88~~~~~ 88  88  88   `Y8b. 
+ *    88. ~8~ 88.        88           .88.      88    88.     88  88  88 db   8D 
+ *     Y888P  Y88888P    YP         Y888888P    YP    Y88888P YP  YP  YP `8888Y' 
+ *                                                                               
+ *                                                                               
+ */
  export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
 
   currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
@@ -448,6 +641,17 @@ function expandArray ( count: number ) : any[] {
       // const results = await searcher("Frauenhofer");
       // console.log('Test searcher results', results);
   
+      /***
+       *                        .d8b.  db   d8b   db  .d8b.  d888888b d888888b 
+       *           Vb          d8' `8b 88   I8I   88 d8' `8b   `88'   `~~88~~' 
+       *            `Vb        88ooo88 88   I8I   88 88ooo88    88       88    
+       *    C8888D    `V.      88~~~88 Y8   I8I   88 88~~~88    88       88    
+       *              .d'      88   88 `8b d8'8b d8' 88   88   .88.      88    
+       *            .dP        YP   YP  `8b8' `8d8'  YP   YP Y888888P    YP    
+       *           dP                                                          
+       *                                                                       
+       */
+
       thisWebInstance = Web(webURL);
       let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
       setProgress( 0 , pickedList.ItemCount, 'Getting ' + 'first' + ' batches of items' );
@@ -480,6 +684,17 @@ function expandArray ( count: number ) : any[] {
     }
   }
 
+/***
+ *                       .d8888. d88888b d888888b      db    db  .d8b.  d8888b. d888888b  .d8b.  d8888b. db      d88888b .d8888. 
+ *           Vb          88'  YP 88'     `~~88~~'      88    88 d8' `8b 88  `8D   `88'   d8' `8b 88  `8D 88      88'     88'  YP 
+ *            `Vb        `8bo.   88ooooo    88         Y8    8P 88ooo88 88oobY'    88    88ooo88 88oooY' 88      88ooooo `8bo.   
+ *    C8888D    `V.        `Y8b. 88~~~~~    88         `8b  d8' 88~~~88 88`8b      88    88~~~88 88~~~b. 88      88~~~~~   `Y8b. 
+ *              .d'      db   8D 88.        88          `8bd8'  88   88 88 `88.   .88.   88   88 88   8D 88booo. 88.     db   8D 
+ *            .dP        `8888Y' Y88888P    YP            YP    YP   YP 88   YD Y888888P YP   YP Y8888P' Y88888P Y88888P `8888Y' 
+ *           dP                                                                                                                  
+ *                                                                                                                               
+ */
+
   let batchData = createBatchData( currentUser );
   //Add to large bucket
   let bigData = batchData.large;
@@ -498,6 +713,18 @@ function expandArray ( count: number ) : any[] {
 
   let allNameStrings: string[] = [];
   let allNameItems: IDuplicateFile[] = [];
+
+  /***
+ *                       .88b  d88.  .d8b.  d8888b.       .d8b.  db      db           d888888b d888888b d88888b .88b  d88. .d8888. 
+ *           Vb          88'YbdP`88 d8' `8b 88  `8D      d8' `8b 88      88             `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
+ *            `Vb        88  88  88 88ooo88 88oodD'      88ooo88 88      88              88       88    88ooooo 88  88  88 `8bo.   
+ *    C8888D    `V.      88  88  88 88~~~88 88~~~        88~~~88 88      88              88       88    88~~~~~ 88  88  88   `Y8b. 
+ *              .d'      88  88  88 88   88 88           88   88 88booo. 88booo.        .88.      88    88.     88  88  88 db   8D 
+ *            .dP        YP  YP  YP YP   YP 88           YP   YP Y88888P Y88888P      Y888888P    YP    Y88888P YP  YP  YP `8888Y' 
+ *           dP                                                                                                                    
+ *                                                                                                                                 
+ */
+
   batches.map( batch=> {
     batch.items.map( ( item, itemIndex )=> {
 
@@ -507,6 +734,16 @@ function expandArray ( count: number ) : any[] {
       batchData.count ++;
       batchData.size += detail.size;
 
+      /***
+       *                        d888b  d88888b d888888b       .d8b.  db    db d888888b db   db  .d88b.  d8888b.      d88888b d8888b. d888888b d888888b  .d88b.  d8888b. 
+       *           Vb          88' Y8b 88'     `~~88~~'      d8' `8b 88    88 `~~88~~' 88   88 .8P  Y8. 88  `8D      88'     88  `8D   `88'   `~~88~~' .8P  Y8. 88  `8D 
+       *            `Vb        88      88ooooo    88         88ooo88 88    88    88    88ooo88 88    88 88oobY'      88ooooo 88   88    88       88    88    88 88oobY' 
+       *    C8888D    `V.      88  ooo 88~~~~~    88         88~~~88 88    88    88    88~~~88 88    88 88`8b        88~~~~~ 88   88    88       88    88    88 88`8b   
+       *              .d'      88. ~8~ 88.        88         88   88 88b  d88    88    88   88 `8b  d8' 88 `88.      88.     88  .8D   .88.      88    `8b  d8' 88 `88. 
+       *            .dP         Y888P  Y88888P    YP         YP   YP ~Y8888P'    YP    YP   YP  `Y88P'  88   YD      Y88888P Y8888D' Y888888P    YP     `Y88P'  88   YD 
+       *           dP                                                                                                                                                   
+       *                                                                                                                                                                
+       */
       //Get index of authorId in array of all authorIds
       let createUserIndex = batchData.userInfo.creatorIds.indexOf( detail.authorId );
       if ( createUserIndex === -1 ) { 
@@ -541,6 +778,16 @@ function expandArray ( count: number ) : any[] {
       batchData.userInfo.allUsers[ editUserAllIndex ] = updateThisEditor( detail, batchData.userInfo.allUsers[ editUserAllIndex ]);
 
 
+      /***
+       *                        d888b  d88888b d888888b      db       .d8b.  d8888b.  d888b  d88888b .d8888. d888888b       .d88b.  db      d8888b. d88888b .d8888. d888888b 
+       *           Vb          88' Y8b 88'     `~~88~~'      88      d8' `8b 88  `8D 88' Y8b 88'     88'  YP `~~88~~'      .8P  Y8. 88      88  `8D 88'     88'  YP `~~88~~' 
+       *            `Vb        88      88ooooo    88         88      88ooo88 88oobY' 88      88ooooo `8bo.      88         88    88 88      88   88 88ooooo `8bo.      88    
+       *    C8888D    `V.      88  ooo 88~~~~~    88         88      88~~~88 88`8b   88  ooo 88~~~~~   `Y8b.    88         88    88 88      88   88 88~~~~~   `Y8b.    88    
+       *              .d'      88. ~8~ 88.        88         88booo. 88   88 88 `88. 88. ~8~ 88.     db   8D    88         `8b  d8' 88booo. 88  .8D 88.     db   8D    88    
+       *            .dP         Y888P  Y88888P    YP         Y88888P YP   YP 88   YD  Y888P  Y88888P `8888Y'    YP          `Y88P'  Y88888P Y8888D' Y88888P `8888Y'    YP    
+       *           dP                                                                                                                                                        
+       *                                                                                                                                                                     
+       */
       //Set default high items
       if ( !detail.isFolder ) {
         if ( largest === null ) {  largest = detail ; } else if ( detail.size > largest.size ) { largest = detail ; }
@@ -559,7 +806,16 @@ function expandArray ( count: number ) : any[] {
         }
       }
 
-      
+      /***
+       *                       d8888b. db    db d888888b db      d8888b.      d888888b db    db d8888b. d88888b .d8888. 
+       *           Vb          88  `8D 88    88   `88'   88      88  `8D      `~~88~~' `8b  d8' 88  `8D 88'     88'  YP 
+       *            `Vb        88oooY' 88    88    88    88      88   88         88     `8bd8'  88oodD' 88ooooo `8bo.   
+       *    C8888D    `V.      88~~~b. 88    88    88    88      88   88         88       88    88~~~   88~~~~~   `Y8b. 
+       *              .d'      88   8D 88b  d88   .88.   88booo. 88  .8D         88       88    88      88.     db   8D 
+       *            .dP        Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'         YP       YP    88      Y88888P `8888Y' 
+       *           dP                                                                                                   
+       *                                                                                                                
+       */
       //Build up Type list
       let typeIndex = batchData.typesInfo.typeList.indexOf( detail.docIcon );
       let typeIndexUser = batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.typeList.indexOf( detail.docIcon );
@@ -577,6 +833,17 @@ function expandArray ( count: number ) : any[] {
       batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
       batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ] = updateThisType( batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ], detail );
 
+
+      /***
+       *                       d8888b. db    db d888888b db      d8888b.      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b .d8888. 
+       *           Vb          88  `8D 88    88   `88'   88      88  `8D      88  `8D 88    88 88  `8D 88        `88'   d8P  Y8 d8' `8b `~~88~~' 88'     88'  YP 
+       *            `Vb        88oooY' 88    88    88    88      88   88      88   88 88    88 88oodD' 88         88    8P      88ooo88    88    88ooooo `8bo.   
+       *    C8888D    `V.      88~~~b. 88    88    88    88      88   88      88   88 88    88 88~~~   88         88    8b      88~~~88    88    88~~~~~   `Y8b. 
+       *              .d'      88   8D 88b  d88   .88.   88booo. 88  .8D      88  .8D 88b  d88 88      88booo.   .88.   Y8b  d8 88   88    88    88.     db   8D 
+       *            .dP        Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'      Y8888D' ~Y8888P' 88      Y88888P Y888888P  `Y88P' YP   YP    YP    Y88888P `8888Y' 
+       *           dP                                                                                                                                            
+       *                                                                                                                                                         
+       */
       //Build up Duplicate list
       let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
       if ( dupIndex < 0 ) {
@@ -588,7 +855,16 @@ function expandArray ( count: number ) : any[] {
 
 
 
-
+      /***
+       *                       d8888b. db    db d888888b db      d8888b.      db    db .d8888. d88888b d8888b. .d8888. 
+       *           Vb          88  `8D 88    88   `88'   88      88  `8D      88    88 88'  YP 88'     88  `8D 88'  YP 
+       *            `Vb        88oooY' 88    88    88    88      88   88      88    88 `8bo.   88ooooo 88oobY' `8bo.   
+       *    C8888D    `V.      88~~~b. 88    88    88    88      88   88      88    88   `Y8b. 88~~~~~ 88`8b     `Y8b. 
+       *              .d'      88   8D 88b  d88   .88.   88booo. 88  .8D      88b  d88 db   8D 88.     88 `88. db   8D 
+       *            .dP        Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'      ~Y8888P' `8888Y' Y88888P 88   YD `8888Y' 
+       *           dP                                                                                                  
+       *                                                                                                               
+       */
 
       // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
       batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
@@ -676,6 +952,16 @@ function expandArray ( count: number ) : any[] {
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
 
+  /***
+   *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d888888b db    db d8888b. d88888b d888888b d8b   db d88888b  .d88b.  
+   *           Vb          88'       `88'   888o  88   `88'   88'  YP 88   88      `~~88~~' `8b  d8' 88  `8D 88'       `88'   888o  88 88'     .8P  Y8. 
+   *            `Vb        88ooo      88    88V8o 88    88    `8bo.   88ooo88         88     `8bd8'  88oodD' 88ooooo    88    88V8o 88 88ooo   88    88 
+   *    C8888D    `V.      88~~~      88    88 V8o88    88      `Y8b. 88~~~88         88       88    88~~~   88~~~~~    88    88 V8o88 88~~~   88    88 
+   *              .d'      88        .88.   88  V888   .88.   db   8D 88   88         88       88    88      88.       .88.   88  V888 88      `8b  d8' 
+   *            .dP        YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP         YP       YP    88      Y88888P Y888888P VP   V8P YP       `Y88P'  
+   *           dP                                                                                                                                       
+   *                                                                                                                                                    
+   */
   //Update batchData typesInfo
   batchData.typesInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
@@ -709,7 +995,16 @@ function expandArray ( count: number ) : any[] {
 
 
 
-
+  /***
+   *                       d88888b d888888b d8b   db d888888b .d8888. db   db      db    db .d8888. d88888b d8888b. .d8888. 
+   *           Vb          88'       `88'   888o  88   `88'   88'  YP 88   88      88    88 88'  YP 88'     88  `8D 88'  YP 
+   *            `Vb        88ooo      88    88V8o 88    88    `8bo.   88ooo88      88    88 `8bo.   88ooooo 88oobY' `8bo.   
+   *    C8888D    `V.      88~~~      88    88 V8o88    88      `Y8b. 88~~~88      88    88   `Y8b. 88~~~~~ 88`8b     `Y8b. 
+   *              .d'      88        .88.   88  V888   .88.   db   8D 88   88      88b  d88 db   8D 88.     88 `88. db   8D 
+   *            .dP        YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP      ~Y8888P' `8888Y' Y88888P 88   YD `8888Y' 
+   *           dP                                                                                                           
+   *                                                                                                                        
+   */
   //summarize Users data
   let allUserCreateSize: number[] = [];
   let allUserCreateCount: number[] = [];
@@ -773,11 +1068,31 @@ function expandArray ( count: number ) : any[] {
 
   });
 
+  /***
+   *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d8888b. d888888b  d888b       d8888b.  .d8b.  d888888b  .d8b.  
+   *           Vb          88'       `88'   888o  88   `88'   88'  YP 88   88      88  `8D   `88'   88' Y8b      88  `8D d8' `8b `~~88~~' d8' `8b 
+   *            `Vb        88ooo      88    88V8o 88    88    `8bo.   88ooo88      88oooY'    88    88           88   88 88ooo88    88    88ooo88 
+   *    C8888D    `V.      88~~~      88    88 V8o88    88      `Y8b. 88~~~88      88~~~b.    88    88  ooo      88   88 88~~~88    88    88~~~88 
+   *              .d'      88        .88.   88  V888   .88.   db   8D 88   88      88   8D   .88.   88. ~8~      88  .8D 88   88    88    88   88 
+   *            .dP        YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP      Y8888P' Y888888P  Y888P       Y8888D' YP   YP    YP    YP   YP 
+   *           dP                                                                                                                                 
+   *                                                                                                                                              
+   */
   bigData.summary.sizeGB = bigData.summary.size / 1e9;
   bigData.summary.sizeP = bigData.summary.size / batchData.size;
   oldData.summary.sizeGB = bigData.summary.size / 1e9;
   oldData.summary.sizeGB = oldData.summary.size / batchData.size;
 
+  /***
+   *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b .d8888. 
+   *           Vb          88'       `88'   888o  88   `88'   88'  YP 88   88      88  `8D 88    88 88  `8D 88        `88'   d8P  Y8 d8' `8b `~~88~~' 88'     88'  YP 
+   *            `Vb        88ooo      88    88V8o 88    88    `8bo.   88ooo88      88   88 88    88 88oodD' 88         88    8P      88ooo88    88    88ooooo `8bo.   
+   *    C8888D    `V.      88~~~      88    88 V8o88    88      `Y8b. 88~~~88      88   88 88    88 88~~~   88         88    8b      88~~~88    88    88~~~~~   `Y8b. 
+   *              .d'      88        .88.   88  V888   .88.   db   8D 88   88      88  .8D 88b  d88 88      88booo.   .88.   Y8b  d8 88   88    88    88.     db   8D 
+   *            .dP        YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP      Y8888D' ~Y8888P' 88      Y88888P Y888888P  `Y88P' YP   YP    YP    Y88888P `8888Y' 
+   *           dP                                                                                                                                                     
+   *                                                                                                                                                                  
+   */
   allNameItems.map( dup => {
     if ( dup.count > 1 ) {
       dup.sizeGB = dup.size/1e9;
@@ -789,6 +1104,16 @@ function expandArray ( count: number ) : any[] {
     }
   });
 
+/***
+ *                       d8888b. d88888b d888888b db    db d8888b. d8b   db      d888888b d8b   db d88888b  .d88b.  
+ *           Vb          88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88        `88'   888o  88 88'     .8P  Y8. 
+ *            `Vb        88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88         88    88V8o 88 88ooo   88    88 
+ *    C8888D    `V.      88`8b   88~~~~~    88    88    88 88`8b   88 V8o88         88    88 V8o88 88~~~   88    88 
+ *              .d'      88 `88. 88.        88    88b  d88 88 `88. 88  V888        .88.   88  V888 88      `8b  d8' 
+ *            .dP        88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+ *           dP                                                                                                     
+ *                                                                                                                  
+ */
   let analyzeEnd = new Date();
   let endMs2 = analyzeEnd.getTime();
   let analyzeMs = endMs2 - startMs2;
@@ -826,10 +1151,30 @@ function expandArray ( count: number ) : any[] {
  
  }
 
+ /***
+ *     d888b  d88888b d888888b      .d8888. d888888b d88888D d88888b      db       .d8b.  d8888b. d88888b db      
+ *    88' Y8b 88'     `~~88~~'      88'  YP   `88'   YP  d8' 88'          88      d8' `8b 88  `8D 88'     88      
+ *    88      88ooooo    88         `8bo.      88       d8'  88ooooo      88      88ooo88 88oooY' 88ooooo 88      
+ *    88  ooo 88~~~~~    88           `Y8b.    88      d8'   88~~~~~      88      88~~~88 88~~~b. 88~~~~~ 88      
+ *    88. ~8~ 88.        88         db   8D   .88.    d8' db 88.          88booo. 88   88 88   8D 88.     88booo. 
+ *     Y888P  Y88888P    YP         `8888Y' Y888888P d88888P Y88888P      Y88888P YP   YP Y8888P' Y88888P Y88888P 
+ *                                                                                                                
+ *                                                                                                                
+ */
  function getSizeLabel ( size: number) {
   return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : `${ ( size / 1e6).toFixed(1) } MB`;
  }
 
+ /***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      d8b   db d88888b db    db d888888b       .d88b.  d8888b. d88888b d8b   db      d888888b d8b   db d8888b. d88888b db    db 
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          888o  88 88'     `8b  d8' `~~88~~'      .8P  Y8. 88  `8D 88'     888o  88        `88'   888o  88 88  `8D 88'     `8b  d8' 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      88V8o 88 88ooooo  `8bd8'     88         88    88 88oodD' 88ooooo 88V8o 88         88    88V8o 88 88   88 88ooooo  `8bd8'  
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      88 V8o88 88~~~~~  .dPYb.     88         88    88 88~~~   88~~~~~ 88 V8o88         88    88 V8o88 88   88 88~~~~~  .dPYb.  
+ *    88b  d88 88      88  .8D 88   88    88    88.          88  V888 88.     .8P  Y8.    88         `8b  d8' 88      88.     88  V888        .88.   88  V888 88  .8D 88.     .8P  Y8. 
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      VP   V8P Y88888P YP    YP    YP          `Y88P'  88      Y88888P VP   V8P      Y888888P VP   V8P Y8888D' Y88888P YP    YP 
+ *                                                                                                                                                                                     
+ *                                                                                                                                                                                     
+ */
  function updateNextOpenIndex( targetArray: any[], start: number, value: any ): any[] {
   let exit: boolean = false;
 
@@ -843,6 +1188,16 @@ function expandArray ( count: number ) : any[] {
 
  }
 
+ /***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d888888b d888888b d88888b .88b  d88.        d8888b. d88888b d888888b  .d8b.  d888888b db      
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'            `88'   `~~88~~' 88'     88'YbdP`88        88  `8D 88'     `~~88~~' d8' `8b   `88'   88      
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo         88       88    88ooooo 88  88  88        88   88 88ooooo    88    88ooo88    88    88      
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~         88       88    88~~~~~ 88  88  88 C8888D 88   88 88~~~~~    88    88~~~88    88    88      
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.            .88.      88    88.     88  88  88        88  .8D 88.        88    88   88   .88.   88booo. 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y888888P    YP    Y88888P YP  YP  YP        Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P 
+ *                                                                                                                                                        
+ *                                                                                                                                                        
+ */
  function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser ) : IItemDetail {
   let created = new Date(item.Created);
   let modified = new Date(item.Modified);
@@ -878,6 +1233,10 @@ function expandArray ( count: number ) : any[] {
     createMs: created.getTime(),
     modMs: modified.getTime(),
     ContentTypeId: item.ContentTypeId,
+    docIcon: '',
+    iconColor: '',
+    iconName: '',
+    iconTitle: '',
   };
 
 
@@ -886,15 +1245,133 @@ function expandArray ( count: number ) : any[] {
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
 
   if ( item.DocIcon ) { 
-    itemDetail.docIcon = item.DocIcon; 
+    itemDetail.docIcon = item.DocIcon;
+
+    let iconInfo = getIconInfo( item.DocIcon );
+    itemDetail.iconName = iconInfo.iconName; 
+    itemDetail.iconColor = iconInfo.iconColor;   
+    itemDetail.iconTitle = iconInfo.iconTitle;   
+
   } else if ( itemDetail.isFolder === true ) {
+
     itemDetail.docIcon = 'folder'; 
+    itemDetail.iconName = 'OpenFolderHorizontal'; 
+    itemDetail.iconColor = 'black';  
+    itemDetail.iconTitle = 'Folder'; 
   }
 
   return itemDetail;
 
  }
 
+ /***
+ *     d888b  d88888b d888888b      d888888b  .o88b.  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
+ *    88' Y8b 88'     `~~88~~'        `88'   d8P  Y8 .8P  Y8. 888o  88        `88'   888o  88 88'     .8P  Y8. 
+ *    88      88ooooo    88            88    8P      88    88 88V8o 88         88    88V8o 88 88ooo   88    88 
+ *    88  ooo 88~~~~~    88            88    8b      88    88 88 V8o88         88    88 V8o88 88~~~   88    88 
+ *    88. ~8~ 88.        88           .88.   Y8b  d8 `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
+ *     Y888P  Y88888P    YP         Y888888P  `Y88P'  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+ *                                                                                                             
+ *                                                                                                             
+ */
+ function getIconInfo( ext: string) {
+
+  let iconColor = 'black';
+  let iconName = ext;
+  let iconTitle =  ext;
+  switch (ext) {
+    case 'xls':
+    case 'xlsm':
+    case 'xlsb':
+    case 'xlsx':
+      iconColor = 'darkgreen';
+      iconName = 'ExcelDocument';
+      break;
+
+    case 'doc':
+    case 'docx':
+      iconColor = 'darkblue';
+      iconName = 'WordDocument';
+      break;
+
+    case 'ppt':
+    case 'pptx':
+    case 'pptm':
+      iconColor = 'firebrick';
+      iconName = 'PowerPointDocument';
+      break;
+
+    case 'pdf':
+      iconColor = 'red';
+      break;
+
+    case 'one':
+    case 'onepkg':
+      iconColor = 'purple';
+      iconName = 'OneNoteLogo';
+      break;
+
+    case 'msg':
+      iconColor = 'blue';
+      iconName = 'OutlookLogo';
+      break;
+
+    case '7z':
+    case 'zip':
+      iconColor = 'blue';
+      iconName = 'ZipFolder';
+      break;
+
+    case 'avi':
+    case 'mp4':
+    case 'wmf':
+    case 'mov':
+    case 'wmv':
+      iconColor = 'blue';
+      iconName = 'MSNVideosSolid';
+      break;
+
+    case 'msg':
+      iconColor = 'blue';
+      iconName = 'Microphone';
+      break;
+
+    case 'png':
+    case 'gif':
+    case 'jpg':
+    case 'jpeg':
+      iconColor = 'blue';
+      iconName = 'Photo2';
+      break;
+
+    case 'txt':
+    case 'csv':
+      iconName = 'TextDocument';
+      break;
+
+    case 'dwg':
+      iconName = 'PenWorkspace';
+      break;
+
+    default:
+      iconName = 'FileTemplate';
+      break;
+  }
+
+  return { iconName: iconName, iconColor: iconColor, iconTitle: iconTitle };
+
+ }
+
+ /***
+ *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d888888b db   db d888888b .d8888.      d8888b.  .d8b.  d888888b  .o88b. db   db 
+ *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          `~~88~~' 88   88   `88'   88'  YP      88  `8D d8' `8b `~~88~~' d8P  Y8 88   88 
+ *    8P      88oobY' 88ooooo 88ooo88    88    88ooooo         88    88ooo88    88    `8bo.        88oooY' 88ooo88    88    8P      88ooo88 
+ *    8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~         88    88~~~88    88      `Y8b.      88~~~b. 88~~~88    88    8b      88~~~88 
+ *    Y8b  d8 88 `88. 88.     88   88    88    88.             88    88   88   .88.   db   8D      88   8D 88   88    88    Y8b  d8 88   88 
+ *     `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P         YP    YP   YP Y888888P `8888Y'      Y8888P' YP   YP    YP     `Y88P' YP   YP 
+ *                                                                                                                                          
+ *                                                                                                                                          
+ */
  function createThisBatch ( results: any, start: number, batchIndex: number ) {
         
     let fetchEnd = new Date();
@@ -924,9 +1401,3 @@ function expandArray ( count: number ) : any[] {
 
  }
 
- export function analyzeStorage( oldItems: any[] ) {
-  let items: any[] = [];
-
-  return oldItems;
-
- }

@@ -34,6 +34,9 @@ export interface IItemDetail {
   FileRef: string;
   checkedOutId?: number;
   docIcon?: string;
+  iconName: string;
+  iconColor: string;
+  iconTitle: string;
   uniquePerms?: boolean;
   currentUser: boolean;
   size: number;
@@ -148,6 +151,9 @@ export interface IDuplicateFile {
 
 export interface IFileType {
   type: string;
+  iconName: string;
+  iconColor: string;
+  iconTitle: string;
   count: number;
   size: number;
   sizeGB: number;
@@ -200,6 +206,9 @@ export interface IDuplicateInfo {
 
 export interface IFolderInfo {
   count: number;
+  totalCount: number;
+  size: number;
+  totalSize: number;
   folders:  IItemDetail[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
