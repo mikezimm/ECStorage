@@ -31,6 +31,8 @@ export interface IEsItemsProps {
   
       items: IItemDetail[];
 
+      heading: string;
+
       batches: IECStorageBatch[];
 
 }

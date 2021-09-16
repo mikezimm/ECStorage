@@ -526,7 +526,7 @@ public async updateWebInfo ( webUrl?: string ) {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { 'Searching ' + this.state.batchData.userInfo.allUsers.length + ' users' }
+        { `Search all ${ this.state.batchData.userInfo.allUsers.length } users` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -562,8 +562,8 @@ public async updateWebInfo ( webUrl?: string ) {
         let label = '' ;
         let createTotalSizeLabel = user.createTotalSizeLabel;
         let modifyTotalSizeLabel = user.modifyTotalSizeLabel;
-        let createPercent = ( user.summary.sizeP * 100 ).toFixed( 0 );
-        let countPercent = ( user.summary.countP * 100 ).toFixed( 0 );
+        let createPercent = ( user.summary.sizeP ).toFixed( 0 );
+        let countPercent = ( user.summary.countP ).toFixed( 0 );
 
         switch (data) {
           case 'createSizeRank':

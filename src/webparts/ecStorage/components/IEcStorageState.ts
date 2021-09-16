@@ -29,6 +29,7 @@ export interface IItemDetail {
   editorTitle: string;
   authorName: string;
   editorName: string;
+  parentFolder: string;
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
@@ -153,6 +154,10 @@ export interface IFileType {
   sizeP: number;
   countP: number;
   sizeLabel: string;
+  avgSize: number;
+  maxSize: number;
+  avgSizeLabel: string;
+  maxSizeLabel: string;
   items: IItemDetail[];
   sizes: number[];
   createdMs: number[];

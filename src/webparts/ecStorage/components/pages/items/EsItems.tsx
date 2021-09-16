@@ -62,6 +62,11 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
   
+  private sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.props.items.length} items, use Search box to find more)`;
+  private sliderMax = this.props.items.length < 400 ? this.props.items.length : 400;
+  private sliderInc = this.props.items.length < 50 ? 1 : this.props.items.length < 100 ? 10 : 25;
+  private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
+
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -96,7 +101,7 @@ public constructor(props:IEsItemsProps){
         minYear: currentYearVal - 5 ,
         maxYear: currentYearVal + 1 ,
 
-        rankSlider: 5,
+        rankSlider: this.siderMin,
         textSearch: '',
 
         fetchSlider: 0,
@@ -141,18 +146,14 @@ public componentDidMount() {
       { itemsTable }
     </div>;
 
-    let sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.props.items.length} items, use Search box to find more)`;
-    let sliderMax = this.props.items.length < 400 ? this.props.items.length : 400;
-    let sliderInc = this.props.items.length < 50 ? 1 : this.props.items.length < 100 ? 10 : 25;
-    let siderMin = sliderInc > 1 ? sliderInc : 5;
     let sliderTypeCount = this.props.items.length < 5 ? null : 
-      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( sliderTitle , this.state.rankSlider , siderMin, sliderMax, sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
+      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
     return (
       <div className={ styles.ecStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
           <div>
-            <h3>Items found</h3>
+          <h3>{ this.props.items.length } Items found { this.props.heading }</h3>
           </div>
           <div className={ styles.inflexWrapCenter}>
             <div> { sliderTypeCount } </div>
@@ -186,7 +187,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Add search label here for Type Info` }
+        { `Search all ${ this.props.items.length } items` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -253,6 +254,7 @@ public componentDidMount() {
         textOverflow: 'ellipsis',
         cursor: 'pointer',
     };
+
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
     cells.push( <td style={{width: '100px'}} >{ item.sizeMB + 'MB'}</td> );
@@ -260,7 +262,7 @@ public componentDidMount() {
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
     cells.push( <td style={{width: '50px', cursor: 'pointer' }} 
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
-      title={ `Go to parent folder: ${ item.FileRef }`}
+      title={ `Go to parent folder: ${ item.parentFolder }`}
       >
       { <Icon iconName= {'OpenFolderHorizontal'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
     </td> );  
@@ -282,8 +284,9 @@ public componentDidMount() {
     let clickThisItem = parseInt(event.currentTarget.id);
 
     this.props.items.map( item => {
-      let openThisLink =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
-      if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
+      if ( item.id === clickThisItem ) { 
+        window.open( item.parentFolder, "_blank");
+      }
     });
   }
 

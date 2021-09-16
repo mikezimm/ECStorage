@@ -15,7 +15,7 @@ export interface IEsTypesState {
   hasError: boolean;
 
   showItems: boolean;
-  items: any[];
+  items: IItemDetail[];
 
   minYear: number;
   maxYear: number;

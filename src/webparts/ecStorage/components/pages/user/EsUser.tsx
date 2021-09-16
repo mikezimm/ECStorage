@@ -406,8 +406,8 @@ public componentDidMount() {
         let label = '' ;
         let createTotalSize = user.createTotalSize > 1e9 ? `${ (user.createTotalSize / 1e9).toFixed(1) } GB` : `${ (user.createTotalSize / 1e6).toFixed(1) } MB`;
         let modifyTotalSize = user.modifyTotalSize > 1e9 ? `${ (user.modifyTotalSize / 1e9).toFixed(1) } GB` : `${ (user.modifyTotalSize / 1e6).toFixed(1) } MB`;
-        let createPercent = ( user.summary.sizeP * 100 ).toFixed( 0 );
-        let countPercent = ( user.summary.countP * 100 ).toFixed( 0 );
+        let createPercent = ( user.summary.sizeP ).toFixed( 0 );
+        let countPercent = ( user.summary.countP ).toFixed( 0 );
 
         switch (data) {
           case 'createSizeRank':

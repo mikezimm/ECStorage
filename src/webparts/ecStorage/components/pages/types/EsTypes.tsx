@@ -138,13 +138,17 @@ public componentDidMount() {
     const pickedList = this.props.pickedList;
     const pickedWeb = this.props.pickedWeb;
 
-    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'Types of files you created by Size', this.state.rankSlider, this.state.textSearch, 'size' );
-    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'Types of files you created by Size', this.state.rankSlider, this.state.textSearch, 'count' );
+    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'size' );
+    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'count' );
+    const byAvg = this.buildTypeTables( this.props.typesInfo.types , 'By Avg size', this.state.rankSlider, this.state.textSearch, 'avgSize' );
+    const byMax = this.buildTypeTables( this.props.typesInfo.types , 'By Max size', this.state.rankSlider, this.state.textSearch, 'maxSize' );
 
     //EsItems
     let component = <div className={ styles.inflexWrapCenter}>
       { bySize }
       { byCount }
+      { byAvg }
+      { byMax }
     </div>;
 
     let sliderTypeCount = this.props.batchData.typesInfo.count < 5 ? null : 
@@ -160,7 +164,7 @@ public componentDidMount() {
           theSite = {null }
 
           items = { this.state.items }
-
+          heading = { ` of type: ${this.state.items[0].docIcon}` }
           batches = { batches }
 
         >
@@ -219,7 +223,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Add search label here for Type Info` }
+        { `Search all ${ this.props.typesInfo.count } types` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -238,17 +242,41 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' ): any {
+  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' | 'avgSize' | 'maxSize' ): any {
 
     let elements = [];
     let tableTitle = data;
-    const typesSorted = sortObjectArrayByNumberKey( types, 'dec', sortKey );
+    const typesSorted: IFileType[] = sortObjectArrayByNumberKey( types, 'dec', sortKey );
 
     typesSorted.map( ( type, index ) => {
 
       if ( index < countToShow || textSearch.length > 0 ) {
-        let typePercent = (( sortKey === 'size' ? type.sizeP : type.countP ) * 100).toFixed( 0 );
-        let label = `${type.type}  [ ${ sortKey === 'size' ? type.sizeLabel : type.count } / ${ typePercent }% ]` ;
+        
+        let typePercent = '';
+        let label = '';
+
+        switch (sortKey) {
+          case 'size':
+            typePercent = ( type.sizeP ).toFixed( 0 );
+            label = `${type.type}  [ ${ type.sizeLabel} / ${ typePercent }% ]` ;
+            break;
+        
+          case 'count':
+            typePercent = ( type.countP ).toFixed( 0 );
+            label = `${type.type}  [ ${ type.count} / ${ typePercent }% ]` ;
+            break;
+
+          case 'avgSize':
+            label = `${type.type}  [ ${ type.avgSizeLabel } ]` ;
+            break;
+        
+          case 'maxSize':
+            label = `${type.type}  [ ${ type.maxSizeLabel } ]` ;
+            break;
+        
+          default:
+            break;
+        }
 
         let showType = textSearch.length === 0 || (textSearch.length > 0 && type.type.toLowerCase().indexOf(textSearch.toLowerCase() )  > -1  ) ? true : false;
 

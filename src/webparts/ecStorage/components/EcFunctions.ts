@@ -270,6 +270,10 @@ export function createThisType ( docIcon: string ) :IFileType {
     size: 0,
     sizeGB: 0,
     sizeLabel: '',
+    avgSizeLabel: '',
+    maxSizeLabel: '',
+    avgSize: 0,
+    maxSize: 0,
     sizeP: 0,
     countP: 0,
     items: [],
@@ -676,10 +680,15 @@ function expandArray ( count: number ) : any[] {
   batchData.typesInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
     docType.sizeLabel = getSizeLabel( docType.size );
-    docType.sizeP = docType.size / batchData.size;
-    docType.countP = docType.count / batchData.count;
+    docType.sizeP = docType.size / batchData.size * 100;
+    docType.countP = docType.count / batchData.count * 100;
+    docType.avgSize = docType.size/docType.count;
+    docType.maxSize = Math.max(...docType.sizes);
+    docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+    docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
 
   });
+
   batchData.typesInfo.count = batchData.typesInfo.typeList.length;
 
   //Modify each user's typesInfo
@@ -687,8 +696,12 @@ function expandArray ( count: number ) : any[] {
     user.typesInfo.types.map( docType => {
       docType.sizeGB = docType.size/1e9;
       docType.sizeLabel = getSizeLabel( docType.size );
-      docType.sizeP = docType.size / user.createTotalSize;
-      docType.countP = docType.count / user.createCount;
+      docType.sizeP = docType.size / user.createTotalSize * 100;
+      docType.countP = docType.count / user.createCount * 100;
+      docType.avgSize = docType.size/docType.count;
+      docType.maxSize = Math.max(...docType.sizes);
+      docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+      docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
     });
     user.typesInfo.count = user.typesInfo.typeList.length;
   });
@@ -725,8 +738,8 @@ function expandArray ( count: number ) : any[] {
     user.summary.size = user.createTotalSize;
     user.summary.count = user.createCount;
     user.summary.sizeGB = user.summary.size / 1e9;
-    user.summary.sizeP = user.summary.size / batchData.size;
-    user.summary.countP = user.summary.count / batchData.count;
+    user.summary.sizeP = user.summary.size / batchData.size * 100;
+    user.summary.countP = user.summary.count / batchData.count * 100;
 
     allUserCreateSize.push( user.createTotalSize );
     allUserCreateCount.push( user.createCount );
@@ -769,8 +782,8 @@ function expandArray ( count: number ) : any[] {
     if ( dup.count > 1 ) {
       dup.sizeGB = dup.size/1e9;
       dup.sizeLabel = getSizeLabel( dup.size );
-      dup.sizeP = dup.size / batchData.size;
-      dup.countP = dup.count / batchData.count;
+      dup.sizeP = dup.size / batchData.size * 100;
+      dup.countP = dup.count / batchData.count * 100;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
@@ -839,7 +852,7 @@ function expandArray ( count: number ) : any[] {
 
   let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
   isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
-
+  let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
     index: itemIndex, //index of item in state.batches[batch].items
@@ -852,6 +865,7 @@ function expandArray ( count: number ) : any[] {
     editorTitle: item.Editor.Title,
     authorName: item.Author.Name,
     editorName: item.Editor.Name,
+    parentFolder: parentFolder,
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
     id: item.Id,
