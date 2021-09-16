@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styles from '../../EcStorage.module.scss';
-import { IEsTypesProps } from './IEsTypesProps';
-import { IEsTypesState } from './IEsTypesState';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IEcStorageState';
+import { IEsItemsProps } from './IEsItemsProps';
+import { IEsItemsState } from './IEsItemsState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail } from '../../IEcStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -31,6 +31,7 @@ import {
 
 import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
@@ -54,9 +55,9 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../EcFunctions';
 import { getSearchedFiles } from '../../EcSearch';
 
-import EsItems from '../../pages/items/EsItems';
+import { createSingleItemRow } from './SingleItem';
 
-export default class EsTypes extends React.Component<IEsTypesProps, IEsTypesState> {
+export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -74,7 +75,7 @@ export default class EsTypes extends React.Component<IEsTypesProps, IEsTypesStat
 
 
 
-public constructor(props:IEsTypesProps){
+public constructor(props:IEsItemsProps){
   super(props);
 
   let currentYear = new Date();
@@ -91,7 +92,6 @@ public constructor(props:IEsTypesProps){
         showPane: false,
 
         items: [],
-        showItems: false,
 
         minYear: currentYearVal - 5 ,
         maxYear: currentYearVal + 1 ,
@@ -131,67 +131,34 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IEsTypesProps> {
+  public render(): React.ReactElement<IEsItemsProps> {
 
-    const batches = this.props.batches;
-    const typesInfo = this.props.typesInfo;
-    const pickedList = this.props.pickedList;
-    const pickedWeb = this.props.pickedWeb;
+    console.log('EsItems.tsx1');
+    // debugger;
+    const itemsTable = this.buildItemsTable( this.props.items , '', this.state.rankSlider, this.state.textSearch, 'size' );
 
-    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'Types of files you created by Size', this.state.rankSlider, this.state.textSearch, 'size' );
-    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'Types of files you created by Size', this.state.rankSlider, this.state.textSearch, 'count' );
-
-    //EsItems
     let component = <div className={ styles.inflexWrapCenter}>
-      { bySize }
-      { byCount }
+      { itemsTable }
     </div>;
 
-    let sliderTypeCount = this.props.batchData.typesInfo.count < 5 ? null : 
-      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , this.state.rankSlider , 3, this.props.typesInfo.count, 1 , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
-
-    let userPanel = null;
-    
-    if ( this.state.showItems === true ) { 
-      let panelContent = <EsItems 
-
-          pickedWeb  = { this.props.pickedWeb }
-          pickedList = { this.props.pickedList }
-          theSite = {null }
-
-          items = { this.state.items }
-
-          batches = { batches }
-
-        >
-      </EsItems>;
-  
-      userPanel = <div><Panel
-        isOpen={ this.state.showItems === true ? true : false }
-        // this prop makes the panel non-modal
-        isBlocking={true}
-        onDismiss={ this._onCloseItems.bind(this) }
-        closeButtonAriaLabel="Close"
-        type = { PanelType.large }
-        isLightDismiss = { true }
-        >
-          { panelContent }
-      </Panel></div>;
-    }
+    let sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : 'Show up to 400 items, use Search box to find more)';
+    let sliderMax = this.props.items.length < 400 ? this.props.items.length : 400;
+    let sliderInc = this.props.items.length < 50 ? 1 : this.props.items.length < 100 ? 10 : 25;
+    let siderMin = sliderInc > 1 ? 10 : 5;
+    let sliderTypeCount = this.props.items.length < 5 ? null : 
+      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( sliderTitle , this.state.rankSlider , siderMin, sliderMax, sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
     return (
       <div className={ styles.ecStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
           <div>
-            <h3>File types found in this library</h3>
-            <p> { this.props.typesInfo.typeList.join(', ') }</p>
+            <h3>Items found</h3>
           </div>
           <div className={ styles.inflexWrapCenter}>
             <div> { sliderTypeCount } </div>
             <div> { this.buildSearchBox() } </div>
           </div>
           { component }
-          { userPanel }
           { this.state.isLoading ? 
               <div>
                 {/* { loadingNote }
@@ -238,69 +205,102 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' ): any {
+  private buildItemsTable( items: IItemDetail[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
-    let elements = [];
+    let rows = [];
     let tableTitle = data;
-    const typesSorted = sortObjectArrayByNumberKey( types, 'dec', sortKey );
+    const itemsSorted: IItemDetail[] = sortObjectArrayByNumberKey( items, 'dec', sortKey );
 
-    typesSorted.map( ( type, index ) => {
-
-      if ( index < countToShow || textSearch.length > 0 ) {
-        let typePercent = (( sortKey === 'size' ? type.sizeP : type.countP ) * 100).toFixed( 0 );
-        let label = `${type.type}  [ ${ sortKey === 'size' ? type.sizeLabel : type.count } / ${ typePercent }% ]` ;
-
-        let showType = textSearch.length === 0 || (textSearch.length > 0 && type.type.toLowerCase().indexOf(textSearch.toLowerCase() )  > -1  ) ? true : false;
-
-        let liStyle : React.CSSProperties = showType === true ?
-        {
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-        } : { display: 'none' };
-
-        elements.push(<li title={ `${label}` } style= { liStyle } onClick={ this._onClickItems.bind(this)} id={ type.type }>
-          <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
-        </li>);
+    itemsSorted.map( ( item, index ) => {
+      if ( rows.length < countToShow ) {
+        if ( textSearch.length > 0 ) {
+          let createdDate = new Date( item.created );
+          let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+          if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+            rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+          }
+        } else {
+          rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+        }
 
       }
-
     });
 
     let table = <div style={{marginRight: '10px'}}>
       <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
-      <ul style={{padding: '0 20px'}}>
-        { elements }
-      </ul>
+      {/* <table style={{padding: '0 20px'}}> */}
+      <table style={{ tableLayout:"fixed", width:"80%" }} id="Select-b">
+        { rows }
+        {/* { itemsSorted.map( ( item, index ) => {
+            return this.createSingleItemRow( item.id.toFixed(0), item );
+          })
+        } */}
+      </table>
     </div>;
     return table;
 
+  }
+
+  private createSingleItemRow( key: string, item: IItemDetail ) {
+
+    let created = new Date( item.created );
+
+    let cellMaxStyle: React.CSSProperties = {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        maxWidth: '70%',
+        height: '10px',
+        textOverflow: 'ellipsis',
+        cursor: 'pointer',
+    };
+    let cells : any[] = [];
+    cells.push( <td style={{width: '50px'}} >{ key }</td> );
+    cells.push( <td style={{width: '100px'}} >{ item.sizeMB + 'MB'}</td> );
+    cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
+    cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
+    cells.push( <td style={{width: '50px', cursor: 'pointer' }} 
+      onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
+      title={ `Go to parent folder: ${ item.FileRef }`}
+      >
+      { <Icon iconName= {'OpenFolderHorizontal'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+    </td> );  
+    // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
+    cells.push( <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
+        id={ item.id.toFixed(0) } 
+        title={ `Item ID: ${item.id}`}
+      >{ item.FileLeafRef }</td> );
+  
+    let cellRow = <tr> { cells } </tr>;
+
+    return cellRow;
+  
+  }
+
+  private _onClickFolder( event ) {
+    // console.log( event );
+    console.log( event.currentTarget.id );
+    let clickThisItem = parseInt(event.currentTarget.id);
+
+    this.props.items.map( item => {
+      let openThisLink =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
+      if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
+    });
+  }
+
+  private _onClickItem( event ) {
+    // console.log( event );
+    console.log( event.currentTarget.id );
+    let clickThisItem = parseInt(event.currentTarget.id);
+
+    this.props.items.map( item => {
+      let openThisLink =  item.FileRef;
+      if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
+    });
   }
   
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,
-    });
-  }
-
-  private _onClickItems( event ){
-    console.log( event );
-    console.log( event.currentTarget.id );
-    let showThisType = event.currentTarget.id;
-    let items = [];
-    this.props.typesInfo.types.map( type => {
-      if ( type.type === showThisType ) { items = type.items ; }
-    });
-    this.setState({
-      showItems: true,
-      items: items,
-    });
-  }
-
-  private _onCloseItems( event ){
-    this.setState({
-      showItems: false,
     });
   }
 

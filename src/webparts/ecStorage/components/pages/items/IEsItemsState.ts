@@ -3,9 +3,9 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, IItemDetail } from '../../IEcStorageState';
+import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from '../../IEcStorageState';
 
-export interface IEsTypesState {
+export interface IEsItemsState {
 
   isLoaded: boolean;
   isLoading: boolean;
@@ -14,7 +14,6 @@ export interface IEsTypesState {
   errorMessage: string;
   hasError: boolean;
 
-  showItems: boolean;
   items: any[];
 
   minYear: number;

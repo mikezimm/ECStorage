@@ -7,6 +7,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { Web, IList, Site } from "@pnp/sp/presets/all";
 
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import {
@@ -464,7 +465,7 @@ public async updateWebInfo ( webUrl?: string ) {
       >
     </EsUser>;
 
-      userPanel = <div><Panel
+    userPanel = <div><Panel
       isOpen={ this.state.showUser > -1 ? true : false }
       // this prop makes the panel non-modal
       isBlocking={true}
@@ -474,7 +475,7 @@ public async updateWebInfo ( webUrl?: string ) {
       isLightDismiss = { true }
       >
         { panelContent }
-      </Panel></div>;
+    </Panel></div>;
 
     }
     return (

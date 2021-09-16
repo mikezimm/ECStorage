@@ -503,25 +503,6 @@ function expandArray ( count: number ) : any[] {
       batchData.count ++;
       batchData.size += detail.size;
 
-      //Build up Type list
-      let typeIndex = batchData.typesInfo.typeList.indexOf( detail.docIcon );
-
-      if ( typeIndex < 0 ) {
-        batchData.typesInfo.typeList.push( detail.docIcon );
-        typeIndex = batchData.typesInfo.typeList.length - 1;
-        batchData.typesInfo.types.push( createThisType(detail.docIcon) );
-      }
-      batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
-
-      //Build up Duplicate list
-      let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
-      if ( dupIndex < 0 ) {
-        allNameStrings.push( detail.FileLeafRef.toLowerCase() );
-        dupIndex = allNameStrings.length - 1;
-        allNameItems.push( createThisDuplicate(detail)  );
-      }
-      allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
-
       //Get index of authorId in array of all authorIds
       let createUserIndex = batchData.userInfo.creatorIds.indexOf( detail.authorId );
       if ( createUserIndex === -1 ) { 
@@ -555,6 +536,7 @@ function expandArray ( count: number ) : any[] {
       batchData.userInfo.allUsers[ createUserAllIndex ] = updateThisAuthor( detail, batchData.userInfo.allUsers[ createUserAllIndex ]);
       batchData.userInfo.allUsers[ editUserAllIndex ] = updateThisEditor( detail, batchData.userInfo.allUsers[ editUserAllIndex ]);
 
+
       //Set default high items
       if ( !detail.isFolder ) {
         if ( largest === null ) {  largest = detail ; } else if ( detail.size > largest.size ) { largest = detail ; }
@@ -572,6 +554,37 @@ function expandArray ( count: number ) : any[] {
           if ( detail.modMs < userOldestModified.modMs ) { userOldestModified = detail ; }
         }
       }
+
+      
+      //Build up Type list
+      let typeIndex = batchData.typesInfo.typeList.indexOf( detail.docIcon );
+      let typeIndexUser = batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.typeList.indexOf( detail.docIcon );
+
+      if ( typeIndex < 0 ) {
+        batchData.typesInfo.typeList.push( detail.docIcon );
+        typeIndex = batchData.typesInfo.typeList.length - 1;
+        batchData.typesInfo.types.push( createThisType(detail.docIcon) );
+      }
+      if ( typeIndexUser < 0 ) {
+        batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.typeList.push( detail.docIcon );
+        typeIndexUser = batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.typeList.length - 1;
+        batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types.push( createThisType(detail.docIcon) );
+      }
+      batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
+      batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ] = updateThisType( batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ], detail );
+
+      //Build up Duplicate list
+      let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+      if ( dupIndex < 0 ) {
+        allNameStrings.push( detail.FileLeafRef.toLowerCase() );
+        dupIndex = allNameStrings.length - 1;
+        allNameItems.push( createThisDuplicate(detail)  );
+      }
+      allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+
+
+
+
 
       // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
       batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
@@ -659,6 +672,7 @@ function expandArray ( count: number ) : any[] {
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
 
+  //Update batchData typesInfo
   batchData.typesInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
     docType.sizeLabel = getSizeLabel( docType.size );
@@ -667,6 +681,21 @@ function expandArray ( count: number ) : any[] {
 
   });
   batchData.typesInfo.count = batchData.typesInfo.typeList.length;
+
+  //Modify each user's typesInfo
+  batchData.userInfo.allUsers.map( user => {
+    user.typesInfo.types.map( docType => {
+      docType.sizeGB = docType.size/1e9;
+      docType.sizeLabel = getSizeLabel( docType.size );
+      docType.sizeP = docType.size / user.createTotalSize;
+      docType.countP = docType.count / user.createCount;
+    });
+    user.typesInfo.count = user.typesInfo.typeList.length;
+  });
+
+
+
+
 
   //summarize Users data
   let allUserCreateSize: number[] = [];
@@ -821,6 +850,8 @@ function expandArray ( count: number ) : any[] {
     editorId: item.EditorId,
     authorTitle: item.Author.Title,
     editorTitle: item.Editor.Title,
+    authorName: item.Author.Name,
+    editorName: item.Editor.Name,
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
     id: item.Id,
@@ -832,6 +863,7 @@ function expandArray ( count: number ) : any[] {
     bucket: `${createYr}-${modYr}`,
     createMs: created.getTime(),
     modMs: modified.getTime(),
+    ContentTypeId: item.ContentTypeId,
   };
 
 

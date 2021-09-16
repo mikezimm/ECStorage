@@ -27,6 +27,8 @@ export interface IItemDetail {
   editorId: number;
   authorTitle: string;
   editorTitle: string;
+  authorName: string;
+  editorName: string;
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
@@ -41,6 +43,7 @@ export interface IItemDetail {
   bucket: string; // yyyy-mm
   createMs: number;
   modMs: number;
+  ContentTypeId: string;
 
 }
 
@@ -115,7 +118,6 @@ export interface IUserSummary {
 
   large: ILargeFiles;
   items: IItemDetail[];
-
 
   folderInfo: IFolderInfo;
 
