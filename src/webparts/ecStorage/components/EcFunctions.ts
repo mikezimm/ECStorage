@@ -230,8 +230,6 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     folderInfo: {
       count: 0,
       size: 0,
-      totalCount: 0,
-      totalSize: 0,
       folders: [],
       countRank: [],
       sizeRank: [],
@@ -714,6 +712,8 @@ function expandArray ( count: number ) : any[] {
   let allNameStrings: string[] = [];
   let allNameItems: IDuplicateFile[] = [];
 
+  let allFolderRefs: string [] = [];
+
   /***
  *                       .88b  d88.  .d8b.  d8888b.       .d8b.  db      db           d888888b d888888b d88888b .88b  d88. .d8888. 
  *           Vb          88'YbdP`88 d8' `8b 88  `8D      d8' `8b 88      88             `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
@@ -868,16 +868,58 @@ function expandArray ( count: number ) : any[] {
 
       // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
       batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
+
+      /***
+       *                       db    db .d8888. d88888b d8888b.      d88888b  .d88b.  db      d8888b. d88888b d8888b. .d8888. 
+       *           Vb          88    88 88'  YP 88'     88  `8D      88'     .8P  Y8. 88      88  `8D 88'     88  `8D 88'  YP 
+       *            `Vb        88    88 `8bo.   88ooooo 88oobY'      88ooo   88    88 88      88   88 88ooooo 88oobY' `8bo.   
+       *    C8888D    `V.      88    88   `Y8b. 88~~~~~ 88`8b        88~~~   88    88 88      88   88 88~~~~~ 88`8b     `Y8b. 
+       *              .d'      88b  d88 db   8D 88.     88 `88.      88      `8b  d8' 88booo. 88  .8D 88.     88 `88. db   8D 
+       *            .dP        ~Y8888P' `8888Y' Y88888P 88   YD      YP       `Y88P'  Y88888P Y8888D' Y88888P 88   YD `8888Y' 
+       *           dP                                                                                                         
+       *                                                                                                                      
+       */
       if ( detail.isFolder === true ) { 
+        allFolderRefs.push( detail.FileRef );
         batchData.folderInfo.folders.push ( detail ) ;
         batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( detail ) ;
-      } 
+      } else {
+        let allFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
+        if ( allFolderIndex < 0 ) {
+          console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+        } else {
+          batchData.folderInfo.folders[ allFolderIndex ].size += detail.size;
+          batchData.folderInfo.folders[ allFolderIndex ].totalCount ++;
 
+        }
+
+      }
+
+      /***
+       *                       db    db .d8888. d88888b d8888b.      d8888b. d88888b d8888b. .88b  d88. .d8888. 
+       *           Vb          88    88 88'  YP 88'     88  `8D      88  `8D 88'     88  `8D 88'YbdP`88 88'  YP 
+       *            `Vb        88    88 `8bo.   88ooooo 88oobY'      88oodD' 88ooooo 88oobY' 88  88  88 `8bo.   
+       *    C8888D    `V.      88    88   `Y8b. 88~~~~~ 88`8b        88~~~   88~~~~~ 88`8b   88  88  88   `Y8b. 
+       *              .d'      88b  d88 db   8D 88.     88 `88.      88      88.     88 `88. 88  88  88 db   8D 
+       *            .dP        ~Y8888P' `8888Y' Y88888P 88   YD      88      Y88888P 88   YD YP  YP  YP `8888Y' 
+       *           dP                                                                                           
+       *                                                                                                        
+       */
       if ( detail.uniquePerms === true ) { 
         batchData.uniqueInfo.uniqueRolls.push ( detail ) ;
         batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.uniqueRolls.push ( detail ) ;
       }
 
+      /***
+       *                       db    db .d8888. d88888b d8888b.      .d8888. d888888b d88888D d88888b 
+       *           Vb          88    88 88'  YP 88'     88  `8D      88'  YP   `88'   YP  d8' 88'     
+       *            `Vb        88    88 `8bo.   88ooooo 88oobY'      `8bo.      88       d8'  88ooooo 
+       *    C8888D    `V.      88    88   `Y8b. 88~~~~~ 88`8b          `Y8b.    88      d8'   88~~~~~ 
+       *              .d'      88b  d88 db   8D 88.     88 `88.      db   8D   .88.    d8' db 88.     
+       *            .dP        ~Y8888P' `8888Y' Y88888P 88   YD      `8888Y' Y888888P d88888P Y88888P 
+       *           dP                                                                                 
+       *                                                                                              
+       */
       if ( detail.size > 1e10 ) { 
         bigData.GT10G.push ( detail ) ;
         bigData.summary = updateBucketSummary (bigData.summary , detail );
@@ -898,6 +940,17 @@ function expandArray ( count: number ) : any[] {
         batchData.userInfo.allUsers[ createUserAllIndex ].large.GT10M.push ( detail ) ;
 
       }
+
+      /***
+       *                       db    db .d8888. d88888b d8888b.       .d8b.   d888b  d88888b 
+       *           Vb          88    88 88'  YP 88'     88  `8D      d8' `8b 88' Y8b 88'     
+       *            `Vb        88    88 `8bo.   88ooooo 88oobY'      88ooo88 88      88ooooo 
+       *    C8888D    `V.      88    88   `Y8b. 88~~~~~ 88`8b        88~~~88 88  ooo 88~~~~~ 
+       *              .d'      88b  d88 db   8D 88.     88 `88.      88   88 88. ~8~ 88.     
+       *            .dP        ~Y8888P' `8888Y' Y88888P 88   YD      YP   YP  Y888P  Y88888P 
+       *           dP                                                                        
+       *                                                                                     
+       */
       let theCurrentYear = getCurrentYear();
 
       if ( detail.createYr < theCurrentYear - 4 ) { 
@@ -946,6 +999,19 @@ function expandArray ( count: number ) : any[] {
         batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age1Yr.push ( detail ) ;
       }
 
+
+      
+    /***
+     *                       d88888b d8b   db d8888b.      d888888b d888888b d88888b .88b  d88.      .88b  d88.  .d8b.  d8888b. 
+     *           Vb          88'     888o  88 88  `8D        `88'   `~~88~~' 88'     88'YbdP`88      88'YbdP`88 d8' `8b 88  `8D 
+     *            `Vb        88ooooo 88V8o 88 88   88         88       88    88ooooo 88  88  88      88  88  88 88ooo88 88oodD' 
+     *    C8888D    `V.      88~~~~~ 88 V8o88 88   88         88       88    88~~~~~ 88  88  88      88  88  88 88~~~88 88~~~   
+     *              .d'      88.     88  V888 88  .8D        .88.      88    88.     88  88  88      88  88  88 88   88 88      
+     *            .dP        Y88888P VP   V8P Y8888D'      Y888888P    YP    Y88888P YP  YP  YP      YP  YP  YP YP   YP 88      
+     *           dP                                                                                                             
+     *                                                                                                                          
+     */
+
     });
   });
 
@@ -991,6 +1057,7 @@ function expandArray ( count: number ) : any[] {
     });
     user.typesInfo.count = user.typesInfo.typeList.length;
   });
+
 
 
 
@@ -1082,6 +1149,11 @@ function expandArray ( count: number ) : any[] {
   bigData.summary.sizeP = bigData.summary.size / batchData.size;
   oldData.summary.sizeGB = bigData.summary.size / 1e9;
   oldData.summary.sizeGB = oldData.summary.size / batchData.size;
+
+  batchData.folderInfo.folders.map( folder => {
+    folder.sizeMB = folder.size / 1e6;
+    folder.sizeLabel = getSizeLabel( folder.size );
+  });
 
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b .d8888. 

@@ -38,10 +38,8 @@ export interface IItemDetail {
   iconColor: string;
   iconTitle: string;
   uniquePerms?: boolean;
+  
   currentUser: boolean;
-  size: number;
-  sizeMB: number;
-  isFolder?: boolean;
   createYr: number;
   modYr: number;
   bucket: string; // yyyy-mm
@@ -49,7 +47,20 @@ export interface IItemDetail {
   modMs: number;
   ContentTypeId: string;
 
+  size: number;
+  sizeMB: number;
+
+  isFolder?: boolean;
+
 }
+
+export interface IFolderDetail extends IItemDetail {
+  sizeLabel: string; //used primarily in folders
+  totalCount: number; //used primarily in folders
+  totalSize: number; //used primarily in folders
+  items: IItemDetail[];
+}
+
 
 export interface IBucketSummary {
   title: string;
@@ -206,9 +217,7 @@ export interface IDuplicateInfo {
 
 export interface IFolderInfo {
   count: number;
-  totalCount: number;
   size: number;
-  totalSize: number;
   folders:  IItemDetail[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
