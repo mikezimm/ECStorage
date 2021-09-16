@@ -141,10 +141,10 @@ public componentDidMount() {
       { itemsTable }
     </div>;
 
-    let sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : 'Show up to 400 items, use Search box to find more)';
+    let sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.props.items.length} items, use Search box to find more)`;
     let sliderMax = this.props.items.length < 400 ? this.props.items.length : 400;
     let sliderInc = this.props.items.length < 50 ? 1 : this.props.items.length < 100 ? 10 : 25;
-    let siderMin = sliderInc > 1 ? 10 : 5;
+    let siderMin = sliderInc > 1 ? sliderInc : 5;
     let sliderTypeCount = this.props.items.length < 5 ? null : 
       <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( sliderTitle , this.state.rankSlider , siderMin, sliderMax, sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
