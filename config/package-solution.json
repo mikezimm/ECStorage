@@ -3,7 +3,7 @@
   "solution": {
     "name": "Extreme Storage Webpart",
     "id": "d3df71fa-d1d2-4666-afa8-562711ea8f27",
-    "version": "1.0.0.0",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {

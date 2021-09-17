@@ -23,8 +23,8 @@ import * as strings from 'ExStorageWebPartStrings';
 import ExStorage from './components/ExStorage';
 import { IExStorageProps } from './components/IExStorageProps';
 
-// import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
-// import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
+import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
+import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
 require('../../services/GrayPropPaneAccordions.css');
@@ -202,8 +202,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
           },
           displayGroupsAsAccordion: true,
           groups: [
-            // WebPartInfoGroup( links.gitRepoEasyContnets, 'For analyzing extreme document libraries' ),
-            // FPSOptionsGroup( false, true, true, true ), // this group,
+            WebPartInfoGroup( links.gitRepoEasyStorage, 'For analyzing extreme document libraries' ),
+            FPSOptionsGroup( false, true, true, true ), // this group,
             {
               groupName: strings.BasicGroupName,
               isCollapsed: false ,
