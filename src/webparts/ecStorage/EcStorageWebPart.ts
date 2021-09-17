@@ -22,6 +22,10 @@ import * as strings from 'EcStorageWebPartStrings';
 import EcStorage from './components/EcStorage';
 import { IEcStorageProps } from './components/IEcStorageProps';
 
+import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
+import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+
 export interface IEcStorageWebPartProps {
   description: string;
 
@@ -171,11 +175,13 @@ export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWe
             description: strings.PropertyPaneDescription
           },
           groups: [
+            WebPartInfoGroup( links.gitRepoEasyContnets, 'For analyzing extreme document libraries' ),
+            FPSOptionsGroup( false, true, true, true ), // this group,
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
+                PropertyPaneTextField('parentWeb', {
+                  label: 'Site URL'
                 })
               ]
             }

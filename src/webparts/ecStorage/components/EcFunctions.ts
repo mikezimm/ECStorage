@@ -31,7 +31,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from './IEcStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IEcStorageState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -229,7 +229,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
 
     folderInfo: {
       count: 0,
-      size: 0,
+      folderRefs:[],
       folders: [],
       countRank: [],
       sizeRank: [],
@@ -395,7 +395,7 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
  */
 export function createThisType ( docIcon: string ) :IFileType {
 
-  let iconInfo = getIconInfo( docIcon );
+  let iconInfo = getFileTypeIconInfo( docIcon );
 
   let thisType: IFileType = {
     type: docIcon,
@@ -463,6 +463,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
     count: 0,
     size: 0,
     sizeGB: 0,
+    items: [],
     typesInfo: {
       count: 0,
       typeList: [],
@@ -481,9 +482,7 @@ export function createBatchData ( currentUser: IUser ):IBatchData {
 
     folderInfo: {
       count: 0,
-      size: 0,
-      totalCount: 0,
-      totalSize: 0,
+      folderRefs:[],
       folders: [],
       countRank: [],
       sizeRank: [],
@@ -565,10 +564,8 @@ function createDupRanks ( count: number ) : IDuplicateInfo {
 function createFolderRanks ( count: number ) : IFolderInfo {
   let theseInfos : IFolderInfo = {
     count: 0,
-    size: 0,
-    totalCount: 0,
-    totalSize: 0,
     folders: [],
+    folderRefs:[],
     countRank: [],
     sizeRank: [],
   };
@@ -589,17 +586,15 @@ function createFolderRanks ( count: number ) : IFolderInfo {
  *    88.     .8P  Y8. 88      88   88 88  V888 88  .8D      88   88 88 `88. 88 `88. 88   88    88    
  *    Y88888P YP    YP 88      YP   YP VP   V8P Y8888D'      YP   YP 88   YD 88   YD YP   YP    YP    
  *                                                                                                    
- *                                                                                                    
+ *       import { expandArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';                                                                                             
  */
+
 function expandArray ( count: number ) : any[] {
   let theseInfos: any[] = [];
-
   for (let index = 0; index < count; index++) {
     theseInfos.push( null );
   }
-
   return theseInfos;
-
 }
 
 /***
@@ -620,6 +615,7 @@ function expandArray ( count: number ) : any[] {
   let listTitle = pickedList.Title;
 
   let items: any = null;
+  let cleanedItems: IAllItemTypes[] = [];
 
   let isLoaded = false;
 
@@ -879,21 +875,49 @@ function expandArray ( count: number ) : any[] {
        *           dP                                                                                                         
        *                                                                                                                      
        */
+      batchData.folderInfo.folderRefs = allFolderRefs;
+      let parentFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
+      let userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folderRefs.indexOf( detail.parentFolder );
+
       if ( detail.isFolder === true ) { 
+        //Create new IFolderDetail in all folders.
         allFolderRefs.push( detail.FileRef );
-        batchData.folderInfo.folders.push ( detail ) ;
-        batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( detail ) ;
-      } else {
-        let allFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
-        if ( allFolderIndex < 0 ) {
+        parentFolderIndex = allFolderRefs.length -1;
+        let folderAny : any = detail;
+        let folderDetail : IFolderDetail = folderAny;
+        folderDetail.sizeLabel = '';
+        folderDetail.directItems = [];
+        folderDetail.otherItems = [];
+        folderDetail.totalCount = 0;
+        folderDetail.totalSize = 0;
+        folderDetail.directCount = 0;
+        folderDetail.directSize = 0;
+        folderDetail.directSizes = [];
+
+        //push this new folder to top folder info
+        batchData.folderInfo.folders.push ( folderDetail ) ;
+        batchData.folderInfo.count ++;
+
+        //Push new IFolderDetail in current user all folders.
+        batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( folderDetail ) ;
+        userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.length - 1;
+
+      } else { //This is not a folder but an item... update sizes
+        if ( parentFolderIndex < 0 ) {
           console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
-        } else {
-          batchData.folderInfo.folders[ allFolderIndex ].size += detail.size;
-          batchData.folderInfo.folders[ allFolderIndex ].totalCount ++;
-
         }
-
       }
+
+      let thisDetailsParentFolder: IFolderDetail = batchData.folderInfo.folders[ parentFolderIndex ];
+      if ( parentFolderIndex < 0 ) {
+        console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+      } else {
+
+        // thisDetailsParentFolder.totalCount ++;
+        // thisDetailsParentFolder.totalSize += detail.size;
+      }
+
+
 
       /***
        *                       db    db .d8888. d88888b d8888b.      d8888b. d88888b d8888b. .88b  d88. .d8888. 
@@ -1011,9 +1035,35 @@ function expandArray ( count: number ) : any[] {
      *           dP                                                                                                             
      *                                                                                                                          
      */
+      cleanedItems.push( detail );
 
     });
   });
+
+
+  cleanedItems.map ( detail => {
+    let parentFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
+
+    let thisDetailsParentFolder: IFolderDetail = batchData.folderInfo.folders[ parentFolderIndex ];
+    if ( parentFolderIndex < 0 ) {
+      console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+    } else {
+  
+      //Update main list of folder's stats for direct items
+      if ( thisDetailsParentFolder.FileRef !== detail.FileRef ) {
+        thisDetailsParentFolder.directSize += detail.size;
+        thisDetailsParentFolder.size += detail.size;
+        thisDetailsParentFolder.directCount ++;
+        thisDetailsParentFolder.directSizes.push( detail.size );
+        thisDetailsParentFolder.directItems.push( detail );
+      }
+
+      // thisDetailsParentFolder.totalCount ++;
+      // thisDetailsParentFolder.totalSize += detail.size;
+    }
+  });
+  
+
 
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
@@ -1199,6 +1249,7 @@ function expandArray ( count: number ) : any[] {
 
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
+  batchData.items = cleanedItems;
 
   let batchInfo = {
     batches: batches,
@@ -1223,7 +1274,7 @@ function expandArray ( count: number ) : any[] {
  
  }
 
- /***
+/***
  *     d888b  d88888b d888888b      .d8888. d888888b d88888D d88888b      db       .d8b.  d8888b. d88888b db      
  *    88' Y8b 88'     `~~88~~'      88'  YP   `88'   YP  d8' 88'          88      d8' `8b 88  `8D 88'     88      
  *    88      88ooooo    88         `8bo.      88       d8'  88ooooo      88      88ooo88 88oooY' 88ooooo 88      
@@ -1231,10 +1282,10 @@ function expandArray ( count: number ) : any[] {
  *    88. ~8~ 88.        88         db   8D   .88.    d8' db 88.          88booo. 88   88 88   8D 88.     88booo. 
  *     Y888P  Y88888P    YP         `8888Y' Y888888P d88888P Y88888P      Y88888P YP   YP Y8888P' Y88888P Y88888P 
  *                                                                                                                
- *                                                                                                                
+ *    import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';                                                                                                  
  */
  function getSizeLabel ( size: number) {
-  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : `${ ( size / 1e6).toFixed(1) } MB`;
+  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : size > 1e9 ? `${ (size / 1e6).toFixed(1) } MB` : `${ ( size / 1e3).toFixed(1) } KB`;
  }
 
  /***
@@ -1245,7 +1296,7 @@ function expandArray ( count: number ) : any[] {
  *    88b  d88 88      88  .8D 88   88    88    88.          88  V888 88.     .8P  Y8.    88         `8b  d8' 88      88.     88  V888        .88.   88  V888 88  .8D 88.     .8P  Y8. 
  *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      VP   V8P Y88888P YP    YP    YP          `Y88P'  88      Y88888P VP   V8P      Y888888P VP   V8P Y8888D' Y88888P YP    YP 
  *                                                                                                                                                                                     
- *                                                                                                                                                                                     
+ *    import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  */
  function updateNextOpenIndex( targetArray: any[], start: number, value: any ): any[] {
   let exit: boolean = false;
@@ -1319,7 +1370,7 @@ function expandArray ( count: number ) : any[] {
   if ( item.DocIcon ) { 
     itemDetail.docIcon = item.DocIcon;
 
-    let iconInfo = getIconInfo( item.DocIcon );
+    let iconInfo = getFileTypeIconInfo( item.DocIcon );
     itemDetail.iconName = iconInfo.iconName; 
     itemDetail.iconColor = iconInfo.iconColor;   
     itemDetail.iconTitle = iconInfo.iconTitle;   
@@ -1344,9 +1395,9 @@ function expandArray ( count: number ) : any[] {
  *    88. ~8~ 88.        88           .88.   Y8b  d8 `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
  *     Y888P  Y88888P    YP         Y888888P  `Y88P'  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
  *                                                                                                             
- *                                                                                                             
+ *    import { getFileTypeIconInfo } from '@mikezimm/npmfunctions/dist/HelpInfo/Icons/stdECStorage';
  */
- function getIconInfo( ext: string) {
+ function getFileTypeIconInfo( ext: string) {
 
   let iconColor = 'black';
   let iconName = ext;

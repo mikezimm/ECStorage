@@ -55,10 +55,14 @@ export interface IItemDetail {
 }
 
 export interface IFolderDetail extends IItemDetail {
-  sizeLabel: string; //used primarily in folders
-  totalCount: number; //used primarily in folders
-  totalSize: number; //used primarily in folders
-  items: IItemDetail[];
+  sizeLabel: string;
+  directCount: number; //Only next direct children, not their descendants
+  directSize: number; //Only next direct children, not their descendants
+  directItems: IItemDetail[]; //Only next direct children, not their descendants
+  directSizes: number[]; 
+  totalCount: number; //Total count including all descendants
+  totalSize: number; //Total size including all descendants
+  otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
 
@@ -217,8 +221,8 @@ export interface IDuplicateInfo {
 
 export interface IFolderInfo {
   count: number;
-  size: number;
-  folders:  IItemDetail[];
+  folderRefs: string[];
+  folders:  IFolderDetail[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
 }
@@ -228,6 +232,7 @@ export interface IUniqueInfo {
   uniqueRolls: IItemDetail[];
 }
 
+export type IAllItemTypes = IFolderDetail | IItemDetail;
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export interface IBatchData {
   count: number;
@@ -247,6 +252,8 @@ export interface IBatchData {
   typesInfo: ITypeInfo;
 
   duplicateInfo: IDuplicateInfo;
+
+  items: IAllItemTypes[];
 
 }
 
