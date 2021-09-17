@@ -19,9 +19,13 @@
     "group": { "default": "Other" },
     "title": { "default": "FPS Extreme Storage WebPart" },
     "description": { "default": "Helps identify storage issues with files" },
-    "officeFabricIconFontName": "Page",
+    "officeFabricIconFontName": "AADLogo",
     "properties": {
-      "description": "For really big libraries"
+      "description": "For really big libraries",
+      "listTitle": "Documents",
+      "showListDropdown": true,
+      "showSystemLists": false,
+      "excludeListTitles": ""
     }
   }]
 }
