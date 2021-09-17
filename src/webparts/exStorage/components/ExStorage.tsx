@@ -1,7 +1,7 @@
 import * as React from 'react';
-import styles from './EcStorage.module.scss';
-import { IEcStorageProps } from './IEcStorageProps';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from './IEcStorageState';
+import styles from './ExStorage.module.scss';
+import { IExStorageProps } from './IExStorageProps';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary } from './IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
@@ -48,11 +48,11 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from './EcFunctions';
-import { getSearchedFiles } from './EcSearch';
+import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
+import { getSearchedFiles } from './ExSearch';
 
-import EsUser from './pages/user/EsUser';
-import EsTypes from './pages/types/EsTypes';
+import ExUser from './pages/user/ExUser';
+import ExTypes from './pages/types/ExTypes';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -74,7 +74,7 @@ const pivotHeading9 = 'Folders';
 
 
 
-export default class EcStorage extends React.Component<IEcStorageProps, IEcStorageState> {
+export default class ExStorage extends React.Component<IExStorageProps, IExStorageState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -92,7 +92,7 @@ export default class EcStorage extends React.Component<IEcStorageProps, IEcStora
 
 
 
-public constructor(props:IEcStorageProps){
+public constructor(props:IExStorageProps){
   super(props);
 
   let parentWeb = cleanURL(this.props.parentWeb);
@@ -176,8 +176,8 @@ public async updateWebInfo ( webUrl?: string ) {
   //https://github.com/pnp/pnpjs/issues/160#issuecomment-793849161
   listObject.query.set('t', new Date().getTime().toString()); // <-- forces unique Get path
 
-  let theList: IECStorageList = await listObject.select( listSelect ).get();
-  // let theList: IECStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
+  let theList: IEXStorageList = await listObject.select( listSelect ).get();
+  // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
   theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
 
   let isCurrentWeb: boolean = false;
@@ -227,7 +227,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
   }
 
-  public render(): React.ReactElement<IEcStorageProps> {
+  public render(): React.ReactElement<IExStorageProps> {
 
     let batchData = this.state.batchData;
     const batches = this.state.batches;
@@ -276,7 +276,7 @@ public async updateWebInfo ( webUrl?: string ) {
     </div>;
 
     let typesPivotContent = <div>
-      <EsTypes 
+      <ExTypes 
   
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
           WebpartHeight = { this.props.WebpartHeight }
@@ -290,7 +290,7 @@ public async updateWebInfo ( webUrl?: string ) {
           batches = { batches }
           batchData = { batchData }
       >
-      </EsTypes>
+      </ExTypes>
       <ReactJson src={ batchData.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
     let usersPivotContent = null;
@@ -355,7 +355,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
 
     let youPivotContent = <div>
-        <EsUser 
+        <ExUser 
           pageContext = { this.context.pageContext }
           wpContext = { this.context }
           tenant = { this.props.tenant }
@@ -379,7 +379,7 @@ public async updateWebInfo ( webUrl?: string ) {
           batches = { batches }
           batchData = { batchData }
         >
-        </EsUser>
+        </ExUser>
       </div>;
 
     let permsPivotContent = <div><div>
@@ -447,7 +447,7 @@ public async updateWebInfo ( webUrl?: string ) {
     let userPanel = null;
     
     if ( this.state.showUser > -1 ) { 
-      let panelContent = <EsUser 
+      let panelContent = <ExUser 
         pageContext = { this.context.pageContext }
         wpContext = { this.context }
         tenant = { this.props.tenant }
@@ -471,7 +471,7 @@ public async updateWebInfo ( webUrl?: string ) {
         batches = { batches }
         batchData = { batchData }
       >
-    </EsUser>;
+    </ExUser>;
 
     userPanel = <div><Panel
       isOpen={ this.state.showUser > -1 ? true : false }
@@ -487,7 +487,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
     }
     return (
-      <div className={ styles.ecStorage }>
+      <div className={ styles.exStorage }>
         <div className={ styles.container }>
 
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
@@ -658,7 +658,7 @@ public async updateWebInfo ( webUrl?: string ) {
     this.fetchStoredItems( this.state.pickedWeb, this.state.pickedList, this.state.fetchSlider, this.state.currentUser );
   }
 
-  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, getCount: number, currentUser: IUser ) {
+  private fetchStoredItems( pickedWeb: IPickedWebBasic , pickedList: IEXStorageList, getCount: number, currentUser: IUser ) {
 
     this.setState({ 
       isLoading: true,

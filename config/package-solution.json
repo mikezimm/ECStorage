@@ -1,7 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "ec-storage-client-side-solution",
+    "name": "Extreme Storage Webpart",
     "id": "d3df71fa-d1d2-4666-afa8-562711ea8f27",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
@@ -15,6 +15,6 @@
     }
   },
   "paths": {
-    "zippedPackage": "solution/ec-storage.sppkg"
+    "zippedPackage": "solution/ex-storage.sppkg"
   }
 }

@@ -12,7 +12,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 
-export interface IEcStorageProps {
+export interface IExStorageProps {
 
       // 0 - Context
       wpContext: WebPartContext;

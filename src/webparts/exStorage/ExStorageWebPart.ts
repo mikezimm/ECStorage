@@ -18,15 +18,15 @@ import { makeid, getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Se
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import * as strings from 'EcStorageWebPartStrings';
-import EcStorage from './components/EcStorage';
-import { IEcStorageProps } from './components/IEcStorageProps';
+import * as strings from 'ExStorageWebPartStrings';
+import ExStorage from './components/ExStorage';
+import { IExStorageProps } from './components/IExStorageProps';
 
-import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
-import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
+// import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
+// import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
-export interface IEcStorageWebPartProps {
+export interface IExStorageWebPartProps {
   description: string;
 
   // 0 - Context
@@ -50,7 +50,7 @@ export interface IEcStorageWebPartProps {
 
 }
 
-export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWebPartProps> {
+export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWebPartProps> {
 
   private minQuickLaunch: boolean = false;
   private fpsPageDone: boolean = false;
@@ -121,8 +121,8 @@ export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWe
     let urlVars : any = this.getUrlVars();
     console.log('urlVars:' , urlVars );
 
-    const element: React.ReactElement<IEcStorageProps> = React.createElement(
-      EcStorage,
+    const element: React.ReactElement<IExStorageProps> = React.createElement(
+      ExStorage,
       {
         // 0 - Context
         pageContext: this.context.pageContext,
@@ -175,8 +175,8 @@ export default class EcStorageWebPart extends BaseClientSideWebPart<IEcStorageWe
             description: strings.PropertyPaneDescription
           },
           groups: [
-            WebPartInfoGroup( links.gitRepoEasyContnets, 'For analyzing extreme document libraries' ),
-            FPSOptionsGroup( false, true, true, true ), // this group,
+            // WebPartInfoGroup( links.gitRepoEasyContnets, 'For analyzing extreme document libraries' ),
+            // FPSOptionsGroup( false, true, true, true ), // this group,
             {
               groupName: strings.BasicGroupName,
               groupFields: [

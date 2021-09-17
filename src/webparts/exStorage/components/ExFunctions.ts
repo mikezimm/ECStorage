@@ -30,8 +30,8 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IEcStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IExStorageState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -607,7 +607,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                               
  *                                                                               
  */
- export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IECStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
+ export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IEXStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
 
   currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
 
@@ -622,7 +622,7 @@ function expandArray ( count: number ) : any[] {
   let errMessage = '';
   let thisWebInstance = null;
 
-  let batches: IECStorageBatch[] = [];
+  let batches: IEXStorageBatch[] = [];
  
   if ( fetchCount > 0 ) {
     try {
@@ -1505,7 +1505,7 @@ function expandArray ( count: number ) : any[] {
     let firstCreated = items && items.length > -1 ? new Date( items[0].Created ) : null;
     let lastCreated = items && items.length > -1 ? new Date( items[items.length - 1 ].Created ) : null;
 
-    let batch: IECStorageBatch = {
+    let batch: IEXStorageBatch = {
       index: batchIndex,
       start: start,
       end: endMs,

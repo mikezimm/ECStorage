@@ -1,4 +1,4 @@
-# ec-storage
+# ex-storage
 
 ## Summary
 

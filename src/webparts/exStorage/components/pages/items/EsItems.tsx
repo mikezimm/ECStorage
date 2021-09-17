@@ -1,8 +1,8 @@
 import * as React from 'react';
-import styles from '../../EcStorage.module.scss';
+import styles from '../../ExStorage.module.scss';
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail } from '../../IEcStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -52,8 +52,8 @@ import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfuncti
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from '../../EcFunctions';
-import { getSearchedFiles } from '../../EcSearch';
+import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
+import { getSearchedFiles } from '../../ExSearch';
 
 import { createSingleItemRow } from './SingleItem';
 
@@ -155,7 +155,7 @@ public componentDidMount() {
 
 
     return (
-      <div className={ styles.ecStorage } style={{ marginLeft: '25px'}}>
+      <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
           <div className={styles.flexWrapStart}>
             <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>

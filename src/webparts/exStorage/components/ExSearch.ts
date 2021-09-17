@@ -27,7 +27,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { IEcStorageState, IECStorageList, IECStorageBatch } from './IEcStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch } from './IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -53,7 +53,7 @@ export interface MySearchResults extends ISearchResult {
 
 }
 
-export function getSearchedFiles( tenant: string, pickedList: IECStorageList,  ascSort :boolean  ) {
+export function getSearchedFiles( tenant: string, pickedList: IEXStorageList,  ascSort :boolean  ) {
 
     //var departmentId = departmentId;
     // do a null check of department id

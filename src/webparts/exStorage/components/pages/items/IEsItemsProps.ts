@@ -11,7 +11,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IEcStorageState, IItemDetail, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IEcStorageState';
+import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
 
 export interface IIconArray {
       iconTitle: string;
@@ -30,7 +30,7 @@ export interface IEsItemsProps {
   
       theSite: ISite;
       pickedWeb : IPickedWebBasic;
-      pickedList? : IECStorageList;
+      pickedList? : IEXStorageList;
   
       // currentUser: IUser;
   
@@ -39,6 +39,6 @@ export interface IEsItemsProps {
 
       heading: string;
 
-      batches: IECStorageBatch[];
+      batches: IEXStorageBatch[];
 
 }

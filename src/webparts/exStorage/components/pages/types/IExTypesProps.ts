@@ -11,9 +11,9 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IEcStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
 
-export interface IEsTypesProps {
+export interface IExTypesProps {
 
       // 0 - Context
       // wpContext: WebPartContext;
@@ -25,13 +25,13 @@ export interface IEsTypesProps {
   
       theSite: ISite;
       pickedWeb : IPickedWebBasic;
-      pickedList? : IECStorageList;
+      pickedList? : IEXStorageList;
   
       // currentUser: IUser;
   
       typesInfo:  ITypeInfo;
 
-      batches: IECStorageBatch[];
+      batches: IEXStorageBatch[];
       batchData: IBatchData;
 
       WebpartHeight: number;

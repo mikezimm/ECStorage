@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styles from '../../EcStorage.module.scss';
+import styles from '../../ExStorage.module.scss';
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
 import { escape } from '@microsoft/sp-lodash-subset';
@@ -50,8 +50,8 @@ import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfuncti
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { IEcStorageState, IECStorageList, IECStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-  IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from '../../IEcStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
+  IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from '../../IExStorageState';
 
 export function createSingleItemRow( item: IItemDetail ) {
   let cells : any[] = [];

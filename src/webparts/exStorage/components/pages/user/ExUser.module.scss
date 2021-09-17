@@ -1,6 +1,6 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
 
-.ecStorage {
+.exStorage {
   .container {
     max-width: 1800px;
     margin: 0px auto;
@@ -106,52 +106,5 @@
       vertical-align: top;
       display: inline-block;
     }
-  }
-
-  .inflexWrapCenter {
-    display:'inline-flex';
-    align-items: 'center';
-    justify-content: 'center';
-    flex-wrap: 'wrap';
-    margin-top: '20px';
-  }
-
-  
-  .inflexNoWrapStart {
-    display:'inline-flex';
-    align-items: '';
-    justify-content: 'center';
-    flex-wrap: 'nowrap';
-    margin-top: '20px';
-  }
-
-  .flexWrapStart {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: center;
-    justify-content: flex-start;
-    align-items: center;
-
-  }
-
-  .margRight15Divs > div {
-    margin-right: 15px;
-  }
-
-  .margRight20Divs > div {
-    margin-right: 20px;
-  }
-
-  .margRight40Divs > div {
-    margin-right: 40px;
-  }
-
-  .margRight60Divs > div {
-    margin-right: 40px;
-  }
-
-  .noWrapDivs > div {
-    white-space: nowrap;
   }
 }

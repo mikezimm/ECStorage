@@ -1,8 +1,8 @@
 import * as React from 'react';
-import styles from '../../EcStorage.module.scss';
-import { IEsTypesProps } from './IEsTypesProps';
-import { IEsTypesState } from './IEsTypesState';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IEcStorageState';
+import styles from '../../ExStorage.module.scss';
+import { IExTypesProps } from './IExTypesProps';
+import { IExTypesState } from './IExTypesState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -51,12 +51,12 @@ import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfuncti
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from '../../EcFunctions';
-import { getSearchedFiles } from '../../EcSearch';
+import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
+import { getSearchedFiles } from '../../ExSearch';
 
-import EsItems from '../../pages/items/EsItems';
+import EsItems from '../items/EsItems';
 
-export default class EsTypes extends React.Component<IEsTypesProps, IEsTypesState> {
+export default class ExTypes extends React.Component<IExTypesProps, IExTypesState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -74,7 +74,7 @@ export default class EsTypes extends React.Component<IEsTypesProps, IEsTypesStat
 
 
 
-public constructor(props:IEsTypesProps){
+public constructor(props:IExTypesProps){
   super(props);
 
   let currentYear = new Date();
@@ -131,7 +131,7 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IEsTypesProps> {
+  public render(): React.ReactElement<IExTypesProps> {
 
     const batches = this.props.batches;
     const typesInfo = this.props.typesInfo;
@@ -185,7 +185,7 @@ public componentDidMount() {
     }
 
     return (
-      <div className={ styles.ecStorage } style={{ marginLeft: '25px'}}>
+      <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
           <div>
             <h3>File types found in this library</h3>

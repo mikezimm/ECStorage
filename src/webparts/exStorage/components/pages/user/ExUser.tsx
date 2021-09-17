@@ -1,8 +1,8 @@
 import * as React from 'react';
-import styles from '../../EcStorage.module.scss';
-import { IEsUserProps } from './IEsUserProps';
-import { IEsUserState } from './IEsUserState';
-import { IEcStorageState, IECStorageList, IECStorageBatch, IBatchData, IUserSummary } from '../../IEcStorageState';
+import styles from '../../ExStorage.module.scss';
+import { IExUserProps } from './IExUserProps';
+import { IExUserState } from './IExUserState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -49,10 +49,10 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from '../../EcFunctions';
-import { getSearchedFiles } from '../../EcSearch';
+import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
+import { getSearchedFiles } from '../../ExSearch';
 
-import EsTypes from '../../pages/types/EsTypes';
+import ExTypes from '../types/ExTypes';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -74,7 +74,7 @@ const pivotHeading9 = 'Folders';
 
 
 
-export default class EsUser extends React.Component<IEsUserProps, IEsUserState> {
+export default class ExUser extends React.Component<IExUserProps, IExUserState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -92,7 +92,7 @@ export default class EsUser extends React.Component<IEsUserProps, IEsUserState> 
 
 
 
-public constructor(props:IEsUserProps){
+public constructor(props:IExUserProps){
   super(props);
 
   let currentYear = new Date();
@@ -149,7 +149,7 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IEsUserProps> {
+  public render(): React.ReactElement<IExUserProps> {
 
     const batches = this.props.batches;
     const userSummary = this.props.userSummary;
@@ -219,7 +219,7 @@ public componentDidMount() {
     // </div>;
 
     let typesPivotContent = <div>
-      <EsTypes 
+      <ExTypes 
   
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
           WebpartHeight = { this.props.WebpartHeight }
@@ -233,7 +233,7 @@ public componentDidMount() {
           batches = { batches }
           batchData = { this.props.batchData }
       >
-      </EsTypes>
+      </ExTypes>
       <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
     let usersPivotContent = null;
@@ -328,7 +328,7 @@ public componentDidMount() {
     </Pivot>;
 
     return (
-      <div className={ styles.ecStorage }>
+      <div className={ styles.exStorage }>
         <div className={ styles.container }>
 
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}

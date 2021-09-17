@@ -3,7 +3,7 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-export interface IECStorageList extends IPickedList {
+export interface IEXStorageList extends IPickedList {
 
   Created: string;
   ItemCount: number;
@@ -257,7 +257,7 @@ export interface IBatchData {
 
 }
 
-export interface IECStorageBatch {
+export interface IEXStorageBatch {
   index: number;  //Should just be the index of the batch in the batches array
   start: number;
   end: number;
@@ -272,7 +272,7 @@ export interface IECStorageBatch {
   lastCreated: Date;
 }
 
-export interface IECStorageFilter {
+export interface IEXStorageFilter {
   startDate: any;
   endDate: any;
   minSize: number;
@@ -281,11 +281,11 @@ export interface IECStorageFilter {
 
 
 
-export interface IEcStorageState {
+export interface IExStorageState {
 
   theSite: ISite;
   pickedWeb : IPickedWebBasic;
-  pickedList? : IECStorageList;
+  pickedList? : IEXStorageList;
 
   currentUser: IUser;
 
@@ -322,7 +322,7 @@ export interface IEcStorageState {
   fetchPerComp: number;
   fetchLabel: string;
 
-  batches: IECStorageBatch[];
+  batches: IEXStorageBatch[];
   batchData: IBatchData;
 
 }

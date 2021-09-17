@@ -1,4 +1,4 @@
-declare interface IEcStorageWebPartStrings {
+declare interface IExStorageWebPartStrings {
   PropertyPaneDescription: string;
   BasicGroupName: string;
   DescriptionFieldLabel: string;
@@ -9,7 +9,7 @@ declare interface IEcStorageWebPartStrings {
   
 }
 
-declare module 'EcStorageWebPartStrings' {
-  const strings: IEcStorageWebPartStrings;
+declare module 'ExStorageWebPartStrings' {
+  const strings: IExStorageWebPartStrings;
   export = strings;
 }
