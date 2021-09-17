@@ -235,9 +235,11 @@ export interface IUniqueInfo {
 export type IAllItemTypes = IFolderDetail | IItemDetail;
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export interface IBatchData {
+  totalCount: number;
   count: number;
   size: number;
   sizeGB: number;
+  sizeLabel: string;
   large: ILargeFiles;
 
   oldCreated: IOldFiles;
@@ -296,6 +298,7 @@ export interface IExStorageState {
 
   isLoaded: boolean;
   isLoading: boolean;
+  showBegin: boolean;
 
   allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 

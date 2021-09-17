@@ -50,6 +50,7 @@ import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
 import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
 import { getSearchedFiles } from './ExSearch';
+import { createSummary } from './pages/summary/ExSummary';
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
@@ -106,6 +107,7 @@ public constructor(props:IExStorageProps){
         pickedWeb : this.props.pickedWeb,
         isLoaded: false,
         isLoading: true,
+        showBegin: true,
         errorMessage: '',
         stateError: [],
         hasError: false,
@@ -138,7 +140,7 @@ public constructor(props:IExStorageProps){
         fetchPerComp: 100,
         fetchLabel: '',
         showProgress: false,
-        batchData: createBatchData( null ),
+        batchData: createBatchData( null, null ),
   
   };
 }
@@ -251,8 +253,22 @@ public async updateWebInfo ( webUrl?: string ) {
     percentComplete={ this.state.fetchPerComp } 
     progressHidden={ !this.state.showProgress }/> : null;
 
+    let beginMessage = <div>
+      <h2>Your library has to many items to auto-load.</h2>
+      <ol>
+        <li>Adjust the fetch count slider to how many items to load.</li>
+        <ul>
+          <li>If you don't select all files, it will go faster but you will have an incomplete picture.</li>
+        </ul>
+        <li>Then press the Begin button to get started.</li>
+        <li>Once you press begin, please wait for it to complete which may take a bit.</li>
+        <li>When it's done, you will see some tabs summarizing the files in the library.</li>
+      </ol>
 
-    let fetchButton = <PrimaryButton text={ 'Begin'} onClick={this.fetchStoredItemsClick.bind(this)} allowDisabledFocus disabled={ this.state.isLoading } />;
+    </div>;
+
+    let disabledButton = this.state.isLoading === true|| this.state.fetchSlider === 0 ? true : false;
+    let fetchButton = <PrimaryButton text={ 'Begin'} onClick={this.fetchStoredItemsClick.bind(this)} allowDisabledFocus disabled={ disabledButton } />;
 
     let currentYear = new Date();
     let currentYearVal = currentYear.getFullYear();
@@ -400,6 +416,8 @@ public async updateWebInfo ( webUrl?: string ) {
         <ReactJson src={ batchData.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
+    let summaryPivot = createSummary( this.state.batchData );
+
     let componentPivot = 
     <Pivot
         styles={ pivotStyles }
@@ -408,6 +426,7 @@ public async updateWebInfo ( webUrl?: string ) {
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
       <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { summaryPivot }
         <ReactJson src={ batchData } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </PivotItem>
 
@@ -505,16 +524,28 @@ public async updateWebInfo ( webUrl?: string ) {
               </div>
             : null
           } 
+          
+          { this.state.showBegin === true ? 
+            <div>
+              { beginMessage }
+            </div>
+            : null
+          } 
 
-          { componentPivot }
-          <div style={{ overflowY: 'auto' }}>
-              {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-              <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-              <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
-              <ReactJson src={ batches } name={ 'All items' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+          { this.state.showBegin === false && this.state.isLoading === false ? 
+              <div>
+                { componentPivot }
+                <div style={{ overflowY: 'auto' }}>
+                    {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+                    <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+                    <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
+                    <ReactJson src={ batches } name={ 'Load Batches' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
 
-          </div>
-          { userPanel }
+                </div>
+                { userPanel }
+              </div>
+              : null
+          } 
         </div>
       </div>
     );
@@ -691,7 +722,7 @@ public async updateWebInfo ( webUrl?: string ) {
       // fetchPerComp: fetchPerComp,
       // fetchLabel: fetchLabel,
       showProgress: false,
-
+      showBegin: false,
       batches: batchInfo.batches,
       batchData: batchInfo.batchData,
 

@@ -458,11 +458,13 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
  *                                                                                                                                           
  */
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
-export function createBatchData ( currentUser: IUser ):IBatchData {
+export function createBatchData ( currentUser: IUser, totalCount: number ):IBatchData {
   return {  
+    totalCount: totalCount,
     count: 0,
     size: 0,
     sizeGB: 0,
+    sizeLabel: '',
     items: [],
     typesInfo: {
       count: 0,
@@ -689,7 +691,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                                                                               
  */
 
-  let batchData = createBatchData( currentUser );
+  let batchData = createBatchData( currentUser, pickedList.ItemCount );
   //Add to large bucket
   let bigData = batchData.large;
   let oldData = batchData.oldCreated;
@@ -1067,6 +1069,7 @@ function expandArray ( count: number ) : any[] {
 
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
   batchData.sizeGB += ( batchData.size / 1e9 );
+  batchData.sizeLabel = getSizeLabel( batchData.size );
 
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d888888b db    db d8888b. d88888b d888888b d8b   db d88888b  .d88b.  
@@ -1309,7 +1312,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                                                                
  *    import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';                                                                                                  
  */
- function getSizeLabel ( size: number) {
+ export function getSizeLabel ( size: number) {
   return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : size > 1e6 ? `${ (size / 1e6).toFixed(1) } MB` : `${ ( size / 1e3).toFixed(1) } KB`;
  }
 
