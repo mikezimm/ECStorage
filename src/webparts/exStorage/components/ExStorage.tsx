@@ -191,7 +191,7 @@ public async updateWebInfo ( webUrl?: string ) {
   let currentYear: any = new Date();
   currentYear = currentYear.getFullYear();
 
-  let currentUser = this.props.currentUser === null ? await this.getCurrentUser() : this.props.currentUser;
+  let currentUser = this.props.currentUser === null ? await this.getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
 
 
   //Automatically kick off if it's under 5k items
@@ -715,9 +715,10 @@ public async updateWebInfo ( webUrl?: string ) {
   }
 
 
-  public async getCurrentUser(): Promise<IUser> {
+  public async getCurrentUser( webURL: string): Promise<IUser> {
     let currentUser : IUser =  null;
-    await sp.web.currentUser.get().then((r) => {
+    let thisWebInstance = Web(webURL);
+    await thisWebInstance.currentUser.get().then((r) => {
       currentUser = {
         title: r['Title'] , //
         Title: r['Title'] , //

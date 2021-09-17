@@ -609,7 +609,7 @@ function expandArray ( count: number ) : any[] {
  */
  export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IEXStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
 
-  currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
+  // currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
 
   let webURL = pickedWeb.url;
   let listTitle = pickedList.Title;
@@ -1248,6 +1248,31 @@ function expandArray ( count: number ) : any[] {
   });
 
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
+  if ( currentUserAllIndex < 0 ) {
+    //User was not created based on content... create a user profile in memory:
+    let currentUserObj = createThisUser( null, currentUser.Id, currentUser.Title ) ;
+    batchData.userInfo.count ++;
+
+    currentUserObj.createSizeRank = batchData.userInfo.count - 1;
+    currentUserObj.createCountRank = batchData.userInfo.count - 1;
+    currentUserObj.modifyCountRank = batchData.userInfo.count - 1;
+    currentUserObj.modifySizeRank = batchData.userInfo.count - 1;
+
+    batchData.userInfo.allUsers.push( currentUserObj );
+    batchData.userInfo.currentUser = currentUserObj;
+
+    // batchData.userInfo.creatorIds.push( currentUserObj.userId );  //Not needed at this point
+    // batchData.userInfo.editorIds.push( currentUserObj.userId );  //Not needed at this point
+    batchData.userInfo.allUsersIds.push( currentUserObj.userId );
+
+    batchData.userInfo.createSizeRank.push( batchData.userInfo.count - 1 );
+    batchData.userInfo.createCountRank.push( batchData.userInfo.count - 1 );
+    batchData.userInfo.modifySizeRank.push( batchData.userInfo.count - 1 );
+    batchData.userInfo.modifyCountRank.push( batchData.userInfo.count - 1 );
+    currentUserAllIndex = batchData.userInfo.allUsers.length - 1;
+
+  }
+
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
   batchData.items = cleanedItems;
 
@@ -1285,7 +1310,7 @@ function expandArray ( count: number ) : any[] {
  *    import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';                                                                                                  
  */
  function getSizeLabel ( size: number) {
-  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : size > 1e9 ? `${ (size / 1e6).toFixed(1) } MB` : `${ ( size / 1e3).toFixed(1) } KB`;
+  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : size > 1e6 ? `${ (size / 1e6).toFixed(1) } MB` : `${ ( size / 1e3).toFixed(1) } KB`;
  }
 
  /***
