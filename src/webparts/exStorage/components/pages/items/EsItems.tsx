@@ -52,7 +52,7 @@ import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfuncti
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
+import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
 import { createSingleItemRow } from './SingleItem';
@@ -262,7 +262,7 @@ public componentDidMount() {
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
-    cells.push( <td style={{width: '100px'}} >{ item.sizeMB + 'MB'}</td> );
+    cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
     cells.push( <td style={{width: '50px', cursor: 'pointer' }} 
