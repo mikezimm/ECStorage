@@ -11,33 +11,36 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary } from '../../IExStorageState';
 
-export interface IEcStorageProps {
+export interface IExUserProps {
 
       // 0 - Context
       wpContext: WebPartContext;
       pageContext: PageContext;
-      
+
       WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
         // 1 - Analytics options
-      useListAnalytics: boolean;
-      analyticsWeb: string;
-      analyticsList: string;
+      // useListAnalytics: boolean;
+      // analyticsWeb: string;
+      // analyticsList: string;
       tenant: string;
-      urlVars: {};
-
-      parentWeb: string;
-      listTitle: string;
   
-      allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-      pickedWeb : IPickedWebBasic;
       theSite: ISite;
+      pickedWeb : IPickedWebBasic;
+      pickedList? : IEXStorageList;
 
-      allLoaded: boolean;
+      isLoaded: boolean;
   
       currentUser: IUser;
+      isCurrentUser: boolean;
   
+      userSummary:  IUserSummary;
+
+      batches: IEXStorageBatch[];
+      batchData: IBatchData;
+
       WebpartHeight: number;
       WebpartWidth: number;
 

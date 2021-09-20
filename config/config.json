@@ -2,18 +2,19 @@
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
   "version": "2.0",
   "bundles": {
-    "ec-storage-web-part": {
+    "ex-storage-web-part": {
       "components": [
         {
-          "entrypoint": "./lib/webparts/ecStorage/EcStorageWebPart.js",
-          "manifest": "./src/webparts/ecStorage/EcStorageWebPart.manifest.json"
+          "entrypoint": "./lib/webparts/exStorage/ExStorageWebPart.js",
+          "manifest": "./src/webparts/exStorage/ExStorageWebPart.manifest.json"
         }
       ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "EcStorageWebPartStrings": "lib/webparts/ecStorage/loc/{locale}.js",
-    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+    "ExStorageWebPartStrings": "lib/webparts/exStorage/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
+    "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"
   }
 }
