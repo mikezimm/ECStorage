@@ -43,17 +43,19 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
-import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
 import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
 import { getSearchedFiles } from './ExSearch';
-import { createSummary } from './pages/summary/ExSummary';
+import { createBatchSummary } from './pages/summary/ExBatchSummary';
+
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
+import ExSize from './pages/size/ExSize';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -168,7 +170,7 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let theSite: ISite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
 
-  let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl'].join(',');
+  let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl','EntityTypeName'].join(',');
   // let listSelect = ['*'].join(',');
 
   let thisWebInstance = Web(webUrl);
@@ -180,7 +182,16 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let theList: IEXStorageList = await listObject.select( listSelect ).get();
   // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
-  theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
+  if ( theList.DocumentTemplateUrl && theList.DocumentTemplateUrl.length > 0 ) {
+    theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
+  } else {
+    theList.LibraryUrl = webUrl;
+    if ( webUrl.lastIndexOf( '/') !== webUrl.length -1 ) {
+      theList.LibraryUrl += '/';
+    }
+    theList.LibraryUrl += encodeDecodeString(theList.EntityTypeName, null);
+  }
+ 
 
   let isCurrentWeb: boolean = false;
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
@@ -306,8 +317,7 @@ public async updateWebInfo ( webUrl?: string ) {
           batches = { batches }
           batchData = { batchData }
       >
-      </ExTypes>
-      <ReactJson src={ batchData.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
+      </ExTypes></div>;
 
     let usersPivotContent = null;
     
@@ -335,16 +345,21 @@ public async updateWebInfo ( webUrl?: string ) {
       <ReactJson src={ batchData.userInfo.allUsers } name={ 'Users' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
     }
 
-    let sizePivotContent = <div><div>
-      <h3>Summary of files by Size</h3>
-      </div>
-        <ReactJson src={ batchData.large.summary } name={ `Summary` } 
-            collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ batchData.large.GT10M } name={ '> 10M per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let sizePivotContent = <div>
+      <ExSize 
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        batchData = { batchData }
+
+        largeData = { batchData.large }
+      >
+      </ExSize></div>;
 
     let agePivotContent = <div><div>
       <h3>Summary of files by Age</h3>
@@ -416,7 +431,7 @@ public async updateWebInfo ( webUrl?: string ) {
         <ReactJson src={ batchData.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
-    let summaryPivot = createSummary( this.state.batchData );
+    let summaryPivot = createBatchSummary( this.state.batchData );
 
     let componentPivot = 
     <Pivot

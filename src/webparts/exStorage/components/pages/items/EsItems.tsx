@@ -153,27 +153,28 @@ public componentDidMount() {
       return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
     });
 
+    let page = null;
+    const emptyItemsElements = this.props.emptyItemsElements;
+
+    if ( this.props.items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ) {
+      page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
+
+    } else {
+      page = <div>
+        <div className={styles.flexWrapStart}>
+          <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
+        </div>
+        <div className={ styles.inflexWrapCenter}>
+          <div> { sliderTypeCount } </div>
+          <div> { this.buildSearchBox() } </div>
+        </div>
+        { component }
+      </div>;
+    }
 
     return (
       <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
-        {/* <div className={ styles.container }> */}
-          <div className={styles.flexWrapStart}>
-            <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
-          </div>
-          <div className={ styles.inflexWrapCenter}>
-            <div> { sliderTypeCount } </div>
-            <div> { this.buildSearchBox() } </div>
-          </div>
-          { component }
-          { this.state.isLoading ? 
-              <div>
-                {/* { loadingNote }
-                { searchSpinner }
-                { myProgress } */}
-              </div>
-            : null
-          } 
-        {/* </div> */}
+        { page }
       </div>
     );
   }

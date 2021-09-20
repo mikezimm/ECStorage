@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
-import { IExTypesProps } from './IExTypesProps';
-import { IExTypesState } from './IExTypesState';
+import { IExSizeProps } from './IExSizeProps';
+import { IExSizeState } from './IExSizeState';
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -54,9 +54,26 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
+import { createSizeSummary } from '../summary/ExSizeSummary';
+
 import EsItems from '../items/EsItems';
 
-export default class ExTypes extends React.Component<IExTypesProps, IExTypesState> {
+const pivotStyles = {
+  root: {
+    whiteSpace: "normal",
+    marginTop: '30px',
+  //   textAlign: "center"
+  }};
+
+const pivotHeading1 = 'Size Summary';
+const pivotHeading2 = '>10GB';
+const pivotHeading3 = '>1GB';
+const pivotHeading4 = '>100MB';
+const pivotHeading5 = '>10MB';
+const pivotHeading6 = 'All Large';
+
+
+export default class ExSize extends React.Component<IExSizeProps, IExSizeState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -74,7 +91,7 @@ export default class ExTypes extends React.Component<IExTypesProps, IExTypesStat
 
 
 
-public constructor(props:IExTypesProps){
+public constructor(props:IExSizeProps){
   super(props);
 
   let currentYear = new Date();
@@ -131,81 +148,104 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IExTypesProps> {
+  public render(): React.ReactElement<IExSizeProps> {
 
-    const batches = this.props.batches;
-    const typesInfo = this.props.typesInfo;
-    const pickedList = this.props.pickedList;
-    const pickedWeb = this.props.pickedWeb;
+    let emptyItemsElements = [
+      <div style={{ padding: '20px', width: '100%', height: '100px' }}>
+        Well I don't see any files in this category yet.  Is that a good thing?
+      </div>,
+      <div style={{ padding: '20px', }}>
+        I'll tell you one thing about the universe, though. The universe is a pretty big place. It's bigger than anything anyone has ever dreamed of before. So if it's just us... seems like an awful waste of space. Right?
+        <br/><br/>- Ellie Arroway
+      </div>,
+      <div style={{ padding: '20px', }}>
+        Looks like we have not created any files this big yet :)
+        <br/><br/>Hint - The Tabs tell you how many items fall under this category.
+      </div>,
+    ];
 
-    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'size' );
-    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'count' );
-    const byAvg = this.buildTypeTables( this.props.typesInfo.types , 'By Avg size', this.state.rankSlider, this.state.textSearch, 'avgSize' );
-    const byMax = this.buildTypeTables( this.props.typesInfo.types , 'By Max size', this.state.rankSlider, this.state.textSearch, 'maxSize' );
+    let componentPivot = 
+    <Pivot
+        styles={ pivotStyles }
+        linkFormat={PivotLinkFormat.links}
+        linkSize={PivotLinkSize.normal}
+        // onLinkClick={this._selectedListDefIndex.bind(this)}
+    > 
+      <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { createSizeSummary( this.props.batchData.large, this.props.batchData ) }
+      </PivotItem>
 
-    //EsItems
-    let component = <div className={ styles.inflexWrapCenter}>
-      { bySize }
-      { byCount }
-      { byAvg }
-      { byMax }
-    </div>;
+      <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} 
+        itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT10G.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
-    let sliderTypeCount = this.props.batchData.typesInfo.count < 5 ? null : 
-      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( 'Show Top' , this.state.rankSlider , 3, this.props.typesInfo.count, 1 , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
+            items = { this.props.largeData.GT10G }
+            heading = { ` larger than 1GB` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+          ></EsItems>
+      </PivotItem>
 
-    let userPanel = null;
-    
-    if ( this.state.showItems === true ) { 
-      let panelContent = <EsItems 
+      <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3}
+        itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT01G.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
-          pickedWeb  = { this.props.pickedWeb }
-          pickedList = { this.props.pickedList }
-          theSite = {null }
+            items = { this.props.largeData.GT01G }
+            heading = { ` larger than 100MB` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+          ></EsItems>
+      </PivotItem> 
 
-          items = { this.state.items }
-          heading = { ` of type: ${this.state.items[0].docIcon}` }
-          // batches = { batches }
-          icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
+      <PivotItem headerText={ pivotHeading4 } ariaLabel={pivotHeading4} title={pivotHeading4} 
+        itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT100M.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
-        >
-      </EsItems>;
-  
-      userPanel = <div><Panel
-        isOpen={ this.state.showItems === true ? true : false }
-        // this prop makes the panel non-modal
-        isBlocking={true}
-        onDismiss={ this._onCloseItems.bind(this) }
-        closeButtonAriaLabel="Close"
-        type = { PanelType.large }
-        isLightDismiss = { true }
-        >
-          { panelContent }
-      </Panel></div>;
-    }
+            items = { this.props.largeData.GT100M }
+            heading = { ` larger than 10MB` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+          ></EsItems>
+      </PivotItem> 
+      
+      <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5}
+        itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT10M.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.largeData.GT10M }
+            heading = { ` larger than 10GB` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+          ></EsItems>
+      </PivotItem>
+
+    </Pivot>;
 
     return (
       <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
-          <div>
-            <h3>File types found in this library</h3>
-            <p> { this.props.typesInfo.typeList.join(', ') }</p>
-          </div>
-          <div className={ styles.inflexWrapCenter}>
-            <div> { sliderTypeCount } </div>
-            <div> { this.buildSearchBox() } </div>
-          </div>
-          { component }
-          { userPanel }
-          { this.state.isLoading ? 
-              <div>
-                {/* { loadingNote }
-                { searchSpinner }
-                { myProgress } */}
-              </div>
-            : null
-          } 
-        {/* </div> */}
+          {/* <div> */}
+            {/* <h3>The larger files</h3> */}
+            {/* <p> { this.props.typesInfo.typeList.join(', ') }</p> */}
+          {/* </div> */}
+          { componentPivot }
+
       </div>
     );
   }
@@ -224,7 +264,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ this.props.typesInfo.count } types` }
+        {/* { `Search all ${ this.props.typesInfo.count } types` } */}
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -318,9 +358,9 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let showThisType = event.currentTarget.id;
     let items = [];
-    this.props.typesInfo.types.map( type => {
-      if ( type.type === showThisType ) { items = type.items ; }
-    });
+    // this.props.typesInfo.types.map( type => {
+    //   if ( type.type === showThisType ) { items = type.items ; }
+    // });
     this.setState({
       showItems: true,
       items: items,

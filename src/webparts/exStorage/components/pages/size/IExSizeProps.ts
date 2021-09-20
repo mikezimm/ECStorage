@@ -11,14 +11,9 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, ILargeFiles } from '../../IExStorageState';
 
-export interface IIconArray {
-      iconTitle: string;
-      iconName: string;
-      iconColor: string;
-}
-export interface IEsItemsProps {
+export interface IExSizeProps {
 
       // 0 - Context
       // wpContext: WebPartContext;
@@ -32,14 +27,10 @@ export interface IEsItemsProps {
       pickedWeb : IPickedWebBasic;
       pickedList? : IEXStorageList;
   
-      // currentUser: IUser;
-  
-      items: IItemDetail[];
-      icons: IIconArray[];
+      largeData: ILargeFiles;
+      batchData: IBatchData;
 
-      heading: string;
-
-      emptyItemsElements?: any[]; //Will pick any of these elements to randomly display
-      // batches: IEXStorageBatch[];
+      WebpartHeight: number;
+      WebpartWidth: number;
 
 }

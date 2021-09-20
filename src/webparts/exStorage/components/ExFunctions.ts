@@ -99,9 +99,12 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
       count: 0,
       size: 0,
       sizeGB: 0,
+      sizeToCountRatio: 0,
+      sizeLabel: '',
       countP: 0,
       sizeP: 0,
-      users: [],
+      userIds: [],
+      userTitles: [],
     };
     return summary;
 
@@ -121,9 +124,26 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
   export function updateBucketSummary( summary: IBucketSummary, detail: IItemDetail ): IBucketSummary {
     summary.count ++;
     summary.size += detail.size;
+    summary.sizeGB = summary.size/1e9;
+    summary.sizeLabel = getSizeLabel( summary.size ) ;
+    if ( summary.userIds.indexOf( detail.authorId ) < 0 ) { summary.userIds.push( detail.authorId ) ; }
+    if ( summary.userIds.indexOf( detail.editorId ) < 0 ) { summary.userIds.push( detail.editorId ) ; }
+    if ( summary.userTitles.indexOf( detail.authorTitle ) < 0 ) { summary.userTitles.push( detail.authorTitle ) ; }
+    if ( summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { summary.userTitles.push( detail.editorTitle ) ; }
     return summary;
 
   }
+
+  export function updateBucketSummaryPercents( summary: IBucketSummary, compare: IBucketSummary | IBatchData ): IBucketSummary {
+    summary.sizeGB = summary.size / 1e9 ;
+    summary.sizeP = 100 * summary.size / compare.size ;
+    summary.countP = 100 * summary.count / compare.count;
+    summary.sizeLabel = getSizeLabel( summary.size ) ;
+    summary.sizeToCountRatio = summary.sizeP / summary.countP;
+    return summary;
+
+  }
+
 
   /***
  *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db       .d8b.  d8888b.  d888b  d88888b 
@@ -946,20 +966,24 @@ function expandArray ( count: number ) : any[] {
        *           dP                                                                                 
        *                                                                                              
        */
+      let userLarge = batchData.userInfo.allUsers[ createUserAllIndex ].large;
       if ( detail.size > 1e10 ) { 
         bigData.GT10G.push ( detail ) ;
         bigData.summary = updateBucketSummary (bigData.summary , detail );
-        batchData.userInfo.allUsers[ createUserAllIndex ].large.GT10G.push ( detail ) ;
+        userLarge.GT10G.push ( detail ) ;
+        userLarge.summary = updateBucketSummary (userLarge.summary , detail );
 
        } else if ( detail.size > 1e9 ) { 
         bigData.GT01G.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].large.GT01G.push ( detail ) ;
+        userLarge.summary = updateBucketSummary (userLarge.summary , detail );
 
       } else if ( detail.size > 1e8 ) { 
         bigData.GT100M.push ( detail ) ; 
         bigData.summary = updateBucketSummary (bigData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].large.GT100M.push ( detail ) ; 
+        userLarge.summary = updateBucketSummary (userLarge.summary , detail );
 
       } else if ( detail.size > 1e7 ) { 
         bigData.GT10M.push ( detail ) ; 
@@ -979,50 +1003,62 @@ function expandArray ( count: number ) : any[] {
        */
       let theCurrentYear = getCurrentYear();
 
+      let userOldCreated = batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated;
+
       if ( detail.createYr < theCurrentYear - 4 ) { 
         oldData.Age5Yr.push ( detail ) ;
         oldData.summary = updateBucketSummary (oldData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age5Yr.push ( detail ) ;
+        userOldCreated.summary = updateBucketSummary (userOldCreated.summary , detail );
+
        }
+
       else if ( detail.createYr < theCurrentYear - 3 ) { 
         oldData.Age4Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age4Yr.push ( detail ) ;
+        userOldCreated.summary = updateBucketSummary (userOldCreated.summary , detail );
+
       }
       else if ( detail.createYr < theCurrentYear - 2 ) { 
         oldData.Age3Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age3Yr.push ( detail ) ;
+        userOldCreated.summary = updateBucketSummary (userOldCreated.summary , detail );
+
       }
       else if ( detail.createYr < theCurrentYear - 1 ) { 
         oldData.Age2Yr.push ( detail ) ; 
         oldData.summary = updateBucketSummary (oldData.summary , detail );
         batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age2Yr.push ( detail ) ;
+        userOldCreated.summary = updateBucketSummary (userOldCreated.summary , detail );
+
       }
       else if ( detail.createYr < theCurrentYear - 0 ) { 
         oldData.Age1Yr.push ( detail ) ; 
-        batchData.userInfo.allUsers[ createUserAllIndex ].oldCreated.Age1Yr.push ( detail ) ;
+        userOldCreated.Age1Yr.push ( detail ) ;
       }
 
+      let userOldModified = batchData.userInfo.allUsers[ editUserAllIndex ].oldModified;
       if ( detail.modYr < theCurrentYear - 4 ) { 
         batchData.oldModified.Age5Yr.push ( detail ) ;
-        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age5Yr.push ( detail ) ;  
+        userOldModified.Age5Yr.push ( detail ) ;  
        }
       else if ( detail.modYr < theCurrentYear - 3 ) { 
         batchData.oldModified.Age4Yr.push ( detail ) ; 
-        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age4Yr.push ( detail ) ;
+        userOldModified.Age4Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 2 ) { 
         batchData.oldModified.Age3Yr.push ( detail ) ; 
-        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age3Yr.push ( detail ) ; 
+        userOldModified.Age3Yr.push ( detail ) ; 
       }
       else if ( detail.modYr < theCurrentYear - 1 ) { 
         batchData.oldModified.Age2Yr.push ( detail ) ; 
-        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age2Yr.push ( detail ) ;
+        userOldModified.Age2Yr.push ( detail ) ;
       }
       else if ( detail.modYr < theCurrentYear - 0 ) { 
         batchData.oldModified.Age1Yr.push ( detail ) ; 
-        batchData.userInfo.allUsers[ editUserAllIndex ].oldModified.Age1Yr.push ( detail ) ;
+        userOldModified.Age1Yr.push ( detail ) ;
       }
 
 
@@ -1153,8 +1189,14 @@ function expandArray ( count: number ) : any[] {
     user.summary.size = user.createTotalSize;
     user.summary.count = user.createCount;
     user.summary.sizeGB = user.summary.size / 1e9;
-    user.summary.sizeP = user.summary.size / batchData.size * 100;
-    user.summary.countP = user.summary.count / batchData.count * 100;
+
+    user.summary = updateBucketSummaryPercents( user.summary, batchData);
+
+    user.large.summary = updateBucketSummaryPercents( user.large.summary, user.summary );
+
+    user.oldCreated.summary = updateBucketSummaryPercents( user.oldCreated.summary, user.summary );
+
+    user.oldModified.summary = updateBucketSummaryPercents( user.oldModified.summary, user.summary );
 
     allUserCreateSize.push( user.createTotalSize );
     allUserCreateCount.push( user.createCount );
@@ -1198,10 +1240,9 @@ function expandArray ( count: number ) : any[] {
    *           dP                                                                                                                                 
    *                                                                                                                                              
    */
-  bigData.summary.sizeGB = bigData.summary.size / 1e9;
-  bigData.summary.sizeP = bigData.summary.size / batchData.size;
-  oldData.summary.sizeGB = bigData.summary.size / 1e9;
-  oldData.summary.sizeGB = oldData.summary.size / batchData.size;
+
+  bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData);
+  oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData);
 
   batchData.folderInfo.folders.map( folder => {
     folder.sizeMB = folder.size / 1e6;
@@ -1478,7 +1519,7 @@ function expandArray ( count: number ) : any[] {
     case 'wmf':
     case 'mov':
     case 'wmv':
-      iconColor = 'blue';
+      iconColor = 'dimgray';
       iconName = 'MSNVideosSolid';
       break;
 

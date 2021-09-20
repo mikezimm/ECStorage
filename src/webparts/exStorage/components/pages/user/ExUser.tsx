@@ -52,7 +52,10 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
+import { createUserSummary } from '../summary/ExUserSummary';
+
 import ExTypes from '../types/ExTypes';
+import ExSize from '../size/ExSize';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -62,7 +65,7 @@ const pivotStyles = {
   //   textAlign: "center"
   }};
 
-const pivotHeading1 = 'Summary';
+const pivotHeading1 = 'User Summary';
 const pivotHeading2 = 'Types';
 const pivotHeading3 = 'Users';
 const pivotHeading4 = 'Size';
@@ -238,16 +241,21 @@ public componentDidMount() {
 
     let usersPivotContent = null;
 
-    let sizePivotContent = <div><div>
-      <h3>Summary of files by Size</h3>
-      </div>
-        <ReactJson src={ userSummary.large.summary } name={ `Summary` } 
-            collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ userSummary.large.GT10G } name={ '> 10GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ userSummary.large.GT01G } name={ '> 1GB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ userSummary.large.GT100M } name={ '> 100MB per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-        <ReactJson src={ userSummary.large.GT10M } name={ '> 10M per file' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let sizePivotContent = <div>
+      <ExSize 
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+
+        pickedWeb  = { this.props.pickedWeb }
+        pickedList = { this.props.pickedList }
+        theSite = {null }
+
+        batchData = { this.props.batchData }
+
+        largeData = { userSummary.large }
+      >
+      </ExSize></div>;
 
     let agePivotContent = <div><div>
       <h3>Summary of files by Age</h3>
@@ -298,9 +306,9 @@ public componentDidMount() {
         linkSize={PivotLinkSize.normal}
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
-      {/* <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        <ReactJson src={ userSummary.summary } name={ 'Summary' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </PivotItem> */}
+      <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { createUserSummary( this.props.userSummary, this.props.batchData ) }
+      </PivotItem>
 
       <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { typesPivotContent }

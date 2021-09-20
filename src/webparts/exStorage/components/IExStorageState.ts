@@ -13,6 +13,7 @@ export interface IEXStorageList extends IPickedList {
   Id: string;
   DocumentTemplateUrl: string;
   LibraryUrl: string;
+  EntityTypeName: string;
 
 }
 
@@ -71,9 +72,12 @@ export interface IBucketSummary {
   count: number;
   size: number;
   sizeGB: number;
+  sizeLabel: string;
   countP: number;
   sizeP: number;
-  users: string[];
+  sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
+  userTitles: string[];
+  userIds: number[];
 }
 
 export interface ILargeFiles {
@@ -240,6 +244,7 @@ export interface IBatchData {
   size: number;
   sizeGB: number;
   sizeLabel: string;
+
   large: ILargeFiles;
 
   oldCreated: IOldFiles;

@@ -146,6 +146,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
     // let tenant = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,"");
     let tenant = window.location.origin;
 
+    // Always default to Documents library if nothing else is visible.
+    let listTitle = this.properties.listTitle && this.properties.listTitle.length > 0 ? this.properties.listTitle : 'Documents';
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
       ExStorage,
@@ -169,7 +171,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         WebpartWidth:  this.domElement.getBoundingClientRect().width - 50 ,
 
         parentWeb: parentWeb,
-        listTitle: this.properties.listTitle,
+        listTitle: listTitle,
     
         allowOtherSites: this.allowOtherSites, //default is local only.  Set to false to allow provisioning parts on other sites.
         pickedWeb : null,

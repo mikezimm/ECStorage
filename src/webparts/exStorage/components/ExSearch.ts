@@ -59,8 +59,8 @@ export function getSearchedFiles( tenant: string, pickedList: IEXStorageList,  a
     // do a null check of department id
     //366df2ee-6476-4b15-a4fd-018dfae71e48 <= SPHub
 
-    let pathEnd = pickedList ? pickedList.DocumentTemplateUrl.toLowerCase().indexOf('/forms/') : null;
-    let path = tenant + pickedList ? pickedList.DocumentTemplateUrl.substr(0, pathEnd) : null;
+    // let pathEnd = pickedList && pickedList.DocumentTemplateUrl ? pickedList.DocumentTemplateUrl.toLowerCase().indexOf('/forms/') : null;
+    let path = pickedList.LibraryUrl;
 
     console.log('tenant:', tenant );
     console.log('path:', path );
