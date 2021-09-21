@@ -66,11 +66,11 @@ const pivotStyles = {
   }};
 
 const pivotHeading1 = 'Age Summary';
-const pivotHeading2 = '<5yr';
-const pivotHeading3 = '<4yr';
-const pivotHeading4 = '<3yr';
-const pivotHeading5 = '<2yr';
-const pivotHeading6 = '<1yr';
+const pivotHeading2 = '>5yr';
+const pivotHeading3 = '>4yr';
+const pivotHeading4 = '>3yr';
+const pivotHeading5 = '>2yr';
+const pivotHeading6 = '>1yr';
 
 
 export default class ExAge extends React.Component<IExAgeProps, IExAgeState> {
@@ -183,7 +183,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age5Yr }
-            heading = { ` larger than 1GB` }
+            heading = { ` created BEFORE ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -198,7 +198,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age4Yr }
-            heading = { ` larger than 100MB` }
+            heading = { ` created in ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -213,7 +213,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age3Yr }
-            heading = { ` larger than 10MB` }
+            heading = { ` created in ${this.currentYear -3 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -228,7 +228,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age2Yr }
-            heading = { ` larger than 10GB` }
+            heading = { ` created in ${this.currentYear -2 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -243,7 +243,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age1Yr }
-            heading = { ` larger than 10GB` }
+            heading = { ` created in ${this.currentYear -1 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
