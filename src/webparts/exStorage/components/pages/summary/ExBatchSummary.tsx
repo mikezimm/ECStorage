@@ -55,6 +55,8 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import EsItems from '../items/EsItems';
 
+import { createRatioNote } from './summaryFunctions';
+
 
 export function createBatchSummary ( summary: IBatchData ) : React.ReactElement {
   let fullLoad = summary.count === summary.totalCount ? ' all' : ' ONLY';
@@ -84,7 +86,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
 
-  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ summary.large.summary.countP.toFixed(4) }% of all these files account for ${ summary.large.summary.sizeP.toFixed(4) }% of your storage` }</td></tr> );
+  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ createRatioNote( summary.large.summary,  '' ) }` }</td></tr> );
 
   let Age3YrCount = summary.oldModified.Age3Yr.length;
   Age3YrCount += summary.oldModified.Age4Yr.length;

@@ -56,6 +56,8 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import EsItems from '../items/EsItems';
 
+import { createTypeRatioNote } from '../summary/summaryFunctions';
+
 export default class ExTypes extends React.Component<IExTypesProps, IExTypesState> {
 
   private currentDate = new Date();
@@ -138,17 +140,34 @@ public componentDidMount() {
     const pickedList = this.props.pickedList;
     const pickedWeb = this.props.pickedWeb;
 
+
+    let types = this.props.typesInfo.types;
+
+    let sortedTypes =  types.map( type => {
+      return type;
+    });
+    sortedTypes = sortObjectArrayByNumberKey( sortedTypes, 'dec', 'sizeToCountRatio' );
+
     const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'size' );
     const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'count' );
     const byAvg = this.buildTypeTables( this.props.typesInfo.types , 'By Avg size', this.state.rankSlider, this.state.textSearch, 'avgSize' );
     const byMax = this.buildTypeTables( this.props.typesInfo.types , 'By Max size', this.state.rankSlider, this.state.textSearch, 'maxSize' );
+    const byRatio = this.buildTypeTables( this.props.typesInfo.types , null, 3, '', 'sizeToCountRatio' );
+
+    
+    let heading = <div  style={{paddingBottom: '20px' }}>
+      <h3>These file types have few files taking up the most space</h3>
+    { byRatio }<div></div></div>;
 
     //EsItems
-    let component = <div className={ styles.inflexWrapCenter}>
-      { bySize }
-      { byCount }
-      { byAvg }
-      { byMax }
+    let component = 
+    <div>
+      <div className={ styles.inflexWrapCenter}>
+        { bySize }
+        { byCount }
+        { byAvg }
+        { byMax }
+      </div>
     </div>;
 
     let sliderTypeCount = this.props.batchData.typesInfo.count < 5 ? null : 
@@ -184,13 +203,14 @@ public componentDidMount() {
       </Panel></div>;
     }
 
+    //check for high sizeToCount ratios
+
     return (
       <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         {/* <div className={ styles.container }> */}
-          <div>
-            <h3>File types found in this library</h3>
-            <p> { this.props.typesInfo.typeList.join(', ') }</p>
-          </div>
+
+          { heading }
+          <h3>All File types in this library</h3>
           <div className={ styles.inflexWrapCenter}>
             <div> { sliderTypeCount } </div>
             <div> { this.buildSearchBox() } </div>
@@ -243,7 +263,7 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' | 'avgSize' | 'maxSize' ): any {
+  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' | 'avgSize' | 'maxSize' | 'sizeToCountRatio'): any {
 
     let elements = [];
     let tableTitle = data;
@@ -254,7 +274,7 @@ public componentDidMount() {
       if ( index < countToShow || textSearch.length > 0 ) {
         
         let typePercent = '';
-        let label = '';
+        let label: any = '';
 
         switch (sortKey) {
           case 'size':
@@ -275,6 +295,10 @@ public componentDidMount() {
             label = `${type.type}  [ ${ type.maxSizeLabel } ]` ;
             break;
         
+          case 'sizeToCountRatio':
+            label = createTypeRatioNote( type,  '' ) ;
+            break;
+        
           default:
             break;
         }
@@ -289,10 +313,17 @@ public componentDidMount() {
           alignItems: 'center',
         } : { display: 'none' };
 
-        elements.push(<li title={ `${label}` } style= { liStyle } onClick={ this._onClickItems.bind(this)} id={ type.type }>
-                  <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
-        </li>);
-
+        let newElement = null;
+        if ( sortKey === 'sizeToCountRatio' ) {
+            newElement = <li style= { liStyle } onClick={ this._onClickItems.bind(this)} id={ type.type }>
+            <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
+          </li>;
+        } else {
+          newElement = <li title={ `${label}` } style= { liStyle } onClick={ this._onClickItems.bind(this)} id={ type.type }>
+            <span style={{width: '30px', paddingRight: '10px'}}>{ index + 1 }. </span><span>{ label }</span>
+          </li>;
+        }
+        elements.push( newElement ) ;
       }
 
     });

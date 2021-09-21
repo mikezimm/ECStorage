@@ -178,6 +178,7 @@ export interface IFileType {
   sizeGB: number;
   sizeP: number;
   countP: number;
+  sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
   sizeLabel: string;
   avgSize: number;
   maxSize: number;

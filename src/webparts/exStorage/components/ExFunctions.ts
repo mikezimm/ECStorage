@@ -432,6 +432,7 @@ export function createThisType ( docIcon: string ) :IFileType {
     maxSize: 0,
     sizeP: 0,
     countP: 0,
+    sizeToCountRatio: 0,
     items: [],
     sizes: [],
     createdMs: [],
@@ -1127,6 +1128,7 @@ function expandArray ( count: number ) : any[] {
     docType.maxSize = Math.max(...docType.sizes);
     docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
     docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
+    docType.sizeToCountRatio = docType.sizeP / docType.countP;
 
   });
 

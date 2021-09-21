@@ -55,6 +55,8 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import EsItems from '../items/EsItems';
 
+import { createRatioNote } from './summaryFunctions';
+
 
 export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) : React.ReactElement {
   let fullLoad = large.summary.count === batchData.totalCount ? ' all' : ' ONLY';
@@ -79,7 +81,7 @@ export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) 
   let GT100SizeLabel = getSizeLabel(large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
-  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ large.summary.countP.toFixed(4) }% of all these files account for ${ large.summary.sizeP.toFixed(4) }% of your storage` }</td></tr> );
+  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( large.summary,  '' ) }</td></tr> );
 
   let summaryTable = <table className={ styles.summaryTable }>
     { tableRows }

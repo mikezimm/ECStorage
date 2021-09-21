@@ -55,6 +55,8 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import EsItems from '../items/EsItems';
 
+import { createRatioNote } from './summaryFunctions';
+
 
 export function createUserSummary ( userSummary: IUserSummary, batchData: IBatchData ) : React.ReactElement {
   // const summary = userSummary.summary;
@@ -85,7 +87,7 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
 
   let userLabel = userSummary.userId === batchData.userInfo.currentUser.userId ? 'your' : 'this user\'s';
-  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ userSummary.large.summary.countP.toFixed(4) }% of all ${ userLabel } files account for ${ userSummary.large.summary.sizeP.toFixed(4) }% ${ userLabel } space` }</td></tr> );
+  tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( userSummary.large.summary,  '' )  }</td></tr> );
 
   let Age3YrCount = userSummary.oldModified.Age3Yr.length;
   Age3YrCount += userSummary.oldModified.Age4Yr.length;
