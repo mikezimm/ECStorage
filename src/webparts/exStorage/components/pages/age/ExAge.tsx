@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
-import { IExSizeProps } from './IExSizeProps';
-import { IExSizeState } from './IExSizeState';
+import { IExAgeProps } from './IExAgeProps';
+import { IExAgeState } from './IExAgeState';
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
@@ -54,7 +54,7 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createSizeSummary } from '../summary/ExSizeSummary';
+import { createAgeSummary } from '../summary/ExAgeSummary';
 
 import EsItems from '../items/EsItems';
 
@@ -65,15 +65,15 @@ const pivotStyles = {
   //   textAlign: "center"
   }};
 
-const pivotHeading1 = 'Size Summary';
-const pivotHeading2 = '>10GB';
-const pivotHeading3 = '>1GB';
-const pivotHeading4 = '>100MB';
-const pivotHeading5 = '>10MB';
-const pivotHeading6 = 'All Large';
+const pivotHeading1 = 'Age Summary';
+const pivotHeading2 = '>5yr';
+const pivotHeading3 = '>4yr';
+const pivotHeading4 = '>3yr';
+const pivotHeading5 = '>2yr';
+const pivotHeading6 = '>1yr';
 
 
-export default class ExSize extends React.Component<IExSizeProps, IExSizeState> {
+export default class ExAge extends React.Component<IExAgeProps, IExAgeState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -91,7 +91,7 @@ export default class ExSize extends React.Component<IExSizeProps, IExSizeState> 
 
 
 
-public constructor(props:IExSizeProps){
+public constructor(props:IExAgeProps){
   super(props);
 
   let currentYear = new Date();
@@ -148,18 +148,18 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IExSizeProps> {
+  public render(): React.ReactElement<IExAgeProps> {
 
     let emptyItemsElements = [
       <div style={{ padding: '20px', width: '100%', height: '100px' }}>
         Well I don't see any files in this category yet.  Is that a good thing?
       </div>,
       <div style={{ padding: '20px', }}>
-        I'll tell you one thing about the universe, though. The universe is a pretty big place. It's bigger than anything anyone has ever dreamed of before. So if it's just us... seems like an awful waste of space. Right?
-        <br/><br/>- Ellie Arroway
+        They say... Good things come to those who age... but bad things can come if files are kept longer than they are supposed to :)
+        <br/><br/>- Unknown 
       </div>,
       <div style={{ padding: '20px', }}>
-        Looks like we have not created any files this big yet :)
+        Looks like we have not created any files this old yet :)
         <br/><br/>Hint - The Tabs tell you how many items fall under this category.
       </div>,
     ];
@@ -172,18 +172,18 @@ public componentDidMount() {
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
       <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { createSizeSummary( this.props.batchData.large, this.props.batchData ) }
+        { createAgeSummary( this.props.oldFiles, this.props.batchData ) }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} 
-        itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT10G.length }>
+        itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age5Yr.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.largeData.GT10G }
-            heading = { ` larger than 1GB` }
+            items = { this.props.oldFiles.Age5Yr }
+            heading = { ` created BEFORE ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -191,14 +191,14 @@ public componentDidMount() {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3}
-        itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT01G.length }>
+        itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age4Yr.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.largeData.GT01G }
-            heading = { ` larger than 100MB` }
+            items = { this.props.oldFiles.Age4Yr }
+            heading = { ` created in ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -206,14 +206,14 @@ public componentDidMount() {
       </PivotItem> 
 
       <PivotItem headerText={ pivotHeading4 } ariaLabel={pivotHeading4} title={pivotHeading4} 
-        itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT100M.length }>
+        itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age3Yr.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.largeData.GT100M }
-            heading = { ` larger than 10MB` }
+            items = { this.props.oldFiles.Age3Yr }
+            heading = { ` created in ${this.currentYear -3 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -221,14 +221,29 @@ public componentDidMount() {
       </PivotItem> 
       
       <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5}
-        itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT10M.length }>
+        itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age2Yr.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.largeData.GT10M }
-            heading = { ` larger than 10GB` }
+            items = { this.props.oldFiles.Age2Yr }
+            heading = { ` created in ${this.currentYear -2 }` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+          ></EsItems>
+      </PivotItem>
+      
+      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6}
+        itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age1Yr.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.oldFiles.Age1Yr }
+            heading = { ` created in ${this.currentYear -1 }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }

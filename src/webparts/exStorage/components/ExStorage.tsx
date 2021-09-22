@@ -56,6 +56,7 @@ import { createBatchSummary } from './pages/summary/ExBatchSummary';
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
+import ExAge from './pages/age/ExAge';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -361,28 +362,21 @@ public async updateWebInfo ( webUrl?: string ) {
       >
       </ExSize></div>;
 
-    let agePivotContent = <div><div>
-      <h3>Summary of files by Age</h3>
-      </div>
-        <ReactJson src={ batchData.oldCreated.summary } name={ `Summary` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+    let agePivotContent = <div>
+      <ExAge
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
 
-        <ReactJson src={ batchData.oldCreated.Age5Yr } name={ `Created before ${ (this.currentYear -4 ) }` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
 
-        <ReactJson src={ batchData.oldCreated.Age4Yr } name={ `Created in ${ (this.currentYear -4 ) }` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+        batchData = { batchData }
 
-        <ReactJson src={ batchData.oldCreated.Age3Yr } name={ `Created in ${ (this.currentYear -3 ) }` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-
-        <ReactJson src={ batchData.oldCreated.Age2Yr } name={ `Created in ${ (this.currentYear -2 ) }` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-
-        <ReactJson src={ batchData.oldCreated.Age1Yr } name={ `Created in ${ (this.currentYear -1 ) }` } 
-          collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-
-      </div>;
+        oldFiles = { batchData.oldCreated }
+      >
+      </ExAge></div>;
 
 
     let youPivotContent = <div>

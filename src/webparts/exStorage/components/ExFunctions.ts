@@ -432,6 +432,7 @@ export function createThisType ( docIcon: string ) :IFileType {
     maxSize: 0,
     sizeP: 0,
     countP: 0,
+    sizeToCountRatio: 0,
     items: [],
     sizes: [],
     createdMs: [],
@@ -862,14 +863,17 @@ function expandArray ( count: number ) : any[] {
        *           dP                                                                                                                                            
        *                                                                                                                                                         
        */
-      //Build up Duplicate list
-      let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
-      if ( dupIndex < 0 ) {
-        allNameStrings.push( detail.FileLeafRef.toLowerCase() );
-        dupIndex = allNameStrings.length - 1;
-        allNameItems.push( createThisDuplicate(detail)  );
+      //Build up Duplicate list - only for filenames not folder names
+      if ( detail.isFolder !== true ) {
+        let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+        if ( dupIndex < 0 ) {
+          allNameStrings.push( detail.FileLeafRef.toLowerCase() );
+          dupIndex = allNameStrings.length - 1;
+          allNameItems.push( createThisDuplicate(detail)  );
+        }
+        allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
       }
-      allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+
 
 
 
@@ -1127,6 +1131,7 @@ function expandArray ( count: number ) : any[] {
     docType.maxSize = Math.max(...docType.sizes);
     docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
     docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
+    docType.sizeToCountRatio = docType.sizeP / docType.countP;
 
   });
 
