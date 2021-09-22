@@ -155,17 +155,30 @@ export interface IUserSummary {
 export interface IDuplicateFile {
   name: string;
   type: string;
+
+  iconName: string;
+  iconColor: string;
+  iconTitle: string;
+  
+  // These are already in IBucketSummary
+  // title: string;
+  // count: number;
+  // size: number;
+  // sizeGB: number;
+  // sizeLabel: string;
+  // countP: number;
+  // sizeP: number;
+  // sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
+  // userTitles: string[];
+  // userIds: number[];
   count: number;
   size: number;
-  sizeGB: number;
-  sizeP: number;
-  countP: number;
-  sizeLabel: string;
   items: IItemDetail[];
   locations: string[];
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
+  summary: IBucketSummary;
 }
 
 export interface IFileType {
@@ -222,6 +235,7 @@ export interface IDuplicateInfo {
   duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
+  summary: IBucketSummary;
 }
 
 export interface IFolderInfo {
@@ -286,8 +300,6 @@ export interface IEXStorageFilter {
   minSize: number;
   maxSize: number;
 }
-
-
 
 export interface IExStorageState {
 

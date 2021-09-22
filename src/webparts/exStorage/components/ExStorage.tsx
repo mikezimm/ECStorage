@@ -57,6 +57,7 @@ import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
+import ExDups from './pages/dups/ExDups';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -413,11 +414,21 @@ public async updateWebInfo ( webUrl?: string ) {
         <ReactJson src={ batchData.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
-    let dupsPivotContent = <div><div>
-      <h3>Summary of duplicate files</h3>
-      </div>
-        <ReactJson src={ batchData.duplicateInfo.duplicates} name={ 'Duplicate files' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let dupsPivotContent = <div>
+      <ExDups
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        batchData = { batchData }
+
+        duplicateInfo = { batchData.duplicateInfo }
+      >
+      </ExDups></div>;
 
     let folderPivotContent = <div><div>
       <h3>Summary of Folders</h3>
