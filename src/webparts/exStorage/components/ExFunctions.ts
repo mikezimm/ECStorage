@@ -863,14 +863,17 @@ function expandArray ( count: number ) : any[] {
        *           dP                                                                                                                                            
        *                                                                                                                                                         
        */
-      //Build up Duplicate list
-      let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
-      if ( dupIndex < 0 ) {
-        allNameStrings.push( detail.FileLeafRef.toLowerCase() );
-        dupIndex = allNameStrings.length - 1;
-        allNameItems.push( createThisDuplicate(detail)  );
+      //Build up Duplicate list - only for filenames not folder names
+      if ( detail.isFolder !== true ) {
+        let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+        if ( dupIndex < 0 ) {
+          allNameStrings.push( detail.FileLeafRef.toLowerCase() );
+          dupIndex = allNameStrings.length - 1;
+          allNameItems.push( createThisDuplicate(detail)  );
+        }
+        allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
       }
-      allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+
 
 
 
