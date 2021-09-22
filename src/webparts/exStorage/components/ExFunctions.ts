@@ -245,6 +245,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       duplicates: [],
       countRank: [],
       sizeRank: [],
+      summary: createBucketSummary('Duplicate file info'),
     },
 
     folderInfo: {
@@ -335,20 +336,22 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
 
 export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
 
+  let iconInfo = getFileTypeIconInfo( detail.docIcon );
+
   let thisDup: IDuplicateFile = {
       name: detail.FileLeafRef,
       type: detail.docIcon, 
-      count: 0,
-      size: 0,
-      sizeGB: 0,
-      sizeP: 0,
-      countP: 0,
-      sizeLabel: '',
       locations: [],
+      size: 0,
+      count: 0,
+      iconName: iconInfo.iconName,
+      iconColor: iconInfo.iconColor,
+      iconTitle: iconInfo.iconTitle,
       items: [],
       sizes: [],
       createdMs: [],
       modifiedMs: [],
+      summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`),
     };
 
   return thisDup;
@@ -367,8 +370,34 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
  */
 export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, LibraryUrl: string ) : IDuplicateFile {
 
+  // title: string;
+  // count: number;
+  // size: number;
+  // sizeGB: number;
+  // sizeLabel: string;
+  // countP: number;
+  // sizeP: number;
+  // sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
+  // userTitles: string[];
+  // userIds: number[];
+
+
+  thisDup.summary.count ++;
+  thisDup.summary.size += detail.size;
+
   thisDup.count ++;
   thisDup.size += detail.size;
+
+  thisDup.summary.sizeGB = detail.size / 1e9;
+  thisDup.summary.sizeLabel = getSizeLabel( detail.size );
+  // thisDup.summary.countP = 0;
+  // thisDup.summary.sizeP = 0;
+  // thisDup.summary.sizeToCountRatio = 0;
+  if ( thisDup.summary.userTitles.indexOf( detail.authorTitle ) < 0 ) { thisDup.summary.userTitles.push( detail.authorTitle ) ; }
+  if ( thisDup.summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { thisDup.summary.userTitles.push( detail.editorTitle ) ; }
+
+  if ( thisDup.summary.userIds.indexOf( detail.authorId ) < 0 ) { thisDup.summary.userIds.push( detail.authorId ) ; }
+  if ( thisDup.summary.userIds.indexOf( detail.editorId ) < 0 ) { thisDup.summary.userIds.push( detail.editorId ) ; }
 
   thisDup.items.push( detail );
   thisDup.sizes.push(detail.size);
@@ -390,7 +419,6 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
   } else {
     debugger;
   }
-
 
   if ( thisDup.locations.indexOf(thisLocation ) < 0 ) { 
     thisDup.locations.push( thisLocation ) ; } 
@@ -501,6 +529,7 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
       duplicates: [],
       countRank: [],
       sizeRank: [],
+      summary: createBucketSummary('Duplicate file info'),
     },
 
     folderInfo: {
@@ -574,6 +603,7 @@ function createDupRanks ( count: number ) : IDuplicateInfo {
     duplicateNames: [],
     countRank: [],
     sizeRank: [],
+    summary: createBucketSummary('Duplicate file info'),
   };
 
   for (let index = 0; index < count; index++) {
@@ -1265,11 +1295,11 @@ function expandArray ( count: number ) : any[] {
    *                                                                                                                                                                  
    */
   allNameItems.map( dup => {
-    if ( dup.count > 1 ) {
-      dup.sizeGB = dup.size/1e9;
-      dup.sizeLabel = getSizeLabel( dup.size );
-      dup.sizeP = dup.size / batchData.size * 100;
-      dup.countP = dup.count / batchData.count * 100;
+    if ( dup.summary.count > 1 ) {
+      dup.summary.sizeGB = dup.summary.size/1e9;
+      dup.summary.sizeLabel = getSizeLabel( dup.summary.size );
+      dup.summary.sizeP = dup.summary.size / batchData.size * 100;
+      dup.summary.countP = dup.summary.count / batchData.count * 100;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
