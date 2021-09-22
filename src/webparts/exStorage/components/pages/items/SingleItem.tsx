@@ -10,70 +10,87 @@ import { Web, IList, Site } from "@pnp/sp/presets/all";
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
-import {
-  Spinner,
-  SpinnerSize,
-  FloatingPeoplePicker,
-  // MessageBar,
-  // MessageBarType,
-  // SearchBox,
-  // Icon,
-  // Label,
-  // Pivot,
-  // PivotItem,
-  // IPivotItemProps,
-  // PivotLinkFormat,
-  // PivotLinkSize,
-  // Dropdown,
-  // IDropdownOption
-} from "office-ui-fabric-react";
+import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { IItemDetail,  } from '../../IExStorageState';
+  
+const cellMaxStyle: React.CSSProperties = {
+  whiteSpace: 'nowrap',
+  height: '15px',
+  padding: '10px 30px 0px 0px',
+  fontWeight: 600,
+  fontSize: 'larger',
+  textAlign: 'center',
 
-import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
+};
 
-import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
+export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: any ) {
 
-import ReactJson from "react-json-view";
+  let rows = [];
+  
+  ['versionlabel','sizeLabel','created','author','modified','editor', 'checkedOutId','uniquePerms'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
 
-import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+  ['MediaServiceLocation','MediaServiceOCR','MediaServiceAutoTags','MediaServiceKeyPoints','MediaLengthInSeconds'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
+  
+  ['bucket','ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl','MediaLengthInSeconds', 'isFolder'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
 
-import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
-import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+  let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
+    window.origin + item.FileRef + "&width=500&height=400";
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+  let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
+      <h3 style={{ textAlign: 'center' }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.FileLeafRef }</h3>
+      {/* <table style={{padding: '0 20px'}}> */}
+    <table style={{ tableLayout:"fixed" }} id="Select-b">
+    { rows }
 
-import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
-
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-  IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from '../../IExStorageState';
-
-export function createSingleItemRow( item: IItemDetail ) {
-  let cells : any[] = [];
-  cells.push( <td>{ item.sizeMB + 'MB'}</td> );
-  cells.push( <td>{ item.authorTitle }</td> );
-  cells.push( <td>{ item.created }</td> );
-  cells.push( <td><a href={ item.FileLeafRef }></a>{ item.FileRef }</td> );
-
-  let cellRow = <tr> { cells } </tr>;
-  return cellRow;
+  </table>
+  <div style = {{ paddingTop: '30px', paddingLeft: '20px' }}>
+      <img src={ previewUrl } alt=""/>
+    </div>
+</div>;
+return table;
 
 }
 
-function clickFolder ( item: IItemDetail ): void {
+function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
+  let textValue = null;
+  switch (key) {
+    case 'author':
+      textValue = `(${item.authorId}) ${item.authorTitle}`;
+      break;
+  
+    case 'editor':
+      textValue = `(${item.editorId}) ${item.editorTitle}`;
+      break;
+  
+    case 'created':
+      textValue = `${item.created.toLocaleString()}`;
+      break;
+  
+    case 'modified':
+      textValue = `${item.modified.toLocaleString()}`;
+      break;
+    
+    case 'id':
+      textValue = `Id: ${ item.id } Batch Details: ${ item.batch } ${ item.index }`;
+      break;
 
-  return;
+    default:
+      textValue = item[ key ];
+      break;
+  }
 
-}
-
-
-function clickFile ( item: IItemDetail ): void {
-
-  return;
-
+  if ( textValue ) {
+    return <tr><td style={cellMaxStyle}>{ key }</td><td>{ textValue }</td></tr>;
+  } else {
+    return null;
+  }
+  
 }

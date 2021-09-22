@@ -29,4 +29,7 @@ export interface IEsItemsState {
   fetchPerComp: number;
   fetchLabel: string;
 
+  showItem: boolean;
+  selectedItem: any;
+
 }

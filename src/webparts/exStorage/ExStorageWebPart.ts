@@ -45,6 +45,7 @@ export interface IExStorageWebPartProps {
   showListDropdown: boolean;
   showSystemLists: boolean;
   excludeListTitles: string;
+  useMediaTags: boolean;
 
   //General settings for FPS Options group
   searchShow: boolean;
@@ -178,6 +179,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         theSite: null,
 
         isLoaded: false,
+
+        useMediaTags: this.properties.useMediaTags === true ? true : false,
     
         currentUser: this.currentUser,
 
@@ -233,6 +236,11 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                   label: 'Exclude these from dropdown',
                   disabled: this.properties.showListDropdown === true ? false : true,
                   description: 'semi-colon separated words'
+                }),
+                
+                PropertyPaneToggle('useMediaTags', {
+                  label: 'Include Media Tags in search',
+                  disabled: false,
                 }),
 
               ]

@@ -55,7 +55,7 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createSingleItemRow } from './SingleItem';
+import { createItemDetail } from './SingleItem';
 
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
@@ -110,6 +110,9 @@ public constructor(props:IEsItemsProps){
         showProgress: false,
         fetchPerComp: 100,
         fetchLabel: '',
+
+        showItem: false,
+        selectedItem: null,
   
   };
 }
@@ -154,12 +157,31 @@ public componentDidMount() {
     });
 
     let page = null;
+    let userPanel = null;
+
     const emptyItemsElements = this.props.emptyItemsElements;
 
     if ( this.props.items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ) {
       page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
 
     } else {
+
+      if ( this.state.showItem === true ) { 
+        let panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this._onCloseItemDetail.bind( this ) );
+    
+        userPanel = <div><Panel
+          isOpen={ this.state.showItem === true ? true : false }
+          // this prop makes the panel non-modal
+          isBlocking={true}
+          onDismiss={ this._onCloseItemDetail.bind(this) }
+          closeButtonAriaLabel="Close"
+          type = { PanelType.large }
+          isLightDismiss = { true }
+          >
+            { panelContent }
+        </Panel></div>;
+      }
+
       page = <div>
         <div className={styles.flexWrapStart}>
           <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
@@ -175,6 +197,7 @@ public componentDidMount() {
     return (
       <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         { page }
+        { userPanel }
       </div>
     );
   }
@@ -223,6 +246,11 @@ public componentDidMount() {
         if ( textSearch.length > 0 ) {
           let createdDate = new Date( item.created );
           let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+          if ( item.MediaServiceAutoTags ) { searchThis += `|MSAT:${item.MediaServiceAutoTags}` ; }
+          if ( item.MediaServiceKeyPoints ) { searchThis += `|MSKP:${item.MediaServiceKeyPoints}` ; }
+          if ( item.MediaServiceLocation ) { searchThis += `|MSL:${item.MediaServiceLocation}` ; }
+          if ( item.MediaServiceOCR ) { searchThis += `|MSOCR:${item.MediaServiceOCR}` ; }
+
           if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
           }
@@ -263,6 +291,12 @@ public componentDidMount() {
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
+    cells.push( <td style={{width: '50px', cursor: 'pointer' }} 
+      onClick={ this._onClickItemDetail.bind(this)} id={ item.FileLeafRef }
+      title={ `See all Item Details.`}
+      >
+      { <Icon iconName= {'DocumentSearch'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+    </td> );
     cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
@@ -312,7 +346,9 @@ public componentDidMount() {
     let clickThisItem = parseInt(event.currentTarget.id);
 
     this.props.items.map( item => {
-      let openThisLink =  item.FileRef;
+      let openThisLink =  item.ServerRedirectedEmbedUrl;
+      if ( !openThisLink || openThisLink.length === 0 ) { openThisLink = item.FileRef ; }
+
       if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
     });
   }
@@ -320,6 +356,27 @@ public componentDidMount() {
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,
+    });
+  }
+
+  private _onClickItemDetail( event ){
+    console.log( event );
+    console.log( event.currentTarget.id );
+    let showThisType = event.currentTarget.id;
+    let selectedItem = null;
+    this.props.items.map( item => {
+      if ( item.FileLeafRef === showThisType ) { selectedItem = item ; }
+    });
+    this.setState({
+      showItem: true,
+      selectedItem: selectedItem,
+    });
+  }
+
+  private _onCloseItemDetail( event ){
+    this.setState({
+      showItem: false,
+      selectedItem: null,
     });
   }
 

@@ -716,7 +716,7 @@ public async updateWebInfo ( webUrl?: string ) {
       errorMessage: '',
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
-    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.useMediaTags, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
 

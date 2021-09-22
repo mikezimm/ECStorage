@@ -41,4 +41,6 @@ export interface IExStorageProps {
       WebpartHeight: number;
       WebpartWidth: number;
 
+      useMediaTags: boolean;
+
 }
