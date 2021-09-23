@@ -24,7 +24,7 @@ const cellMaxStyle: React.CSSProperties = {
 
 };
 
-export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: any ) {
+export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: any, onPreviewClick?: any, ) {
 
   let rows = [];
   
@@ -51,11 +51,13 @@ export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: 
     { rows }
 
   </table>
-  <div style = {{ paddingTop: '30px', paddingLeft: '20px' }}>
+    <h3>Preview (if available may take a couple seconds to load :)</h3>
+    <div style = {{ paddingTop: '30px', paddingLeft: '20px' }}>
       <img src={ previewUrl } alt=""/>
     </div>
-</div>;
-return table;
+
+  </div>;
+  return table;
 
 }
 

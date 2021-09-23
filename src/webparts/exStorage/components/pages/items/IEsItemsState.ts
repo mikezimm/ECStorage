@@ -3,7 +3,7 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IItemDetail } from '../../IExStorageState';
 
 export interface IEsItemsState {
 
@@ -30,6 +30,7 @@ export interface IEsItemsState {
   fetchLabel: string;
 
   showItem: boolean;
-  selectedItem: any;
+  showPreview: boolean;
+  selectedItem: IItemDetail;
 
 }

@@ -39,6 +39,9 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
 
+import { IFrameDialog,  } from "@pnp/spfx-controls-react/lib/IFrameDialog";
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -112,6 +115,7 @@ public constructor(props:IEsItemsProps){
         fetchLabel: '',
 
         showItem: false,
+        showPreview: false,
         selectedItem: null,
   
   };
@@ -166,8 +170,27 @@ public componentDidMount() {
 
     } else {
 
-      if ( this.state.showItem === true ) { 
-        let panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this._onCloseItemDetail.bind( this ) );
+      if ( this.state.showPreview === true && this.state.selectedItem ) {
+
+        userPanel = <IFrameDialog 
+          url={this.state.selectedItem.ServerRedirectedEmbedUrl}
+          // iframeOnLoad={this._onIframeLoaded.bind(this)}
+          hidden={ false }
+          onDismiss={this._onDialogDismiss.bind(this)}
+          modalProps={{
+              isBlocking: true,
+              // containerClassName: styles.dialogContainer
+          }}
+          dialogContentProps={{
+              type: DialogType.close,
+              showCloseButton: true
+          }}
+          onDismissed= { this._onDialogDismiss.bind( this ) }
+          width={'60%'}
+          height={'60%'}/>;
+
+      } else if ( this.state.showItem === true ) { 
+        let panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
     
         userPanel = <div><Panel
           isOpen={ this.state.showItem === true ? true : false }
@@ -345,12 +368,26 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let clickThisItem = parseInt(event.currentTarget.id);
 
+    let selectedItem = null;
     this.props.items.map( item => {
       let openThisLink =  item.ServerRedirectedEmbedUrl;
-      if ( !openThisLink || openThisLink.length === 0 ) { openThisLink = item.FileRef ; }
+      if ( !openThisLink || openThisLink.length === 0 ) { 
+        openThisLink = item.FileRef ;
+       }
 
-      if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
+      if ( item.id === clickThisItem ) { 
+        if ( !item.ServerRedirectedEmbedUrl ) {
+          window.open( openThisLink, "_blank");
+        }
+        selectedItem = item;
+       }
     });
+
+    this.setState({ 
+      selectedItem: selectedItem,
+      showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
+    });
+
   }
   
   private _typeSlider(newValue: number){
@@ -373,9 +410,26 @@ public componentDidMount() {
     });
   }
 
+  private _onDialogDismiss( event ) {
+    this.setState({
+      showItem: false,
+      showPreview: false,
+      selectedItem: null,
+    });
+  }
+
   private _onCloseItemDetail( event ){
     this.setState({
       showItem: false,
+      selectedItem: null,
+    });
+  }
+
+  private _onPreviewClick( event ){
+
+    return;
+    this.setState({
+      showPreview: false,
       selectedItem: null,
     });
   }
