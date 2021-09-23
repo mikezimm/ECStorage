@@ -13,6 +13,8 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, ILargeFiles, IOldFiles } from '../../IExStorageState';
 
+import { IDataOptions, IUiOptions } from '../../IExStorageProps';
+
 export interface IExAgeProps {
 
       // 0 - Context
@@ -33,4 +35,6 @@ export interface IExAgeProps {
       WebpartHeight: number;
       WebpartWidth: number;
 
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
 }

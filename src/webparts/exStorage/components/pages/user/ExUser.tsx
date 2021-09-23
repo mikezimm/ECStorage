@@ -236,6 +236,9 @@ public componentDidMount() {
           typesInfo = { userSummary.typesInfo }
           batches = { batches }
           batchData = { this.props.batchData }
+
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
       >
       </ExTypes>
       <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
@@ -255,6 +258,10 @@ public componentDidMount() {
         batchData = { this.props.batchData }
 
         largeData = { userSummary.large }
+        
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
       >
       </ExSize></div>;
 
@@ -271,6 +278,9 @@ public componentDidMount() {
           batchData = { this.props.batchData }
 
           oldFiles = { userSummary.oldCreated }
+                  
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
         >
         </ExAge></div>;
 

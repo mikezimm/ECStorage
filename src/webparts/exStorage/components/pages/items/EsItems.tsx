@@ -39,6 +39,9 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
 
+import { IFrameDialog,  } from "@pnp/spfx-controls-react/lib/IFrameDialog";
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -55,7 +58,7 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createSingleItemRow } from './SingleItem';
+import { createItemDetail, getItemSearchString } from './SingleItem';
 
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
@@ -110,6 +113,12 @@ public constructor(props:IEsItemsProps){
         showProgress: false,
         fetchPerComp: 100,
         fetchLabel: '',
+
+        showItem: false,
+        showPreview: false,
+        selectedItem: null,
+
+        hasMedia: false,
   
   };
 }
@@ -154,12 +163,52 @@ public componentDidMount() {
     });
 
     let page = null;
+    let userPanel = null;
+
     const emptyItemsElements = this.props.emptyItemsElements;
 
     if ( this.props.items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ) {
       page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
 
     } else {
+
+      if ( this.state.showPreview === true && this.state.selectedItem ) {
+
+        userPanel = <IFrameDialog 
+          url={this.state.selectedItem.ServerRedirectedEmbedUrl}
+          // iframeOnLoad={this._onIframeLoaded.bind(this)}
+          hidden={ false }
+          onDismiss={this._onDialogDismiss.bind(this)}
+          modalProps={{
+              isBlocking: true,
+              // containerClassName: styles.dialogContainer
+          }}
+          dialogContentProps={{
+              type: DialogType.close,
+              showCloseButton: true
+          }}
+          onDismissed= { this._onDialogDismiss.bind( this ) }
+          width={'60%'}
+          height={'60%'}/>;
+
+      } else if ( this.state.showItem === true ) { 
+
+        let panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
+    
+        userPanel = <div><Panel
+          isOpen={ this.state.showItem === true ? true : false }
+          // this prop makes the panel non-modal
+          isBlocking={true}
+          onDismiss={ this._onCloseItemDetail.bind(this) }
+          closeButtonAriaLabel="Close"
+          type = { PanelType.large }
+          isLightDismiss = { true }
+          >
+            { panelContent }
+        </Panel></div>;
+      }
+
+      let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
       page = <div>
         <div className={styles.flexWrapStart}>
           <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
@@ -168,6 +217,9 @@ public componentDidMount() {
           <div> { sliderTypeCount } </div>
           <div> { this.buildSearchBox() } </div>
         </div>
+        <div>
+          { `Search will search Created Name and Date, filenames/types ${ searchMedia }` }
+        </div>
         { component }
       </div>;
     }
@@ -175,6 +227,7 @@ public componentDidMount() {
     return (
       <div className={ styles.exStorage } style={{ marginLeft: '25px'}}>
         { page }
+        { userPanel }
       </div>
     );
   }
@@ -221,10 +274,26 @@ public componentDidMount() {
     itemsSorted.map( ( item, index ) => {
       if ( rows.length < countToShow ) {
         if ( textSearch.length > 0 ) {
-          let createdDate = new Date( item.created );
-          let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+          let searchThis = getItemSearchString( item );
+
           if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+
+          } else if ( item.MediaServiceAutoTags && textSearch.toUpperCase() === 'MSAT' ) {
+              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+
+          } else if ( item.MediaServiceKeyPoints && textSearch.toUpperCase() === 'MSKP' ) {
+              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+
+          } else if ( item.MediaServiceLocation && textSearch.toUpperCase() === 'MSL' ) {
+              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+
+          } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
+              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+
+          } else {
+
           }
         } else {
           rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
@@ -263,6 +332,37 @@ public componentDidMount() {
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
+
+    let detailIcon = 'DocumentSearch';
+    let detailIconStyle = 'black';
+    let MediaIcons: any[] = [];
+
+    if ( item.isMedia ) {
+      detailIcon = 'ImageSearch';
+      detailIconStyle = 'red';
+
+      if ( item.MediaServiceOCR ) {
+        MediaIcons.push(  <Icon iconName= { 'CircleShapeSolid' } style={{ top: '2px', left: '2px', fontSize: '6px', position: 'absolute', color: 'dimgray' }} title="MediaServiceOCR"></Icon> );
+      }
+      if ( item.MediaServiceAutoTags ) {
+        MediaIcons.push(  <Icon iconName= { 'TagSolid' } style={{ top: '1px', left: '12px', fontSize: '9px', position: 'absolute', color: 'dimgray' }} title="MediaServiceAutoTags"></Icon> );
+      }
+      if ( item.MediaServiceKeyPoints ) {
+        MediaIcons.push(  <Icon iconName= { 'Location' } style={{ top: '10px', left: '2px', fontSize: '5px', position: 'absolute', color: 'dimgray' }} title="MediaServiceKeyPoints"></Icon> );
+      }
+      if ( item.MediaServiceLocation ) {
+        MediaIcons.push(  <Icon iconName= { 'POISolid' } style={{ top: '11px', left: '12px', fontSize: '8px', position: 'absolute', color: 'dimgray' }} title="MediaServiceLocation"></Icon> );
+      }
+
+    }
+
+    cells.push( <td style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
+      onClick={ this._onClickItemDetail.bind(this)} id={ item.FileLeafRef }
+      title={ `See all Item Details.` }
+      >
+      { <Icon iconName= { detailIcon } style={{ padding: '0px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
+      <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
+    </td> );
     cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
@@ -270,7 +370,7 @@ public componentDidMount() {
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`}
       >
-      { <Icon iconName= {'FabricFolderSearch'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
     </td> );  
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
 
@@ -288,7 +388,7 @@ public componentDidMount() {
         { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
         { item.FileLeafRef }</td> );
   
-    let cellRow = <tr> { cells } </tr>;
+    let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
 
     return cellRow;
   
@@ -311,15 +411,69 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let clickThisItem = parseInt(event.currentTarget.id);
 
+    let selectedItem = null;
     this.props.items.map( item => {
-      let openThisLink =  item.FileRef;
-      if ( item.id === clickThisItem ) { window.open( openThisLink, "_blank"); }
+      let openThisLink =  item.ServerRedirectedEmbedUrl;
+      if ( !openThisLink || openThisLink.length === 0 ) { 
+        openThisLink = item.FileRef ;
+       }
+
+      if ( item.id === clickThisItem ) { 
+        if ( !item.ServerRedirectedEmbedUrl ) {
+          window.open( openThisLink, "_blank");
+        }
+        selectedItem = item;
+       }
     });
+
+    this.setState({ 
+      selectedItem: selectedItem,
+      showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
+    });
+
   }
   
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,
+    });
+  }
+
+  private _onClickItemDetail( event ){
+    console.log( event );
+    console.log( event.currentTarget.id );
+    let showThisType = event.currentTarget.id;
+    let selectedItem = null;
+    this.props.items.map( item => {
+      if ( item.FileLeafRef === showThisType ) { selectedItem = item ; }
+    });
+    this.setState({
+      showItem: true,
+      selectedItem: selectedItem,
+    });
+  }
+
+  private _onDialogDismiss( event ) {
+    this.setState({
+      showItem: false,
+      showPreview: false,
+      selectedItem: null,
+    });
+  }
+
+  private _onCloseItemDetail( event ){
+    this.setState({
+      showItem: false,
+      selectedItem: null,
+    });
+  }
+
+  private _onPreviewClick( event ){
+
+    return;
+    this.setState({
+      showPreview: false,
+      selectedItem: null,
     });
   }
 

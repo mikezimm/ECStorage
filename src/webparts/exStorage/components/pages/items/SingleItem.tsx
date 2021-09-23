@@ -10,70 +10,135 @@ import { Web, IList, Site } from "@pnp/sp/presets/all";
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
-import {
-  Spinner,
-  SpinnerSize,
-  FloatingPeoplePicker,
-  // MessageBar,
-  // MessageBarType,
-  // SearchBox,
-  // Icon,
-  // Label,
-  // Pivot,
-  // PivotItem,
-  // IPivotItemProps,
-  // PivotLinkFormat,
-  // PivotLinkSize,
-  // Dropdown,
-  // IDropdownOption
-} from "office-ui-fabric-react";
+import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { IItemDetail,  } from '../../IExStorageState';
+import { getFocusableByIndexPath } from 'office-ui-fabric-react';
+  
+const cellMaxStyle: React.CSSProperties = {
+  whiteSpace: 'nowrap',
+  height: '15px',
+  padding: '10px 30px 0px 0px',
+  fontWeight: 600,
+  fontSize: 'larger',
+  textAlign: 'center',
 
-import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
+};
 
-import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
+export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
 
-import ReactJson from "react-json-view";
+  let rows = [];
+  
+  ['versionlabel','sizeLabel','created','author','modified','editor', 'checkedOutId','uniquePerms'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
 
-import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+  ['MediaServiceLocation','MediaServiceOCR','MediaServiceAutoTags','MediaServiceKeyPoints','MediaLengthInSeconds'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
+  
+  ['bucket','ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl','MediaLengthInSeconds', 'isFolder'].map( thisKey => {
+    rows.push( createRowFromItem( item, thisKey ) );
+  });
 
-import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
-import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+  let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
+    window.origin + item.FileRef + "&width=500&height=400";
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+  let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
+      <h2 style={{  }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.FileLeafRef }</h2>
+      {/* <table style={{padding: '0 20px'}}> */}
 
-import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
+    <table style={{ tableLayout:"fixed" }} id="Select-b">
+      { rows }
+    </table>
+      
+    <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
+      <div>
+        <div style={{ fontSize: 'larger', fontWeight: 600, paddingBottom: '20px'  }}>Preview (if available)"</div>
+        <img src={ previewUrl } alt=""/>
+      </div>
 
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-  IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo } from '../../IExStorageState';
+      {
+        !textSearch || textSearch.length === 0 ? null :
+        <div style = {{ paddingLeft: '50px', }}>
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>Found by Searching for:</div>
+          <p> { textSearch } </p>
 
-export function createSingleItemRow( item: IItemDetail ) {
-  let cells : any[] = [];
-  cells.push( <td>{ item.sizeMB + 'MB'}</td> );
-  cells.push( <td>{ item.authorTitle }</td> );
-  cells.push( <td>{ item.created }</td> );
-  cells.push( <td><a href={ item.FileLeafRef }></a>{ item.FileRef }</td> );
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
+          <div>
+            <p>{ getHighlightedText( getItemSearchString( item ), textSearch ) }</p>
+          </div>
+        </div>
+      }
+    </div>
 
-  let cellRow = <tr> { cells } </tr>;
-  return cellRow;
+  </div>;
+  return table;
 
 }
 
-function clickFolder ( item: IItemDetail ): void {
+/**
+ * Super cool solution based on:  https://stackoverflow.com/a/43235785
+ * @param text 
+ * @param highlight 
+ */
+export function getHighlightedText(text, highlight) {
+  // Split on highlight term and include term into parts, ignore case
+  const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+  return <span> { parts.map((part, i) => 
+      <span key={i} style={part.toLowerCase() === highlight.toLowerCase() ? { fontWeight: 'bold', backgroundColor: 'yellow' } : {} }>
+          { part }
+      </span>)
+  } </span>;
+}
 
-  return;
+export function getItemSearchString ( item: IItemDetail ) {
+
+  let createdDate = new Date( item.created );
+  let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
+  if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:
+  if ( item.MediaServiceLocation ) { searchThis += `|:${item.MediaServiceLocation}` ; } //MSL:
+  if ( item.MediaServiceOCR ) { searchThis += `|:${item.MediaServiceOCR}` ; } //MSOCR:
+
+  return searchThis;
 
 }
 
+function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
+  let textValue = null;
+  switch (key) {
+    case 'author':
+      textValue = `(${item.authorId}) ${item.authorTitle}`;
+      break;
+  
+    case 'editor':
+      textValue = `(${item.editorId}) ${item.editorTitle}`;
+      break;
+  
+    case 'created':
+      textValue = `${item.created.toLocaleString()}`;
+      break;
+  
+    case 'modified':
+      textValue = `${item.modified.toLocaleString()}`;
+      break;
+    
+    case 'id':
+      textValue = `Id: ${ item.id } Batch Details: ${ item.batch } ${ item.index }`;
+      break;
 
-function clickFile ( item: IItemDetail ): void {
+    default:
+      textValue = item[ key ];
+      break;
+  }
 
-  return;
-
+  if ( textValue ) {
+    return <tr><td style={cellMaxStyle}>{ key }</td><td>{ textValue }</td></tr>;
+  } else {
+    return null;
+  }
+  
 }

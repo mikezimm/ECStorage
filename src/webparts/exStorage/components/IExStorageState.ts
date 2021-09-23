@@ -47,16 +47,28 @@ export interface IItemDetail {
   createMs: number;
   modMs: number;
   ContentTypeId: string;
+  ContentTypeName: string;
+  ServerRedirectedEmbedUrl: string; //This property is used to open files correctly... including Word and Excel in the browser
 
   size: number;
   sizeMB: number;
+  sizeLabel: string;
+
+  version: number;
+  versionlabel: string;
 
   isFolder?: boolean;
+
+  MediaServiceAutoTags?: string;
+  MediaServiceLocation?: string;
+  MediaServiceOCR?: string;
+  MediaServiceKeyPoints?: string;
+  MediaLengthInSeconds?: string;
+  isMedia: boolean;
 
 }
 
 export interface IFolderDetail extends IItemDetail {
-  sizeLabel: string;
   directCount: number; //Only next direct children, not their descendants
   directSize: number; //Only next direct children, not their descendants
   directItems: IItemDetail[]; //Only next direct children, not their descendants

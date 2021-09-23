@@ -33,6 +33,8 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
     IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IExStorageState';
 
+import { IDataOptions, IUiOptions } from './IExStorageProps';
+
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -660,7 +662,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                               
  *                                                                               
  */
- export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IEXStorageList, fetchCount: number, currentUser: IUser, addTheseItemsToState: any, setProgress: any, ) {
+ export async function getStorageItems( pickedWeb: IPickedWebBasic , pickedList: IEXStorageList, fetchCount: number, currentUser: IUser, dataOptions: IDataOptions, addTheseItemsToState: any, setProgress: any, ) {
 
   // currentUser.Id = 466;  //REMOVE THIS LINE>>> USED FOR TESTING ONLY
 
@@ -778,7 +780,7 @@ function expandArray ( count: number ) : any[] {
     batch.items.map( ( item, itemIndex )=> {
 
       //Get item summary
-      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser );
+      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions );
 
       batchData.count ++;
       batchData.size += detail.size;
@@ -1425,7 +1427,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                                                                                                        
  *                                                                                                                                                        
  */
- function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser ) : IItemDetail {
+ function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser, dataOptions: IDataOptions ) : IItemDetail {
   let created = new Date(item.Created);
   let modified = new Date(item.Modified);
 
@@ -1434,6 +1436,8 @@ function expandArray ( count: number ) : any[] {
 
   let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
   isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
+  let size = item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0;
+
   let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -1450,26 +1454,47 @@ function expandArray ( count: number ) : any[] {
     parentFolder: parentFolder,
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
+    ServerRedirectedEmbedUrl: item.ServerRedirectedEmbedUrl,
+    sizeLabel: getSizeLabel( size ),
     id: item.Id,
     currentUser: isCurrentUser,
-    size: item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0,
-    sizeMB: item.FileSizeDisplay ? Math.round( parseInt(item.FileSizeDisplay) / 1e6 * 100) / 100 : 0,
+    size: size,
+    sizeMB: item.FileSizeDisplay ? Math.round( size / 1e6 * 100) / 100 : 0,
     createYr: createYr,
     modYr: modYr,
     bucket: `${createYr}-${modYr}`,
     createMs: created.getTime(),
     modMs: modified.getTime(),
     ContentTypeId: item.ContentTypeId,
+    ContentTypeName: '',
     docIcon: '',
     iconColor: '',
     iconName: '',
     iconTitle: '',
+    version: item['OData__UIVersion'],
+    versionlabel: item['OData__UIVersionString'],
+    isMedia: false,
   };
 
 
   if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
   if ( item.HasUniqueRoleAssignments ) { itemDetail.uniquePerms = item.HasUniqueRoleAssignments; }
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
+
+  if ( dataOptions.useMediaTags === true ) {
+    // itemDetail.MediaServiceAutoTags = item.MediaServiceAutoTags;
+    // itemDetail.MediaServiceLocation = item.MediaServiceLocation;
+    // itemDetail.MediaServiceOCR = item.MediaServiceOCR;
+    // itemDetail.MediaServiceKeyPoints = item.MediaServiceKeyPoints;
+    // itemDetail.MediaLengthInSeconds = item.MediaLengthInSeconds;
+    ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'].map( key => {
+      let keyProp = item[ key ];
+      if ( keyProp !== null && keyProp.length > 0 ) {
+        itemDetail[ key ] = keyProp;
+        itemDetail.isMedia = true ;
+      } else { itemDetail[ key ] = null ; }
+    });
+  }
 
   if ( item.DocIcon ) { 
     itemDetail.docIcon = item.DocIcon;

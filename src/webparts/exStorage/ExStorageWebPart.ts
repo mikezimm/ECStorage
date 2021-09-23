@@ -21,7 +21,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import * as strings from 'ExStorageWebPartStrings';
 import ExStorage from './components/ExStorage';
-import { IExStorageProps } from './components/IExStorageProps';
+import { IExStorageProps, IDataOptions, IUiOptions } from './components/IExStorageProps';
 
 import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
@@ -54,7 +54,10 @@ export interface IExStorageWebPartProps {
 
   uniqueId: string;
 
-}
+  useMediaTags: boolean;
+  quickCloseItem: boolean;
+  maxVisibleItems: number;
+} 
 
 export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWebPartProps> {
 
@@ -149,6 +152,15 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
     // Always default to Documents library if nothing else is visible.
     let listTitle = this.properties.listTitle && this.properties.listTitle.length > 0 ? this.properties.listTitle : 'Documents';
 
+    let dataOptions: IDataOptions = {
+      useMediaTags: this.properties.useMediaTags,
+    };
+
+    let uiOptions: IUiOptions = {
+      quickCloseItem: this.properties.quickCloseItem,
+      maxVisibleItems: this.properties.maxVisibleItems,
+    };
+
     const element: React.ReactElement<IExStorageProps> = React.createElement(
       ExStorage,
       {
@@ -178,6 +190,9 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         theSite: null,
 
         isLoaded: false,
+
+        dataOptions: dataOptions,
+        uiOptions: uiOptions,
     
         currentUser: this.currentUser,
 
@@ -233,6 +248,11 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                   label: 'Exclude these from dropdown',
                   disabled: this.properties.showListDropdown === true ? false : true,
                   description: 'semi-colon separated words'
+                }),
+                
+                PropertyPaneToggle('useMediaTags', {
+                  label: 'Include Media Tags in search',
+                  disabled: false,
                 }),
 
               ]

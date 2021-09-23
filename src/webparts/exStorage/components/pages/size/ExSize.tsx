@@ -187,6 +187,10 @@ public componentDidMount() {
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
+              
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
           ></EsItems>
       </PivotItem>
 
@@ -202,6 +206,9 @@ public componentDidMount() {
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
           ></EsItems>
       </PivotItem> 
 
@@ -217,6 +224,9 @@ public componentDidMount() {
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
           ></EsItems>
       </PivotItem> 
       
@@ -232,6 +242,10 @@ public componentDidMount() {
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+            
           ></EsItems>
       </PivotItem>
 

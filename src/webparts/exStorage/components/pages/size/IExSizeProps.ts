@@ -13,6 +13,8 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, ILargeFiles } from '../../IExStorageState';
 
+import { IDataOptions, IUiOptions } from '../../IExStorageProps';
+
 export interface IExSizeProps {
 
       // 0 - Context
@@ -32,5 +34,8 @@ export interface IExSizeProps {
 
       WebpartHeight: number;
       WebpartWidth: number;
+
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
 
 }
