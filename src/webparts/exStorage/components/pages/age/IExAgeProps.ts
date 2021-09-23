@@ -35,6 +35,8 @@ export interface IExAgeProps {
       WebpartHeight: number;
       WebpartWidth: number;
 
+      heading: string;
+      
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
 }

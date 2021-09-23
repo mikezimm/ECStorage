@@ -183,7 +183,8 @@ public componentDidMount() {
           theSite = {null }
 
           items = { this.state.items }
-          heading = { ` of type: ${this.state.items[0].docIcon}` }
+          duplicateInfo = { null }
+          heading = { ` of type: ${this.state.items[0].docIcon} ${this.props.heading}` }
           // batches = { batches }
           icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
 

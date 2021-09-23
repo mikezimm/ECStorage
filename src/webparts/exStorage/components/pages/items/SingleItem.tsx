@@ -136,7 +136,7 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
   }
 
   if ( textValue ) {
-    return <tr><td style={cellMaxStyle}>{ key }</td><td>{ textValue }</td></tr>;
+    return <tr><td style={cellMaxStyle}>{ key }</td><td style={{ padding: '10px 30px 0px 10px', }}>{ textValue }</td></tr>;
   } else {
     return null;
   }

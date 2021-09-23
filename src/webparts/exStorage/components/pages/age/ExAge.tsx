@@ -183,6 +183,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age5Yr }
+            duplicateInfo = { null }
             heading = { ` created BEFORE ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
@@ -202,6 +203,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age4Yr }
+            duplicateInfo = { null }
             heading = { ` created in ${this.currentYear -4 }` }
             // batches = { batches }
             icons = { [ ]}
@@ -221,6 +223,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age3Yr }
+            duplicateInfo = { null }
             heading = { ` created in ${this.currentYear -3 }` }
             // batches = { batches }
             icons = { [ ]}
@@ -240,6 +243,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age2Yr }
+            duplicateInfo = { null }
             heading = { ` created in ${this.currentYear -2 }` }
             // batches = { batches }
             icons = { [ ]}
@@ -259,6 +263,7 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.oldFiles.Age1Yr }
+            duplicateInfo = { null }
             heading = { ` created in ${this.currentYear -1 }` }
             // batches = { batches }
             icons = { [ ]}

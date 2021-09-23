@@ -221,7 +221,7 @@ public componentDidMount() {
     //   <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
     //   { fetchButton }
     // </div>;
-
+    let heading = `, from ${this.props.userSummary.userTitle}`;  //          heading = { heading }
     let typesPivotContent = <div>
       <ExTypes 
   
@@ -236,6 +236,7 @@ public componentDidMount() {
           typesInfo = { userSummary.typesInfo }
           batches = { batches }
           batchData = { this.props.batchData }
+          heading = { heading }
 
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
@@ -259,6 +260,8 @@ public componentDidMount() {
 
         largeData = { userSummary.large }
         
+        heading = { heading }
+
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
 
@@ -279,6 +282,8 @@ public componentDidMount() {
 
           oldFiles = { userSummary.oldCreated }
                   
+          heading = { heading }
+
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
         >

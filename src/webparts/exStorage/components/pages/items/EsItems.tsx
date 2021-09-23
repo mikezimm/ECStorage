@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -60,15 +60,31 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemDetail, getItemSearchString } from './SingleItem';
 
+type IItemType = 'Items' | 'Duplicates';
+
+const cellMaxStyle: React.CSSProperties = {
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  maxWidth: '70%',
+  height: '10px',
+  textOverflow: 'ellipsis',
+  cursor: 'pointer',
+};
+
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
-  
-  private sliderTitle = this.props.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.props.items.length} items, use Search box to find more)`;
-  private sliderMax = this.props.items.length < 400 ? this.props.items.length : 400;
-  private sliderInc = this.props.items.length < 50 ? 1 : this.props.items.length < 100 ? 10 : 25;
+
+  private itemsOrDups: IItemType = !this.props.duplicateInfo ? 'Items' : 'Duplicates';
+
+  private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
+
+  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.items.length} items, use Search box to find more)`;
+  private sliderMax = this.items.length < 400 ? this.items.length : 400;
+  private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
+
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -100,6 +116,7 @@ public constructor(props:IEsItemsProps){
         showPane: false,
 
         items: [],
+        dups: this.itemsOrDups === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
 
         minYear: currentYearVal - 5 ,
         maxYear: currentYearVal + 1 ,
@@ -149,25 +166,34 @@ public componentDidMount() {
 
     console.log('EsItems.tsx1');
     // debugger;
-    const itemsTable = this.buildItemsTable( this.props.items , '', this.state.rankSlider, this.state.textSearch, 'size' );
-
-    let component = <div className={ styles.inflexWrapCenter}>
-      { itemsTable }
-    </div>;
-
-    let sliderTypeCount = this.props.items.length < 5 ? null : 
-      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
-
-    let iconArray = this.props.icons.map( icon => {
-      return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
-    });
+    const items : IItemDetail[] | IDuplicateFile []= this.items;
+    const itemsTable = this.buildItemsTable( items , this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
 
     let page = null;
     let userPanel = null;
 
     const emptyItemsElements = this.props.emptyItemsElements;
 
-    if ( this.props.items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ) {
+    let showEmptyElements = false;
+    if ( this.itemsOrDups === 'Items' ) {
+      showEmptyElements = items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+
+    } else if ( this.itemsOrDups === 'Duplicates') {
+      showEmptyElements = items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+    }
+
+    let component = <div className={ styles.inflexWrapCenter}>
+      { itemsTable }
+    </div>;
+
+    let sliderTypeCount = items.length < 5 ? null : 
+      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
+
+    let iconArray = this.props.icons.map( icon => {
+      return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
+    });
+
+    if ( showEmptyElements ) {
       page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
 
     } else {
@@ -211,7 +237,7 @@ public componentDidMount() {
       let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
       page = <div>
         <div className={styles.flexWrapStart}>
-          <h3>{ this.props.items.length } Items found { this.props.heading }</h3> < div> { iconArray } </div>
+          <h3>{ items.length } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
         </div>
         <div className={ styles.inflexWrapCenter}>
           <div> { sliderTypeCount } </div>
@@ -265,40 +291,32 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildItemsTable( items: IItemDetail[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , objectType: IItemType , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
     let rows = [];
     let tableTitle = data;
-    const itemsSorted: IItemDetail[] = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+    let itemsSorted: any[] = [];
+    if ( objectType === 'Items' ) {
+      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+
+    } else if ( objectType === 'Duplicates' ){
+      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+
+    }
+    
 
     itemsSorted.map( ( item, index ) => {
       if ( rows.length < countToShow ) {
-        if ( textSearch.length > 0 ) {
+        if ( this.isVisibleItem( textSearch, item ) === true ) {
 
-          let searchThis = getItemSearchString( item );
-
-          if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+          if ( objectType === 'Items' ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
 
-          } else if ( item.MediaServiceAutoTags && textSearch.toUpperCase() === 'MSAT' ) {
-              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
-          } else if ( item.MediaServiceKeyPoints && textSearch.toUpperCase() === 'MSKP' ) {
-              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
-          } else if ( item.MediaServiceLocation && textSearch.toUpperCase() === 'MSL' ) {
-              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
-          } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
-              rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
-          } else {
-
+          } else if ( objectType === 'Duplicates' ) {
+            rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
           }
-        } else {
-          rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-        }
 
+        }
       }
     });
 
@@ -307,28 +325,90 @@ public componentDidMount() {
       {/* <table style={{padding: '0 20px'}}> */}
       <table style={{ tableLayout:"fixed", width:"80%" }} id="Select-b">
         { rows }
-        {/* { itemsSorted.map( ( item, index ) => {
-            return this.createSingleItemRow( item.id.toFixed(0), item );
-          })
-        } */}
       </table>
     </div>;
     return table;
 
   }
 
+  private isVisibleItem ( textSearch: string, item: IItemDetail ) {
+
+    let visible = true;
+
+    if ( textSearch.length > 0 ) {
+
+      visible = false;
+
+      let searchThis = getItemSearchString( item );
+
+      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+        visible = true;
+
+      } else if ( item.MediaServiceAutoTags && textSearch.toUpperCase() === 'MSAT' ) {
+        visible = true;
+
+      } else if ( item.MediaServiceKeyPoints && textSearch.toUpperCase() === 'MSKP' ) {
+        visible = true;
+
+      } else if ( item.MediaServiceLocation && textSearch.toUpperCase() === 'MSL' ) {
+        visible = true;
+
+      } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
+        visible = true;
+
+      } else {
+
+      }
+
+    }
+
+    return visible;
+
+  }
+
+  
+  private createSingleDupRow( key: string, item: IDuplicateFile ) {
+
+    // let created = new Date( item.created );
+
+    let cells : any[] = [];
+    cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ key }</td> );
+    cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ item.summary.count }</td> );
+    cells.push( <td style={{width: '100px', textAlign: 'center' }} >{ item.summary.sizeLabel }</td> );
+    // cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
+    // cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
+    // cells.push( <td style={{width: '50px' }} 
+    //   // onClick={ this._onClickFolder.bind(this)} id={ item.name }
+    //   // title={ `Go to parent folder: ${ item.name }`}
+    //   >
+    //   { <Icon iconName= { item.iconName } style={{ padding: '0px 4px', fontSize: 'large', color: item.iconColor }}></Icon> }
+    // </td> );  
+    // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
+
+
+    const iconStyles: any = { root: {
+      fontSize: 'larger',
+      color: item.iconColor,
+      padding: '0px 4px 0px 10px',
+    }};
+
+    cells.push( <td style={cellMaxStyle} 
+        onClick={ this._onClickItem.bind(this)} 
+        id={ item.name } 
+        // title={ `Item ID: ${item.id}`}
+      >
+        { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.name }</td> );
+  
+    let cellRow = <tr> { cells } </tr>;
+
+    return cellRow;
+  
+  }
+
   private createSingleItemRow( key: string, item: IItemDetail ) {
 
     let created = new Date( item.created );
-
-    let cellMaxStyle: React.CSSProperties = {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        maxWidth: '70%',
-        height: '10px',
-        textOverflow: 'ellipsis',
-        cursor: 'pointer',
-    };
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
@@ -338,22 +418,9 @@ public componentDidMount() {
     let MediaIcons: any[] = [];
 
     if ( item.isMedia ) {
+      MediaIcons = this.buildMediaIcons( item );
       detailIcon = 'ImageSearch';
       detailIconStyle = 'red';
-
-      if ( item.MediaServiceOCR ) {
-        MediaIcons.push(  <Icon iconName= { 'CircleShapeSolid' } style={{ top: '2px', left: '2px', fontSize: '6px', position: 'absolute', color: 'dimgray' }} title="MediaServiceOCR"></Icon> );
-      }
-      if ( item.MediaServiceAutoTags ) {
-        MediaIcons.push(  <Icon iconName= { 'TagSolid' } style={{ top: '1px', left: '12px', fontSize: '9px', position: 'absolute', color: 'dimgray' }} title="MediaServiceAutoTags"></Icon> );
-      }
-      if ( item.MediaServiceKeyPoints ) {
-        MediaIcons.push(  <Icon iconName= { 'Location' } style={{ top: '10px', left: '2px', fontSize: '5px', position: 'absolute', color: 'dimgray' }} title="MediaServiceKeyPoints"></Icon> );
-      }
-      if ( item.MediaServiceLocation ) {
-        MediaIcons.push(  <Icon iconName= { 'POISolid' } style={{ top: '11px', left: '12px', fontSize: '8px', position: 'absolute', color: 'dimgray' }} title="MediaServiceLocation"></Icon> );
-      }
-
     }
 
     cells.push( <td style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
@@ -433,6 +500,28 @@ public componentDidMount() {
 
   }
   
+  private buildMediaIcons( item: IItemDetail ) {
+    let MediaIcons = [];
+    if ( item.isMedia ) {
+
+      if ( item.MediaServiceOCR ) {
+        MediaIcons.push(  <Icon iconName= { 'CircleShapeSolid' } style={{ top: '2px', left: '2px', fontSize: '6px', position: 'absolute', color: 'dimgray' }} title="MediaServiceOCR"></Icon> );
+      }
+      if ( item.MediaServiceAutoTags ) {
+        MediaIcons.push(  <Icon iconName= { 'TagSolid' } style={{ top: '1px', left: '12px', fontSize: '9px', position: 'absolute', color: 'dimgray' }} title="MediaServiceAutoTags"></Icon> );
+      }
+      if ( item.MediaServiceKeyPoints ) {
+        MediaIcons.push(  <Icon iconName= { 'Location' } style={{ top: '10px', left: '2px', fontSize: '5px', position: 'absolute', color: 'dimgray' }} title="MediaServiceKeyPoints"></Icon> );
+      }
+      if ( item.MediaServiceLocation ) {
+        MediaIcons.push(  <Icon iconName= { 'POISolid' } style={{ top: '11px', left: '12px', fontSize: '8px', position: 'absolute', color: 'dimgray' }} title="MediaServiceLocation"></Icon> );
+      }
+
+    }
+
+    return MediaIcons;
+
+  }
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,

@@ -319,6 +319,8 @@ public async updateWebInfo ( webUrl?: string ) {
           batches = { batches }
           batchData = { batchData }
                         
+          heading = { '' }
+
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
       >
@@ -364,6 +366,8 @@ public async updateWebInfo ( webUrl?: string ) {
 
         largeData = { batchData.large }
                       
+        heading = { '' }
+
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
       >
@@ -383,6 +387,8 @@ public async updateWebInfo ( webUrl?: string ) {
 
         oldFiles = { batchData.oldCreated }
                       
+        heading = { '' }
+
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
       >
@@ -436,9 +442,15 @@ public async updateWebInfo ( webUrl?: string ) {
         pickedList = { this.state.pickedList }
         theSite = {null }
 
+        heading = { '' }
+
         batchData = { batchData }
 
         duplicateInfo = { batchData.duplicateInfo }
+                                
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        
       >
       </ExDups></div>;
 

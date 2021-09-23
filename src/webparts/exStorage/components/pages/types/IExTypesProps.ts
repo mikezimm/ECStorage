@@ -36,6 +36,8 @@ export interface IExTypesProps {
       batches: IEXStorageBatch[];
       batchData: IBatchData;
 
+      heading: string;
+
       WebpartHeight: number;
       WebpartWidth: number;
 
