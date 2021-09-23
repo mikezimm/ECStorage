@@ -13,6 +13,8 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
 
+import { IDataOptions, IUiOptions } from '../../IExStorageProps';
+
 export interface IIconArray {
       iconTitle: string;
       iconName: string;
@@ -41,5 +43,8 @@ export interface IEsItemsProps {
 
       emptyItemsElements?: any[]; //Will pick any of these elements to randomly display
       // batches: IEXStorageBatch[];
+
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
 
 }

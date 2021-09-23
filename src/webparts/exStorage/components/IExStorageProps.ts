@@ -10,7 +10,28 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IChoiceGroupOptionStyleProps } from "office-ui-fabric-react";
 
+export interface IDataOptions {
+  useMediaTags: boolean;
+
+} 
+
+export interface IUiOptions {
+  /** quickCloseItem:
+   * Set to true to easily pop open and close item panel.
+   * Set to false to force you do do proper dismiss (click X or outside panel)
+   */
+
+  quickCloseItem: boolean;
+
+  /**
+   * 400 is default
+   * Setting higher will allow you to see more items on the screen but it becomes sluggish during search
+   */
+  maxVisibleItems: number;
+   
+} 
 
 export interface IExStorageProps {
 
@@ -41,6 +62,7 @@ export interface IExStorageProps {
       WebpartHeight: number;
       WebpartWidth: number;
 
-      useMediaTags: boolean;
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
 
 }

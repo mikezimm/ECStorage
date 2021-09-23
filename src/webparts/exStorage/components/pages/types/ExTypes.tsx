@@ -187,6 +187,9 @@ public componentDidMount() {
           // batches = { batches }
           icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
 
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
+
         >
       </EsItems>;
   

@@ -64,6 +64,7 @@ export interface IItemDetail {
   MediaServiceOCR?: string;
   MediaServiceKeyPoints?: string;
   MediaLengthInSeconds?: string;
+  isMedia: boolean;
 
 }
 

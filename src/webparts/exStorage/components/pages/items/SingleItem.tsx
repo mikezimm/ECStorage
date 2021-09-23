@@ -13,6 +13,7 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IItemDetail,  } from '../../IExStorageState';
+import { getFocusableByIndexPath } from 'office-ui-fabric-react';
   
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
@@ -24,7 +25,7 @@ const cellMaxStyle: React.CSSProperties = {
 
 };
 
-export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: any, onPreviewClick?: any, ) {
+export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
 
   let rows = [];
   
@@ -44,20 +45,65 @@ export function createItemDetail( item: IItemDetail, siteUrl: string, onClick?: 
     window.origin + item.FileRef + "&width=500&height=400";
 
   let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
-      <h3 style={{ textAlign: 'center' }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
-        { item.FileLeafRef }</h3>
+      <h2 style={{  }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.FileLeafRef }</h2>
       {/* <table style={{padding: '0 20px'}}> */}
-    <table style={{ tableLayout:"fixed" }} id="Select-b">
-    { rows }
 
-  </table>
-    <h3>Preview (if available may take a couple seconds to load :)</h3>
-    <div style = {{ paddingTop: '30px', paddingLeft: '20px' }}>
-      <img src={ previewUrl } alt=""/>
+    <table style={{ tableLayout:"fixed" }} id="Select-b">
+      { rows }
+    </table>
+      
+    <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
+      <div>
+        <div style={{ fontSize: 'larger', fontWeight: 600, paddingBottom: '20px'  }}>Preview (if available)"</div>
+        <img src={ previewUrl } alt=""/>
+      </div>
+
+      {
+        !textSearch || textSearch.length === 0 ? null :
+        <div style = {{ paddingLeft: '50px', }}>
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>Found by Searching for:</div>
+          <p> { textSearch } </p>
+
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
+          <div>
+            <p>{ getHighlightedText( getItemSearchString( item ), textSearch ) }</p>
+          </div>
+        </div>
+      }
     </div>
 
   </div>;
   return table;
+
+}
+
+/**
+ * Super cool solution based on:  https://stackoverflow.com/a/43235785
+ * @param text 
+ * @param highlight 
+ */
+export function getHighlightedText(text, highlight) {
+  // Split on highlight term and include term into parts, ignore case
+  const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+  return <span> { parts.map((part, i) => 
+      <span key={i} style={part.toLowerCase() === highlight.toLowerCase() ? { fontWeight: 'bold', backgroundColor: 'yellow' } : {} }>
+          { part }
+      </span>)
+  } </span>;
+}
+
+export function getItemSearchString ( item: IItemDetail ) {
+
+  let createdDate = new Date( item.created );
+  let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
+  if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:
+  if ( item.MediaServiceLocation ) { searchThis += `|:${item.MediaServiceLocation}` ; } //MSL:
+  if ( item.MediaServiceOCR ) { searchThis += `|:${item.MediaServiceOCR}` ; } //MSOCR:
+
+  return searchThis;
 
 }
 

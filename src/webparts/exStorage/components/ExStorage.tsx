@@ -318,6 +318,9 @@ public async updateWebInfo ( webUrl?: string ) {
           typesInfo = { batchData.typesInfo }
           batches = { batches }
           batchData = { batchData }
+                        
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
       >
       </ExTypes></div>;
 
@@ -360,6 +363,9 @@ public async updateWebInfo ( webUrl?: string ) {
         batchData = { batchData }
 
         largeData = { batchData.large }
+                      
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
       >
       </ExSize></div>;
 
@@ -376,6 +382,9 @@ public async updateWebInfo ( webUrl?: string ) {
         batchData = { batchData }
 
         oldFiles = { batchData.oldCreated }
+                      
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
       >
       </ExAge></div>;
 
@@ -404,6 +413,9 @@ public async updateWebInfo ( webUrl?: string ) {
           userSummary = { batchData.userInfo.currentUser }
           batches = { batches }
           batchData = { batchData }
+                        
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
         >
         </ExUser>
       </div>;
@@ -509,6 +521,9 @@ public async updateWebInfo ( webUrl?: string ) {
         userSummary = { batchData.userInfo.allUsers[ this.state.showUser ] }
         batches = { batches }
         batchData = { batchData }
+                      
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
       >
     </ExUser>;
 
@@ -716,7 +731,7 @@ public async updateWebInfo ( webUrl?: string ) {
       errorMessage: '',
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
-    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.useMediaTags, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
+    getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.dataOptions, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
 

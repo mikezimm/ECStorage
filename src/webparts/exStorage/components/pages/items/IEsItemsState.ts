@@ -33,4 +33,6 @@ export interface IEsItemsState {
   showPreview: boolean;
   selectedItem: IItemDetail;
 
+  hasMedia: boolean;
+
 }
