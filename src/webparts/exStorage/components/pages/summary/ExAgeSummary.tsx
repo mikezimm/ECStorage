@@ -41,7 +41,11 @@ export function createAgeSummary ( oldFiles: IOldFiles, batchData: IBatchData ) 
   let GT100M = oldFiles.summary.count;
   let GT100SizeLabel = getSizeLabel(oldFiles.summary.size);
 
-  tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created berfore ${ currentYear - 1 } ` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
+  tableRows.push( <tr><td>{ oldFiles.summary.ranges.createRange } </td><td>{ `Old files CREATED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ oldFiles.summary.ranges.modifyRange } </td><td>{ `Old files MODIFIED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ oldFiles.summary.ranges.rangeAll } </td><td>{ `Old files were active during this timeframe` }</td></tr> );
+
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( oldFiles.summary,  '' ) }</td></tr> );
 
   let summaryTable = <table className={ styles.summaryTable }>
@@ -53,7 +57,7 @@ export function createAgeSummary ( oldFiles: IOldFiles, batchData: IBatchData ) 
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

@@ -42,6 +42,11 @@ export function createDupSummary ( dups: IDuplicateInfo, batchData: IBatchData )
   let GT100SizeLabel = getSizeLabel(dups.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created berfore ${ currentYear - 1 } ` }</td></tr> );
+
+  tableRows.push( <tr><td>{ dups.summary.ranges.createRange } </td><td>{ `CREATED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ dups.summary.ranges.modifyRange } </td><td>{ `MODIFIED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ dups.summary.ranges.rangeAll } </td><td>{ `Activity during this timeframe` }</td></tr> );
+
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( dups.summary,  '' ) }</td></tr> );
 
   let summaryTable = <table className={ styles.summaryTable }>
@@ -53,7 +58,7 @@ export function createDupSummary ( dups: IDuplicateInfo, batchData: IBatchData )
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

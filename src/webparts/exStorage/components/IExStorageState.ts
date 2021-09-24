@@ -65,6 +65,8 @@ export interface IItemDetail {
   MediaServiceKeyPoints?: string;
   MediaLengthInSeconds?: string;
   isMedia: boolean;
+  whichWasFirst: 'created' | 'modfied';
+  whichWasFirstDays: string;
 
 }
 
@@ -87,6 +89,17 @@ export interface IBucketSummary {
   sizeLabel: string;
   countP: number;
   sizeP: number;
+  ranges: {
+    firstCreateMs: any;
+    lastCreateMs: any;
+    firstModifiedMs: any;
+    lastModifiedMs: any;
+    createRange: string;
+    modifyRange: string;
+    firstAllMs: any;
+    lastAllMs: any;
+    rangeAll: string;
+  };
   sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
   userTitles: string[];
   userIds: number[];
@@ -147,6 +160,7 @@ export interface IUserSummary {
   modifyTotalSizeGB: number;
   modifySizeRank: number;
   modifyCountRank: number;
+
   oldModified: IOldFiles;
 
   summary: IBucketSummary;
