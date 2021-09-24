@@ -183,6 +183,7 @@ public componentDidMount() {
           theSite = {null }
 
           items = { this.state.items }
+          itemsAreDups = { false }
           duplicateInfo = { null }
           heading = { ` of type: ${this.state.items[0].docIcon} ${this.props.heading}` }
           // batches = { batches }

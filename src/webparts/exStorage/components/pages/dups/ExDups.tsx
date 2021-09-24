@@ -183,11 +183,12 @@ public componentDidMount() {
             theSite = {null }
 
             items = { [] }
+            itemsAreDups = { false }
             duplicateInfo = { this.props.duplicateInfo }
             heading = { `` }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
-            
+
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
 

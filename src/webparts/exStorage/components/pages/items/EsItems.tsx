@@ -58,7 +58,7 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createItemDetail, getItemSearchString } from './SingleItem';
+import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';
 
 type IItemType = 'Items' | 'Duplicates';
 
@@ -116,6 +116,7 @@ public constructor(props:IEsItemsProps){
         showPane: false,
 
         items: [],
+        showItems: [],
         dups: this.itemsOrDups === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
 
         minYear: currentYearVal - 5 ,
@@ -134,6 +135,7 @@ public constructor(props:IEsItemsProps){
         showItem: false,
         showPreview: false,
         selectedItem: null,
+        selectedDup: null,
 
         hasMedia: false,
   
@@ -198,6 +200,7 @@ public componentDidMount() {
 
     } else {
 
+      let panelContent = null;
       if ( this.state.showPreview === true && this.state.selectedItem ) {
 
         userPanel = <IFrameDialog 
@@ -217,12 +220,39 @@ public componentDidMount() {
           width={'60%'}
           height={'60%'}/>;
 
-      } else if ( this.state.showItem === true ) { 
+      } else if ( this.state.selectedItem ) { 
 
-        let panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
+        panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
+
+      } else if ( this.state.selectedDup ) { 
+
+        panelContent = createDuplicateDetail( this.state.selectedDup, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
     
-        userPanel = <div><Panel
-          isOpen={ this.state.showItem === true ? true : false }
+      } else if ( this.state.showItems.length > 0 ) {
+
+        panelContent = <EsItems 
+          pickedWeb  = { this.props.pickedWeb }
+          pickedList = { this.props.pickedList }
+          theSite = {null }
+
+          items = { this.state.showItems }
+          itemsAreDups = { true }
+          duplicateInfo = { null }
+          heading = { ` Duplicates of ${ this.state.showItems[0].FileLeafRef  }` }
+          // batches = { batches }
+          icons = { [ ]}
+          emptyItemsElements = { emptyItemsElements }
+            
+          dataOptions = { this.props.dataOptions }
+          uiOptions = { this.props.uiOptions }
+
+        ></EsItems>;
+      
+      }
+
+      if ( panelContent !== null ) {
+          userPanel = <div><Panel
+          isOpen={ this.state.showItem === true || this.state.showItems.length > 0 ? true : false }
           // this prop makes the panel non-modal
           isBlocking={true}
           onDismiss={ this._onCloseItemDetail.bind(this) }
@@ -370,21 +400,19 @@ public componentDidMount() {
   private createSingleDupRow( key: string, item: IDuplicateFile ) {
 
     // let created = new Date( item.created );
+    let detailIcon = 'DocumentSearch';
+    let detailIconStyle = 'black';
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ key }</td> );
+    
+    let id = item.FileLeafRef ;
+    let detailItemIcon = this.buildDetailIcon( item, id );
+
+    cells.push( detailItemIcon );
+
     cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ item.summary.count }</td> );
     cells.push( <td style={{width: '100px', textAlign: 'center' }} >{ item.summary.sizeLabel }</td> );
-    // cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
-    // cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
-    // cells.push( <td style={{width: '50px' }} 
-    //   // onClick={ this._onClickFolder.bind(this)} id={ item.name }
-    //   // title={ `Go to parent folder: ${ item.name }`}
-    //   >
-    //   { <Icon iconName= { item.iconName } style={{ padding: '0px 4px', fontSize: 'large', color: item.iconColor }}></Icon> }
-    // </td> );  
-    // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
-
 
     const iconStyles: any = { root: {
       fontSize: 'larger',
@@ -392,13 +420,7 @@ public componentDidMount() {
       padding: '0px 4px 0px 10px',
     }};
 
-    cells.push( <td style={cellMaxStyle} 
-        onClick={ this._onClickItem.bind(this)} 
-        id={ item.name } 
-        // title={ `Item ID: ${item.id}`}
-      >
-        { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
-        { item.name }</td> );
+    cells.push( this.buildOpenItemCell( item, item.FileLeafRef, item.FileLeafRef ) );
   
     let cellRow = <tr> { cells } </tr>;
 
@@ -413,32 +435,14 @@ public componentDidMount() {
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
 
-    let detailIcon = 'DocumentSearch';
-    let detailIconStyle = 'black';
-    let MediaIcons: any[] = [];
+    let id = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
+    let detailItemIcon = this.buildDetailIcon( item, id );
 
-    if ( item.isMedia ) {
-      MediaIcons = this.buildMediaIcons( item );
-      detailIcon = 'ImageSearch';
-      detailIconStyle = 'red';
-    }
-
-    cells.push( <td style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
-      onClick={ this._onClickItemDetail.bind(this)} id={ item.FileLeafRef }
-      title={ `See all Item Details.` }
-      >
-      { <Icon iconName= { detailIcon } style={{ padding: '0px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
-      <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
-    </td> );
+    cells.push( detailItemIcon );
     cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
-    cells.push( <td style={{width: '50px', cursor: 'pointer' }} 
-      onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
-      title={ `Go to parent folder: ${ item.parentFolder }`}
-      >
-      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
-    </td> );  
+    cells.push( this.buildFolderIcon( item ) );
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
 
 
@@ -448,12 +452,8 @@ public componentDidMount() {
       padding: '0px 4px 0px 10px',
     }};
 
-    cells.push( <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
-        id={ item.id.toFixed(0) } 
-        title={ `Item ID: ${item.id}`}
-      >
-        { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
-        { item.FileLeafRef }</td> );
+    let cellText = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef;
+    cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText ) );
   
     let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
 
@@ -476,31 +476,102 @@ public componentDidMount() {
   private _onClickItem( event ) {
     // console.log( event );
     console.log( event.currentTarget.id );
-    let clickThisItem = parseInt(event.currentTarget.id);
 
-    let selectedItem = null;
-    this.props.items.map( item => {
-      let openThisLink =  item.ServerRedirectedEmbedUrl;
-      if ( !openThisLink || openThisLink.length === 0 ) { 
-        openThisLink = item.FileRef ;
-       }
+    if ( this.itemsOrDups === 'Items' ) {
+      let clickThisItem = parseInt(event.currentTarget.id) ;
+      let items: IItemDetail[] = this.props.items;
+      let selectedItem = null;
 
-      if ( item.id === clickThisItem ) { 
-        if ( !item.ServerRedirectedEmbedUrl ) {
-          window.open( openThisLink, "_blank");
+      items.map( item => {
+        let openThisLink =  item.ServerRedirectedEmbedUrl;
+        if ( !openThisLink || openThisLink.length === 0 ) { 
+          openThisLink = item.FileRef ;
+         }
+  
+        if ( item.id === clickThisItem ) { 
+          if ( !item.ServerRedirectedEmbedUrl ) {
+            window.open( openThisLink, "_blank");
+          }
+          selectedItem = item;
+         }
+      });
+  
+      this.setState({ 
+        selectedItem: selectedItem,
+        selectedDup: null,
+        showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
+        showItems: [],  //Clear any duplicate items
+      });
+
+    } else if ( this.itemsOrDups === 'Duplicates' ) {
+      let clickThisItem = event.currentTarget.id ; //For some reason this has the DupName but then is set to undefined after the next line.
+      let duplicates: IDuplicateFile[] = this.props.duplicateInfo.duplicates ;
+      let showItems : IItemDetail[] = [];
+      duplicates.map( dup => {
+        if ( dup.FileLeafRef === event.currentTarget.id ) {
+          showItems = dup.items;
         }
-        selectedItem = item;
-       }
-    });
+      });
 
-    this.setState({ 
-      selectedItem: selectedItem,
-      showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
-    });
+      this.setState({ 
+        selectedItem: null,
+        selectedDup: null,
+        showPreview: null,
+        showItems: showItems,
+      });
 
+    }
   }
   
-  private buildMediaIcons( item: IItemDetail ) {
+  private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: string ) {
+    let cell = <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
+    id={ itemId } 
+    title={ `Item ID: ${ itemId }`}
+  >
+    { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+    { text }</td>;
+
+
+    return cell;
+  }
+
+  private buildFolderIcon ( item: IItemDetail ) {
+
+    let iconCell = <td style={{width: '50px', cursor: 'pointer' }} 
+      onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
+      title={ `Go to parent folder: ${ item.parentFolder }`}
+      >
+      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+    </td>;
+    return iconCell;
+    
+  }
+
+  private buildDetailIcon ( item: IItemDetail | IDuplicateFile, id: string ) {
+    
+    let detailIcon = 'DocumentSearch';
+    let detailIconStyle = 'black';
+    let MediaIcons: any[] = [];
+
+    if ( item.isMedia ) {
+      MediaIcons = this.buildMediaIcons( item );
+      detailIcon = 'ImageSearch';
+      detailIconStyle = 'red';
+    }
+
+    let iconCell = <td style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
+      onClick={ this._onClickItemDetail.bind(this)} id={ id }
+      title={ `See all Item Details.` }
+      >
+      { <Icon iconName= { detailIcon } style={{ padding: '0px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
+      <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
+    </td>;
+
+    return iconCell;
+
+  }
+
+  private buildMediaIcons( item: any ) { //IItemDetail
     let MediaIcons = [];
     if ( item.isMedia ) {
 
@@ -533,13 +604,33 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let showThisType = event.currentTarget.id;
     let selectedItem = null;
-    this.props.items.map( item => {
-      if ( item.FileLeafRef === showThisType ) { selectedItem = item ; }
-    });
-    this.setState({
-      showItem: true,
-      selectedItem: selectedItem,
-    });
+
+    if ( this.itemsOrDups === 'Items' ) {
+      this.props.items.map( item => {
+        let checkThis = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
+        if ( checkThis === showThisType ) { selectedItem = item ; }
+      });
+      this.setState({
+        showItem: true,
+        showPreview: false,
+        selectedItem: selectedItem,
+        selectedDup: null,
+        showItems: [],
+      });
+
+    } else if ( this.itemsOrDups === 'Duplicates' ) {
+      this.props.duplicateInfo.duplicates.map( item => {
+        if ( item.FileLeafRef === showThisType ) { selectedItem = item ; }
+      });
+      this.setState({
+        showItem: true,
+        showPreview: false,
+        selectedItem: null,
+        selectedDup: selectedItem,
+        showItems: [],
+      });
+    }
+
   }
 
   private _onDialogDismiss( event ) {
@@ -547,13 +638,18 @@ public componentDidMount() {
       showItem: false,
       showPreview: false,
       selectedItem: null,
+      selectedDup: null,
+      showItems: [],
     });
   }
 
   private _onCloseItemDetail( event ){
     this.setState({
       showItem: false,
+      showPreview: false,
       selectedItem: null,
+      selectedDup: null,
+      showItems: [],
     });
   }
 

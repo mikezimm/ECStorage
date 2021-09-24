@@ -354,6 +354,7 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       createdMs: [],
       modifiedMs: [],
       summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`),
+      FileLeafRef: detail.FileLeafRef,
     };
 
   return thisDup;

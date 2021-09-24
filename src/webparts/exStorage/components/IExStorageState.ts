@@ -191,6 +191,8 @@ export interface IDuplicateFile {
   createdMs: number[];
   modifiedMs: number[];
   summary: IBucketSummary;
+  isMedia?: boolean;
+  FileLeafRef: string;
 }
 
 export interface IFileType {

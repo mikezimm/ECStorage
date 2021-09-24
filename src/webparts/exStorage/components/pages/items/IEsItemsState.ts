@@ -16,6 +16,7 @@ export interface IEsItemsState {
 
   items: any[];
   dups: IDuplicateFile[];
+  showItems: IItemDetail[];
 
   minYear: number;
   maxYear: number;
@@ -33,6 +34,7 @@ export interface IEsItemsState {
   showItem: boolean;
   showPreview: boolean;
   selectedItem: IItemDetail;
+  selectedDup: IDuplicateFile;
 
   hasMedia: boolean;
 
