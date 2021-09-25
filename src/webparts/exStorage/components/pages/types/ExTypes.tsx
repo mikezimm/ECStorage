@@ -47,7 +47,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByNumberKey, } from '../../../../../services/complexArraySorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 

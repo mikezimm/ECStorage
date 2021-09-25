@@ -24,7 +24,11 @@ import { Search, Suggest } from "@pnp/sp/search";
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+
+import { sortObjectArrayByNumberKey, } from '../../../services/complexArraySorting';
+
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
@@ -146,7 +150,7 @@ import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/co
     if ( summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { summary.userTitles.push( detail.editorTitle ) ; }
 
     let rangeChanged = false;
-    debugger;
+    // debugger;
     if ( detail.createMs < summary.ranges.firstCreateMs ) { summary.ranges.firstCreateMs = detail.createMs ; rangeChanged = true ; }
     if ( detail.createMs > summary.ranges.lastCreateMs ) { summary.ranges.lastCreateMs = detail.createMs ; rangeChanged = true ; }
     if ( detail.modMs < summary.ranges.firstModifiedMs ) { summary.ranges.firstModifiedMs = detail.modMs ; rangeChanged = true ; }
@@ -431,14 +435,14 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
   // userIds: number[];
 
 
-  thisDup.summary.count ++;
-  thisDup.summary.size += detail.size;
+  // thisDup.summary.count ++;
+  // thisDup.summary.size += detail.size;
 
   thisDup.count ++;
   thisDup.size += detail.size;
 
-  thisDup.summary.sizeGB = detail.size / 1e9;
-  thisDup.summary.sizeLabel = getSizeLabel( detail.size );
+  // thisDup.summary.sizeGB = detail.size / 1e9;
+  // thisDup.summary.sizeLabel = getSizeLabel( detail.size );
   // thisDup.summary.countP = 0;
   // thisDup.summary.sizeP = 0;
   // thisDup.summary.sizeToCountRatio = 0;
@@ -1312,6 +1316,9 @@ function expandArray ( count: number ) : any[] {
     allUserModifyCount.push( user.modifyCount );
 
   });
+
+  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.size');
+  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.sizeToCountRatio');
 
   //Sort totals by largest first
   allUserCreateSize = sortNumberArray( allUserCreateSize , 'dec');
