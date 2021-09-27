@@ -25,7 +25,7 @@ const cellMaxStyle: React.CSSProperties = {
 
 };
 
-export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
+export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
 
   let rows = [];
   
@@ -67,7 +67,7 @@ export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch
 
           <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
           <div>
-            <p>{ getHighlightedText( getItemSearchString( item ), textSearch ) }</p>
+            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups ), textSearch ) }</p>
           </div>
         </div>
       }
@@ -133,10 +133,18 @@ export function getHighlightedText(text, highlight) {
   } </span>;
 }
 
-export function getItemSearchString ( item: IItemDetail ) {
+export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean ) {
 
   let createdDate = new Date( item.created );
-  let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+  let searchThis = '';
+  if ( itemsAreDups === true ) {
+    //Search the folder name not the file name
+    searchThis = [item.parentFolder, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  } else {
+    searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  }
 
   if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
   if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:

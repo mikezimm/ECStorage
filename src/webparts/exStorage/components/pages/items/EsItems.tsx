@@ -170,7 +170,7 @@ public componentDidMount() {
     console.log('EsItems.tsx1');
     // debugger;
     const items : IItemDetail[] | IDuplicateFile []= this.items;
-    const itemsTable = this.buildItemsTable( items , this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+    const itemsTable = this.buildItemsTable( items , this.props.itemsAreDups, this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
 
     let page = null;
     let userPanel = null;
@@ -223,7 +223,7 @@ public componentDidMount() {
 
       } else if ( this.state.selectedItem ) { 
 
-        panelContent = createItemDetail( this.state.selectedItem, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
+        panelContent = createItemDetail( this.state.selectedItem, this.props.itemsAreDups, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
 
       } else if ( this.state.selectedDup ) { 
 
@@ -237,7 +237,7 @@ public componentDidMount() {
           theSite = {null }
 
           items = { this.state.showItems }
-          itemsAreDups = { true }
+          itemsAreDups = { this.props.childrenAreDups ? this.props.childrenAreDups : false }
           duplicateInfo = { null }
           heading = { ` Duplicates of ${ this.state.showItems[0].FileLeafRef  }` }
           // batches = { batches }
@@ -322,7 +322,7 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , objectType: IItemType , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean, objectType: IItemType , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
     let rows = [];
     let tableTitle = data;
@@ -338,7 +338,7 @@ public componentDidMount() {
 
     itemsSorted.map( ( item, index ) => {
       if ( rows.length < countToShow ) {
-        if ( this.isVisibleItem( textSearch, item ) === true ) {
+        if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
 
           if ( objectType === 'Items' ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
@@ -362,7 +362,7 @@ public componentDidMount() {
 
   }
 
-  private isVisibleItem ( textSearch: string, item: IItemDetail ) {
+  private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boolean ) {
 
     let visible = true;
 
@@ -370,7 +370,7 @@ public componentDidMount() {
 
       visible = false;
 
-      let searchThis = getItemSearchString( item );
+      let searchThis = getItemSearchString( item, itemsAreDups );
 
       if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
         visible = true;
