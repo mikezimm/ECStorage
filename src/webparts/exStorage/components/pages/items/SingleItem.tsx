@@ -12,7 +12,7 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IItemDetail,  } from '../../IExStorageState';
+import { IItemDetail, IDuplicateFile } from '../../IExStorageState';
 import { getFocusableByIndexPath } from 'office-ui-fabric-react';
   
 const cellMaxStyle: React.CSSProperties = {
@@ -25,11 +25,11 @@ const cellMaxStyle: React.CSSProperties = {
 
 };
 
-export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
+export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
 
   let rows = [];
   
-  ['versionlabel','sizeLabel','created','author','modified','editor', 'checkedOutId','uniquePerms'].map( thisKey => {
+  ['id','versionlabel','sizeLabel','created','author','modified','editor', 'checkedOutId','uniquePerms','parentFolder'].map( thisKey => {
     rows.push( createRowFromItem( item, thisKey ) );
   });
 
@@ -67,7 +67,47 @@ export function createItemDetail( item: IItemDetail, siteUrl: string, textSearch
 
           <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
           <div>
-            <p>{ getHighlightedText( getItemSearchString( item ), textSearch ) }</p>
+            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups ), textSearch ) }</p>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>;
+  return table;
+
+}
+
+export function createDuplicateDetail( item: IDuplicateFile, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
+
+  let rows = [];
+  
+  [ 'sizeLabel','created','author','modified','editor','uniquePerms'].map( thisKey => {
+    rows.push( createRowFromDup( item, thisKey ) );
+  });
+  
+  ['ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl', 'isFolder'].map( thisKey => {
+    rows.push( createRowFromDup( item, thisKey ) );
+  });
+
+  let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
+      <h2 style={{  }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+        { item.FileLeafRef }</h2>
+
+    <table style={{ tableLayout:"fixed" }} id="Select-b">
+      { rows }
+    </table>
+
+    <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
+      {
+        !textSearch || textSearch.length === 0 ? null :
+        <div style = {{ paddingLeft: '50px', }}>
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>Found by Searching for:</div>
+          <p> { textSearch } </p>
+
+          <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
+          <div>
+            <p>{ getHighlightedText( item.FileLeafRef , textSearch ) }</p>
           </div>
         </div>
       }
@@ -93,10 +133,18 @@ export function getHighlightedText(text, highlight) {
   } </span>;
 }
 
-export function getItemSearchString ( item: IItemDetail ) {
+export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean ) {
 
   let createdDate = new Date( item.created );
-  let searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+  let searchThis = '';
+  if ( itemsAreDups === true ) {
+    //Search the folder name not the file name
+    searchThis = [item.parentFolder, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  } else {
+    searchThis = [item.FileLeafRef, item.authorTitle, item.editorTitle, createdDate.toLocaleDateString() ].join('|');
+
+  }
 
   if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
   if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:
@@ -136,7 +184,20 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
   }
 
   if ( textValue ) {
-    return <tr><td style={cellMaxStyle}>{ key }</td><td>{ textValue }</td></tr>;
+    return <tr><td style={cellMaxStyle}>{ key }</td><td style={{ padding: '10px 30px 0px 10px', }}>{ textValue }</td></tr>;
+  } else {
+    return null;
+  }
+  
+}
+
+
+function createRowFromDup( item: IDuplicateFile, key: string, format?: string, ) {
+  let textValue = null;
+  textValue = item[ key ];
+
+  if ( textValue ) {
+    return <tr><td style={cellMaxStyle}>{ key }</td><td style={{ padding: '10px 30px 0px 10px', }}>{ textValue }</td></tr>;
   } else {
     return null;
   }

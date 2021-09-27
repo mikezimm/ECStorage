@@ -56,7 +56,7 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createDupSummary } from '../summary/ExDupSummary';
 
-import EsItems from './items/EsItems';
+import EsItems from '../items/EsItems';
 
 const pivotStyles = {
   root: {
@@ -182,10 +182,17 @@ public componentDidMount() {
             pickedList = { this.props.pickedList }
             theSite = {null }
 
+            items = { [] }
+            itemsAreDups = { false }
+            childrenAreDups = { true }
             duplicateInfo = { this.props.duplicateInfo }
             heading = { `` }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
+
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
           ></EsItems>
       </PivotItem>
 

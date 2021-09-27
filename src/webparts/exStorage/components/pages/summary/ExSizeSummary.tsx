@@ -38,6 +38,11 @@ export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) 
   let GT100SizeLabel = getSizeLabel(large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
+  
+  tableRows.push( <tr><td>{ large.summary.ranges.createRange } </td><td>{ `Large files were CREATED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ large.summary.ranges.modifyRange } </td><td>{ `Large files were MODIFIED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ large.summary.ranges.rangeAll } </td><td>{ `Large files were active during this timeframe` }</td></tr> );
+
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( large.summary,  '' ) }</td></tr> );
 
   let summaryTable = <table className={ styles.summaryTable }>
@@ -49,7 +54,7 @@ export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) 
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{ }}>
     { summaryTable }
   </div>;
 

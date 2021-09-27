@@ -35,6 +35,8 @@ export interface IExSizeProps {
       WebpartHeight: number;
       WebpartWidth: number;
 
+      heading: string;
+      
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
 

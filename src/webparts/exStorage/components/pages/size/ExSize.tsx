@@ -183,7 +183,9 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.largeData.GT10G }
-            heading = { ` larger than 1GB` }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { ` larger than 1GB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -202,7 +204,9 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.largeData.GT01G }
-            heading = { ` larger than 100MB` }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { ` larger than 100MB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -220,7 +224,9 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.largeData.GT100M }
-            heading = { ` larger than 10MB` }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { ` larger than 10MB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -229,7 +235,7 @@ public componentDidMount() {
             uiOptions = { this.props.uiOptions }
           ></EsItems>
       </PivotItem> 
-      
+
       <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5}
         itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.largeData.GT10M.length }>
         <EsItems 
@@ -238,7 +244,9 @@ public componentDidMount() {
             theSite = {null }
 
             items = { this.props.largeData.GT10M }
-            heading = { ` larger than 10GB` }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { ` larger than 10GB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }

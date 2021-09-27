@@ -42,6 +42,10 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
 
+  tableRows.push( <tr><td>{ userSummary.summary.ranges.createRange } </td><td>{ `${ userSummary.userTitle } CREATED files during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ userSummary.summary.ranges.modifyRange } </td><td>{ `${ userSummary.userTitle } MODIFIED files during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ userSummary.summary.ranges.rangeAll } </td><td>{ `${ userSummary.userTitle } was active during this timeframe` }</td></tr> );
+
   let userLabel = userSummary.userId === batchData.userInfo.currentUser.userId ? 'your' : 'this user\'s';
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( userSummary.large.summary,  '' )  }</td></tr> );
 

@@ -24,7 +24,11 @@ import { Search, Suggest } from "@pnp/sp/search";
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+
+import { sortObjectArrayByNumberKey, } from '../../../services/complexArraySorting';
+
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
@@ -38,6 +42,7 @@ import { IDataOptions, IUiOptions } from './IExStorageProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/constants';
 
  /**
   * These properties throw error on fetching.
@@ -107,6 +112,17 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
       sizeP: 0,
       userIds: [],
       userTitles: [],
+      ranges: {
+        firstCreateMs: 1e20,
+        lastCreateMs:  0,
+        firstModifiedMs:  1e20,
+        lastModifiedMs:  0,
+        createRange: "",
+        modifyRange: "",
+        firstAllMs: 0,
+        lastAllMs: 0,
+        rangeAll: "",
+      }
     };
     return summary;
 
@@ -132,6 +148,40 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
     if ( summary.userIds.indexOf( detail.editorId ) < 0 ) { summary.userIds.push( detail.editorId ) ; }
     if ( summary.userTitles.indexOf( detail.authorTitle ) < 0 ) { summary.userTitles.push( detail.authorTitle ) ; }
     if ( summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { summary.userTitles.push( detail.editorTitle ) ; }
+
+    let rangeChanged = false;
+    // debugger;
+    if ( detail.createMs < summary.ranges.firstCreateMs ) { summary.ranges.firstCreateMs = detail.createMs ; rangeChanged = true ; }
+    if ( detail.createMs > summary.ranges.lastCreateMs ) { summary.ranges.lastCreateMs = detail.createMs ; rangeChanged = true ; }
+    if ( detail.modMs < summary.ranges.firstModifiedMs ) { summary.ranges.firstModifiedMs = detail.modMs ; rangeChanged = true ; }
+    if ( detail.modMs > summary.ranges.lastModifiedMs ) { summary.ranges.lastModifiedMs = detail.modMs ; rangeChanged = true ; }
+    // console.log('BucketSummary:', rangeChanged, detail.id, detail.createMs, detail.modMs );
+    if ( rangeChanged === true ) {
+      let firstCreateMs = new Date(summary.ranges.firstCreateMs);
+      let lastCreateMs = new Date(summary.ranges.lastCreateMs);
+      let firstModifiedMs = new Date(summary.ranges.firstModifiedMs);
+      let lastModifiedMs = new Date(summary.ranges.lastModifiedMs);
+
+      let firstCreateLocal = firstCreateMs.toLocaleDateString();
+      let lastCreateLocal = lastCreateMs.toLocaleDateString();
+      let firstModifiedLocal = firstModifiedMs.toLocaleDateString();
+      let lastModifiedLocal = lastModifiedMs.toLocaleDateString();
+
+      summary.ranges.createRange = firstCreateLocal !== lastCreateLocal ? `${firstCreateLocal} - ${lastCreateLocal}` : firstCreateLocal;
+      summary.ranges.modifyRange = firstModifiedLocal !== lastModifiedLocal ? `${firstModifiedLocal} - ${lastModifiedLocal}` : firstModifiedLocal;
+
+      summary.ranges.firstAllMs = Math.min(...[summary.ranges.firstCreateMs, summary.ranges.lastCreateMs, summary.ranges.firstModifiedMs, summary.ranges.lastModifiedMs]);
+      summary.ranges.lastAllMs = Math.max(...[summary.ranges.firstCreateMs, summary.ranges.lastCreateMs, summary.ranges.firstModifiedMs, summary.ranges.lastModifiedMs]);
+
+      let firstAllMs = new Date(summary.ranges.firstAllMs);
+      let lastAllMs = new Date(summary.ranges.lastAllMs);
+
+      let firstAllLocal = firstAllMs.toLocaleDateString();
+      let lastAllLocal = lastAllMs.toLocaleDateString();
+
+      summary.ranges.rangeAll = firstAllLocal !== lastAllLocal ? `${firstAllLocal} - ${lastAllLocal}` : firstAllLocal ;
+
+    }
     return summary;
 
   }
@@ -354,6 +404,7 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       createdMs: [],
       modifiedMs: [],
       summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`),
+      FileLeafRef: detail.FileLeafRef,
     };
 
   return thisDup;
@@ -384,14 +435,14 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
   // userIds: number[];
 
 
-  thisDup.summary.count ++;
-  thisDup.summary.size += detail.size;
+  // thisDup.summary.count ++;
+  // thisDup.summary.size += detail.size;
 
   thisDup.count ++;
   thisDup.size += detail.size;
 
-  thisDup.summary.sizeGB = detail.size / 1e9;
-  thisDup.summary.sizeLabel = getSizeLabel( detail.size );
+  // thisDup.summary.sizeGB = detail.size / 1e9;
+  // thisDup.summary.sizeLabel = getSizeLabel( detail.size );
   // thisDup.summary.countP = 0;
   // thisDup.summary.sizeP = 0;
   // thisDup.summary.sizeToCountRatio = 0;
@@ -676,6 +727,7 @@ function expandArray ( count: number ) : any[] {
 
   let errMessage = '';
   let thisWebInstance = null;
+  let createDateFromBatches: any[] = [];
 
   let batches: IEXStorageBatch[] = [];
  
@@ -710,6 +762,15 @@ function expandArray ( count: number ) : any[] {
         let startMs = fetchStart.getTime();
         items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
   
+        //Put basics into array just to check what order they are returned in.
+        items.results.map( item => {
+          let created = new Date(item.Created);
+          let modified = new Date(item.Modified);
+          let whichWasFirst = created.getTime() > modified.getTime() ? 'MOD' : 'Cre';
+          let whichWasFirstDays = whichWasFirst + ' - '  + ( ( modified.getTime() - created.getTime() ) / msPerDay ).toPrecision(4);
+          createDateFromBatches.push( { id: item.Id, FSOT: item.FileSystemObjectType, created: item.Created, modified: item.Modified, wwfd: whichWasFirstDays, wwf: whichWasFirst } );
+        });
+
         batches = batches.concat( createThisBatch( items, startMs, 0 ) );
         for ( let i = 1; i < 150 ; i++ ) {
           let thisBatchStart = i * batchSize ;
@@ -718,6 +779,17 @@ function expandArray ( count: number ) : any[] {
             fetchStart = new Date();
             startMs = fetchStart.getTime();
             items = await items.getNext();
+
+            //Put basics into array just to check what order they are returned in.
+            items.results.map( item => {
+              let created = new Date(item.Created);
+              let modified = new Date(item.Modified);
+              let whichWasFirst = created.getTime() > modified.getTime() ? 'MOD' : 'Cre';
+              let whichWasFirstDays = whichWasFirst + ' - ' + ( ( modified.getTime() - created.getTime() ) / msPerDay ).toPrecision(4);
+              createDateFromBatches.push( { id: item.Id, FSOT: item.FileSystemObjectType, created: item.Created, modified: item.Modified, wwfd: whichWasFirstDays, wwf: whichWasFirst } );
+            });
+
+
             batches = batches.concat( createThisBatch( items, startMs, i ) );
           }
         }
@@ -904,6 +976,7 @@ function expandArray ( count: number ) : any[] {
           allNameItems.push( createThisDuplicate(detail)  );
         }
         allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+        allNameItems[ dupIndex ].summary = updateBucketSummary( allNameItems[ dupIndex ].summary, detail );
       }
 
 
@@ -922,7 +995,7 @@ function expandArray ( count: number ) : any[] {
 
       // if ( detail.currentUser === true ) { batchData.currentUser.items.push ( detail ) ; } 
       batchData.userInfo.allUsers[ createUserAllIndex ].items.push ( detail ) ;
-
+      batchData.userInfo.allUsers[ createUserAllIndex ].summary = updateBucketSummary( batchData.userInfo.allUsers[ createUserAllIndex ].summary, detail );
       /***
        *                       db    db .d8888. d88888b d8888b.      d88888b  .d88b.  db      d8888b. d88888b d8888b. .d8888. 
        *           Vb          88    88 88'  YP 88'     88  `8D      88'     .8P  Y8. 88      88  `8D 88'     88  `8D 88'  YP 
@@ -1076,6 +1149,8 @@ function expandArray ( count: number ) : any[] {
       }
 
       let userOldModified = batchData.userInfo.allUsers[ editUserAllIndex ].oldModified;
+      userOldModified.summary = updateBucketSummary( userOldModified.summary, detail );
+
       if ( detail.modYr < theCurrentYear - 4 ) { 
         batchData.oldModified.Age5Yr.push ( detail ) ;
         userOldModified.Age5Yr.push ( detail ) ;  
@@ -1242,6 +1317,9 @@ function expandArray ( count: number ) : any[] {
 
   });
 
+  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.size');
+  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.sizeToCountRatio');
+
   //Sort totals by largest first
   allUserCreateSize = sortNumberArray( allUserCreateSize , 'dec');
   allUserCreateCount = sortNumberArray( allUserCreateCount , 'dec');
@@ -1366,6 +1444,7 @@ function expandArray ( count: number ) : any[] {
     userInfo: userInfo,
   };
 
+  console.log('createDateFromBatches', createDateFromBatches );
   console.log('getStorageItems: fetchMs', fetchMs );
   console.log('getStorageItems: analyzeMs', analyzeMs );
   console.log('getStorageItems: totalLength', totalLength );
@@ -1465,6 +1544,10 @@ function expandArray ( count: number ) : any[] {
     bucket: `${createYr}-${modYr}`,
     createMs: created.getTime(),
     modMs: modified.getTime(),
+
+    whichWasFirst: created.getTime() > modified.getTime() ? 'modfied' : 'created',
+    whichWasFirstDays: ( ( modified.getTime() - created.getTime() ) / msPerDay ).toPrecision(4),
+
     ContentTypeId: item.ContentTypeId,
     ContentTypeName: '',
     docIcon: '',
@@ -1489,7 +1572,7 @@ function expandArray ( count: number ) : any[] {
     // itemDetail.MediaLengthInSeconds = item.MediaLengthInSeconds;
     ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'].map( key => {
       let keyProp = item[ key ];
-      if ( keyProp !== null && keyProp.length > 0 ) {
+      if ( keyProp && keyProp.length > 0 ) {  //Removed !== null because on WebPartDev Teams drag and drop it errored out.
         itemDetail[ key ] = keyProp;
         itemDetail.isMedia = true ;
       } else { itemDetail[ key ] = null ; }

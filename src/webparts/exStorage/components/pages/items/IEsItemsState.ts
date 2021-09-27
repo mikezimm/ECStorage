@@ -3,7 +3,7 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IItemDetail } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IItemDetail, IDuplicateFile } from '../../IExStorageState';
 
 export interface IEsItemsState {
 
@@ -15,6 +15,8 @@ export interface IEsItemsState {
   hasError: boolean;
 
   items: any[];
+  dups: IDuplicateFile[];
+  showItems: IItemDetail[];
 
   minYear: number;
   maxYear: number;
@@ -32,6 +34,7 @@ export interface IEsItemsState {
   showItem: boolean;
   showPreview: boolean;
   selectedItem: IItemDetail;
+  selectedDup: IDuplicateFile;
 
   hasMedia: boolean;
 

@@ -11,7 +11,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
+import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, IDuplicateFile, IDuplicateInfo } from '../../IExStorageState';
 
 import { IDataOptions, IUiOptions } from '../../IExStorageProps';
 
@@ -37,6 +37,11 @@ export interface IEsItemsProps {
       // currentUser: IUser;
   
       items: IItemDetail[];
+      itemsAreDups: boolean; //Set true if these items are "duplicates".  This will change the filename text to folder name because the filenames are all the same when it's a dup.
+      childrenAreDups?: boolean; //Set true if these items are "duplicates".  This will change the filename text to folder name because the filenames are all the same when it's a dup.
+        
+      duplicateInfo?: IDuplicateInfo;
+
       icons: IIconArray[];
 
       heading: string;

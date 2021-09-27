@@ -13,6 +13,8 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, ILargeFiles, IDuplicateInfo } from '../../IExStorageState';
 
+import { IDataOptions, IUiOptions } from '../../IExStorageProps';
+
 export interface IExDupsProps {
 
       // 0 - Context
@@ -29,6 +31,11 @@ export interface IExDupsProps {
   
       duplicateInfo: IDuplicateInfo;
       batchData: IBatchData;
+
+      heading: string;
+            
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
 
       WebpartHeight: number;
       WebpartWidth: number;

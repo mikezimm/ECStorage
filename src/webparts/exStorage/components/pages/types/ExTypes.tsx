@@ -47,7 +47,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByNumberKey, } from '../../../../../services/complexArraySorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
@@ -183,7 +184,9 @@ public componentDidMount() {
           theSite = {null }
 
           items = { this.state.items }
-          heading = { ` of type: ${this.state.items[0].docIcon}` }
+          itemsAreDups = { false }
+          duplicateInfo = { null }
+          heading = { ` of type: ${this.state.items[0].docIcon} ${this.props.heading}` }
           // batches = { batches }
           icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
 
