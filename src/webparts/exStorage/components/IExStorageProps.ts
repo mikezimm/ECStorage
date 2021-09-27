@@ -12,12 +12,22 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { IChoiceGroupOptionStyleProps } from "office-ui-fabric-react";
 
+import { IWebpartBannerProps, IWebpartBannerState } from './HelpInfo/banner/bannerProps';
+
 export interface IDataOptions {
   useMediaTags: boolean;
 
 } 
 
 export interface IUiOptions {
+
+  
+  showListDropdown: boolean;
+
+  showSystemLists: boolean;
+
+  excludeListTitles: string;
+
   /** quickCloseItem:
    * Set to true to easily pop open and close item panel.
    * Set to false to force you do do proper dismiss (click X or outside panel)
@@ -47,6 +57,8 @@ export interface IExStorageProps {
       analyticsList: string;
       tenant: string;
       urlVars: {};
+
+      bannerProps: IWebpartBannerProps;
 
       parentWeb: string;
       listTitle: string;

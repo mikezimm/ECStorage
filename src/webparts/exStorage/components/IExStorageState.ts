@@ -334,6 +334,7 @@ export interface IExStorageState {
   theSite: ISite;
   pickedWeb : IPickedWebBasic;
   pickedList? : IEXStorageList;
+  allLists : IEXStorageList[];
 
   currentUser: IUser;
 
@@ -373,5 +374,11 @@ export interface IExStorageState {
 
   batches: IEXStorageBatch[];
   batchData: IBatchData;
+
+  
+  dropDownLabels: any[];
+  dropDownIndex: number;
+  dropDownText: string;
+
 
 }

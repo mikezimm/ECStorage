@@ -35,6 +35,7 @@ import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'o
 
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
 
 import ReactJson from "react-json-view";
@@ -45,6 +46,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
@@ -52,6 +54,11 @@ import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
 import { getSearchedFiles } from './ExSearch';
 import { createBatchSummary } from './pages/summary/ExBatchSummary';
 
+/**
+ * 2021-08-25 MZ:  Added for Banner
+ */
+import WebpartBanner from "./HelpInfo/banner/component";
+import { IWebpartBannerProps, } from "./HelpInfo/banner/bannerProps";
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
@@ -108,6 +115,7 @@ public constructor(props:IExStorageProps){
   this.state = {
 
         pickedList : null,
+        allLists: [],
         pickedWeb : this.props.pickedWeb,
         isLoaded: false,
         isLoading: true,
@@ -145,6 +153,10 @@ public constructor(props:IExStorageProps){
         fetchLabel: '',
         showProgress: false,
         batchData: createBatchData( null, null ),
+        
+        dropDownLabels: [],
+        dropDownIndex: 0,
+        dropDownText: 'Oops!  No Libraries was found'
   
   };
 }
@@ -177,6 +189,8 @@ public async updateWebInfo ( webUrl?: string ) {
 
   let thisWebInstance = Web(webUrl);
 
+  const allLists = await thisWebInstance.lists.select( listSelect ).get();
+  console.log('allLists', allLists );
   const listObject = thisWebInstance.lists.getByTitle(this.state.listTitle);
   
   //https://github.com/pnp/pnpjs/issues/160#issuecomment-793849161
@@ -247,6 +261,8 @@ public async updateWebInfo ( webUrl?: string ) {
     let batchData = this.state.batchData;
     const batches = this.state.batches;
 
+    let listDropdown = this.props.uiOptions.showListDropdown !== true ? null :
+    this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
     
     let timeComment = null;
     let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
@@ -450,7 +466,7 @@ public async updateWebInfo ( webUrl?: string ) {
                                 
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
-        
+
       >
       </ExDups></div>;
 
@@ -552,13 +568,23 @@ public async updateWebInfo ( webUrl?: string ) {
     </Panel></div>;
 
     }
+
+    //2021-08-25 MZ:  Added for Banner
+    let Banner = <WebpartBanner 
+      showBanner={ this.props.bannerProps.showBanner }
+      title ={ this.props.bannerProps.title }
+      style={ this.props.bannerProps.style }
+      showTricks={ this.props.bannerProps.showTricks }
+    ></WebpartBanner>;
+    
     return (
       <div className={ styles.exStorage }>
         <div className={ styles.container }>
-
+          { Banner }
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
           {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
           <p className={ styles.description }>{escape(this.props.parentWeb)}</p>
+          <div>{ listDropdown } </div>
           {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
 
           { sliderYearComponent }
@@ -814,6 +840,72 @@ public async updateWebInfo ( webUrl?: string ) {
       
     });
     return currentUser;
+  }
+
+  
+// let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
+// this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+
+private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+
+
+  let thisValue : any = getChoiceText(item.text);
+
+  let idx = this.state.dropDownLabels.indexOf( thisValue );
+  console.log(`_updateListDropdownChange: ${ idx } ${thisValue} ${item.selected ? 'selected' : 'unselected'}`);
+
+  if ( idx > -1 ) {
+    // let mapThisList = this.state.mapThisListAll[ idx ];
+    // let history = this.state.historyAll[ idx ];
+    // let progress = this.state.progressAll[ idx ];
+
+    this.setState({
+      // mapThisList : this.state.mapThisListAll[ idx ],
+      dropDownIndex: idx,
+      dropDownText: thisValue,
+    });
+
+  }
+}
+
+  private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+      const dropdownStyles: Partial<IDropdownStyles> = {
+          dropdown: { width: '800px' ,marginRight: '40px' }
+      };
+
+      let sOptions: IDropdownOption[] = choices == null ? null : 
+          choices.map(val => {
+
+            if ( val === this.state.dropDownText ) { 
+              console.log(`_createDropdownField val MATCH: ${ val } `);
+            } else {
+              console.log(`_createDropdownField val: ${ val } `);
+            }
+              return {
+                  key: getChoiceKey(val),
+                  text: val,
+                  selected: val === this.state.dropDownText ? true : false,
+              };
+          });
+
+      let keyVal = this.state.dropDownText;
+      console.log(`_createDropdownField keyVal: ${ keyVal } `);
+
+      let thisDropdown = sOptions == null ? null : <div
+          style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '15px'   }}
+              ><Dropdown 
+                  label={ label }
+                  //selectedKey={ getChoiceKey(keyVal) }
+                  // selectedKey={ keyVal }
+                  onChange={ _onChange }
+                  options={ sOptions } 
+                  styles={ dropdownStyles }
+              />
+              <div style={{paddingTop: '25px' }}> Selected: { this.state.dropDownIndex + 1 } of { choices.length } </div>
+          </div>;
+
+      return thisDropdown;
+
   }
 
 }

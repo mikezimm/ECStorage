@@ -1,7 +1,7 @@
 define([], function() {
   return {
     "PropertyPaneDescription": "Description",
-    "BasicGroupName": "Group Name",
+    "BasicGroupName": "Webpart Options",
     "DescriptionFieldLabel": "Description Field",
 
     "analyticsList": "TBD",
