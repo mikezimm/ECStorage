@@ -27,6 +27,8 @@ import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/F
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
+import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpInfo/banner/bannerProps';
+
 require('../../services/GrayPropPaneAccordions.css');
 
 export interface IExStorageWebPartProps {
@@ -45,6 +47,15 @@ export interface IExStorageWebPartProps {
   showListDropdown: boolean;
   showSystemLists: boolean;
   excludeListTitles: string;
+
+  //General settings for Banner Options group
+  // export interface IWebpartBannerProps {
+    bannerTitle: string;
+    bannerStyle: string;
+    showBanner: boolean;
+    showTricks: boolean;
+  // }
+
 
   //General settings for FPS Options group
   searchShow: boolean;
@@ -68,6 +79,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
   private currentUser: IUser = null;
   private urlVars : any;
   private allowOtherSites: boolean = false;
+  private forceBanner = true ;
 
   public onInit():Promise<void> {
     return super.onInit().then(_ => {
@@ -159,6 +171,16 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
     let uiOptions: IUiOptions = {
       quickCloseItem: this.properties.quickCloseItem,
       maxVisibleItems: this.properties.maxVisibleItems,
+      showListDropdown: this.properties.showListDropdown,
+      showSystemLists: this.properties.showSystemLists,
+      excludeListTitles: this.properties.excludeListTitles,
+    };
+
+    let bannerProps: IWebpartBannerProps = {
+      showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
+      showTricks: true,      
+      title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
+      style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
     };
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
@@ -169,6 +191,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         wpContext: this.context,
         tenant: tenant,
         urlVars: this.urlVars,
+        bannerProps: bannerProps,
     
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartElement: this.domElement,
@@ -223,7 +246,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
             FPSOptionsGroup( false, true, true, true ), // this group,
             {
               groupName: strings.BasicGroupName,
-              isCollapsed: false ,
+              isCollapsed: true ,
               groupFields: [
                 PropertyPaneTextField('parentWeb', {
                   label: 'Site URL',
@@ -254,6 +277,39 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                   label: 'Include Media Tags in search',
                   disabled: false,
                 }),
+              ]
+            },
+            {
+              groupName: 'Banner',
+              isCollapsed: true ,
+              groupFields: [
+                
+                PropertyPaneToggle('showBanner', {
+                  label: 'Show Banner',
+                  disabled: this.forceBanner !== false ? true : false ,
+                }),
+
+                PropertyPaneTextField('bannerTitle', {
+                  label: 'Webpart Title',
+                  description: '',
+                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
+                }),
+
+                PropertyPaneTextField('bannerStyle', {
+                  label: 'Style options',
+                  'description': 'TBD',
+                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
+                }),
+
+                PropertyPaneToggle('showTricks', {
+                  label: 'Show Advanced',
+                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
+                }),
+
+                // showBanner: true,
+                // showTricks: true,      
+                // title: this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
+                // style: this.properties.bannerTitle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
 
               ]
             }
