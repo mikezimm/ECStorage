@@ -47,6 +47,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
@@ -115,7 +117,7 @@ public constructor(props:IExStorageProps){
   this.state = {
 
         pickedList : null,
-        allLists: [],
+        pickLists: [],
         pickedWeb : this.props.pickedWeb,
         isLoaded: false,
         isLoading: true,
@@ -164,61 +166,123 @@ public constructor(props:IExStorageProps){
 
 public componentDidMount() {
 
-  this.updateWebInfo( this.state.parentWeb );
+  this.updateWebInfo( this.state.parentWeb, false );
 }
 
-public async updateWebInfo ( webUrl?: string ) {
+public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   console.log('_onWebUrlChange Fetchitng Lists ====>>>>> :', webUrl );
 
   let errMessage = null;
   let stateError : any[] = [];
 
-  let pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', false, ' > GenWP.tsx ~ 825', 'BaseErrorTrace' );
+  let pickedWeb = null;
+  let theSite: ISite = null;
 
-  errMessage = pickedWeb.error;
-  if ( pickedWeb.error && pickedWeb.error.length > 0 ) {
-    stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
-    stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
+  if ( listChangeOnly === true ) {
+    pickedWeb = this.state.pickedWeb;
+    theSite = this.state.theSite;
+
+  } else {
+
+    pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', false, ' > GenWP.tsx ~ 825', 'BaseErrorTrace' );
+
+    errMessage = pickedWeb.error;
+    if ( pickedWeb.error && pickedWeb.error.length > 0 ) {
+      stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
+      stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
+    }
+  
+    theSite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
+
   }
 
-  let theSite: ISite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
-
-  let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl','EntityTypeName'].join(',');
-  // let listSelect = ['*'].join(',');
+  let listSelect = ['Title','ItemCount','LastItemUserModifiedDate','Created','BaseType','Id','DocumentTemplateUrl','EntityTypeName','HasUniqueRoleAssignments','Hidden'].join(',');
 
   let thisWebInstance = Web(webUrl);
 
-  const allLists = await thisWebInstance.lists.select( listSelect ).get();
-  console.log('allLists', allLists );
-  const listObject = thisWebInstance.lists.getByTitle(this.state.listTitle);
-  
+  const allListsObj = thisWebInstance.lists;
+
   //https://github.com/pnp/pnpjs/issues/160#issuecomment-793849161
-  listObject.query.set('t', new Date().getTime().toString()); // <-- forces unique Get path
+  allListsObj.query.set('t', new Date().getTime().toString()); // <-- forces unique Get path
 
-  let theList: IEXStorageList = await listObject.select( listSelect ).get();
-  // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
-  if ( theList.DocumentTemplateUrl && theList.DocumentTemplateUrl.length > 0 ) {
-    theList.LibraryUrl = theList.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
-  } else {
-    theList.LibraryUrl = webUrl;
-    if ( webUrl.lastIndexOf( '/') !== webUrl.length -1 ) {
-      theList.LibraryUrl += '/';
-    }
-    theList.LibraryUrl += encodeDecodeString(theList.EntityTypeName, null);
-  }
- 
+  const allLists : IEXStorageList[] = await allListsObj.select( listSelect ).get();
 
-  let isCurrentWeb: boolean = false;
-  if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-
-  let minYear: any = new Date( theList.Created);
-  minYear = minYear.getFullYear();
-  let maxYear: any = new Date( theList.LastItemUserModifiedDate);
-  maxYear = maxYear.getFullYear() + 1;
+  let theList: IEXStorageList = null;
+  let isCurrentWeb = false;
 
   let currentYear: any = new Date();
   currentYear = currentYear.getFullYear();
+
+  let minYear: any = currentYear - 3;
+  let maxYear: any = currentYear + 1;
+  let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.toLowerCase().split(';') : [];
+
+  if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
+
+  let pickLists : IEXStorageList[] = [];
+
+  let dropDownLabels: any[] = [];
+  let dropDownIndex: number = null;
+  let dropDownText: string = '';
+
+  let areSystemLists = SystemLists.join(',').toLowerCase().split(',');
+
+  allLists.map( list => {
+    let isSystemList = areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
+    if ( areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1  ) { isSystemList = true; }
+
+    let showList = true;
+
+    if ( list.BaseType !== 1 ) { showList = false; }
+    if ( list.Hidden === true ) { showList = false; }
+    if ( this.props.uiOptions.showSystemLists !== true && isSystemList === true ) { showList = false; }
+
+    if ( excludeTitles.length > 0 ) {
+      excludeTitles.map( title => {
+        if ( list.Title.indexOf( title ) > -1 ) {
+          showList = false;
+        }
+      });
+    }
+
+    if ( showList === true ) {
+
+      if ( list.DocumentTemplateUrl && list.DocumentTemplateUrl.length > 0 ) {
+        list.LibraryUrl = list.DocumentTemplateUrl.replace('/Forms/template.dotx','/');
+      } else {
+        list.LibraryUrl = webUrl;
+        if ( webUrl.lastIndexOf( '/') !== webUrl.length -1 ) {
+          list.LibraryUrl += '/';
+        }
+        list.LibraryUrl += encodeDecodeString(list.EntityTypeName, null);
+      }
+    
+      minYear = new Date( list.Created);
+      minYear = minYear.getFullYear();
+      list.minYear = minYear;
+
+      maxYear = new Date( list.LastItemUserModifiedDate);
+      maxYear = maxYear.getFullYear() + 1;
+      list.maxYear = maxYear;
+
+      pickLists.push( list );
+      dropDownLabels.push( list.Title );
+
+      if ( list.Title === this.state.listTitle ) { 
+        theList = list ;
+        dropDownIndex = dropDownLabels.length -1;
+        dropDownText = list.Title;
+      }   
+    }
+  });
+
+  console.log('allLists', allLists );
+  console.log('pickLists', pickLists );
+
+
+  // let theList: IEXStorageList = await listObject.select( listSelect ).get();
+  // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
 
   let currentUser = this.props.currentUser === null ? await this.getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
 
@@ -226,13 +290,14 @@ public async updateWebInfo ( webUrl?: string ) {
   //Automatically kick off if it's under 5k items
   if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
-        pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear });
+        pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
+        pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
-
   } else {
 
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
-      pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear });
+      pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
+      pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: true });
 
   }
 
@@ -262,7 +327,7 @@ public async updateWebInfo ( webUrl?: string ) {
     const batches = this.state.batches;
 
     let listDropdown = this.props.uiOptions.showListDropdown !== true ? null :
-    this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
+    this._createDropdownField( 'Library' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
     
     let timeComment = null;
     let etaMinutes = this.state.pickedList && this.state.fetchSlider > 0 ? (  this.state.fetchSlider * 7 / ( 1000 * 60 ) ).toFixed( 1 ) : 0;
@@ -577,14 +642,20 @@ public async updateWebInfo ( webUrl?: string ) {
       showTricks={ this.props.bannerProps.showTricks }
     ></WebpartBanner>;
     
+    let urlColor = this.state.isCurrentWeb === true ? 'black' : 'red';
+    let urlWeight = this.state.isCurrentWeb === true ? 300 : 600;
+
     return (
       <div className={ styles.exStorage }>
         <div className={ styles.container }>
           { Banner }
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
           {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
-          <p className={ styles.description }>{escape(this.props.parentWeb)}</p>
-          <div>{ listDropdown } </div>
+          <div className={ styles.flexWrapStart }>
+            <p className={ styles.description } style={{paddingRight: '50px', color: urlColor, fontWeight: urlWeight }}>{escape(this.props.parentWeb)}</p>
+            <div>{ listDropdown } </div>
+          </div>
+
           {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
 
           { sliderYearComponent }
@@ -853,6 +924,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
 
   let idx = this.state.dropDownLabels.indexOf( thisValue );
   console.log(`_updateListDropdownChange: ${ idx } ${thisValue} ${item.selected ? 'selected' : 'unselected'}`);
+  let pickedList = this.state.pickLists[ idx ];
 
   if ( idx > -1 ) {
     // let mapThisList = this.state.mapThisListAll[ idx ];
@@ -861,16 +933,20 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
 
     this.setState({
       // mapThisList : this.state.mapThisListAll[ idx ],
+      pickedList: pickedList,
       dropDownIndex: idx,
       dropDownText: thisValue,
+      listTitle: thisValue,
     });
 
+    this.updateWebInfo( this.state.parentWeb , true );
+    
   }
 }
 
   private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
       const dropdownStyles: Partial<IDropdownStyles> = {
-          dropdown: { width: '800px' ,marginRight: '40px' }
+          dropdown: { width: '350px' ,marginRight: '40px' }
       };
 
       let sOptions: IDropdownOption[] = choices == null ? null : 
@@ -895,7 +971,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '15px'   }}
               ><Dropdown 
                   label={ label }
-                  //selectedKey={ getChoiceKey(keyVal) }
+                  selectedKey={ getChoiceKey(keyVal) }
                   // selectedKey={ keyVal }
                   onChange={ _onChange }
                   options={ sOptions } 

@@ -21,7 +21,7 @@ const pivotStyles = {
 	//   textAlign: "center"
 	}};
 
-const pivotHeading1 = 'Getting started';  //Templates
+const pivotHeading1 = 'TBD Help';  //Templates
 const pivotHeading2 = 'More info';  //Templates
 const pivotHeading3 = 'About';  //Templates
 
@@ -60,9 +60,9 @@ export default class WebpartBanner extends React.Component<
 	
 			let panelContent = <div>
 				<MessageBar messageBarType={MessageBarType.warning} style={{ fontSize: 'larger' }}>
-					{ `Some features highlighted in QuickHelp are not enabled at Autoliv` }
+					{ `Webpart is still under development` }
 				</MessageBar>
-				<h3> { `Autoliv and Quickhelp` }</h3>
+				<h3> { `Early Access webpart :)` }</h3>
 				<Pivot
 						// styles={ pivotStyles }
 						linkFormat={PivotLinkFormat.links}
@@ -70,12 +70,12 @@ export default class WebpartBanner extends React.Component<
 						// onLinkClick={this._selectedIndex.bind(this)}
 				>
 						<PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ 'TriangleRight12' }>
-							<ol>
+							{/* <ol>
 								<li>Click the content you want to see</li>
 								<li>Enter your Autoliv email</li>
 								<li>Create a profile</li>
 								<li>Explore and learn new things!</li>
-							</ol>
+							</ol> */}
 	
 	
 							<div className={stylesComp.bannerComponent}>
@@ -90,14 +90,14 @@ export default class WebpartBanner extends React.Component<
 	
 						</PivotItem>
 						<PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ 'Info'}>
-								<div style={{marginTop: '20px'}}>
+								{/* <div style={{marginTop: '20px'}}>
 									<h2>We do our best to review all content in Quickhelp</h2>
 									<p>However, there will be instances where some features highlighted in quickhelp are disabled at Autoliv.</p>
 									<p>If you find any of these, please help us help you by improving our content.</p>
 									<p>Please submit a help ticket if you have any questions about these features.  In your incident, please include a link to the playlist or video you are referring to and the feature that you are referring to.</p>
 									<p><a href="https://autolivprod.service-now.com/servicenet/" target="_blank">Submit incident in Service Now</a>
 										</p>
-								</div>
+								</div> */}
 						</PivotItem>
 						<PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
 								<div style={{marginTop: '20px'}}>

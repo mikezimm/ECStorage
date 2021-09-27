@@ -14,6 +14,9 @@ export interface IEXStorageList extends IPickedList {
   DocumentTemplateUrl: string;
   LibraryUrl: string;
   EntityTypeName: string;
+  Hidden: boolean;
+  minYear: number;
+  maxYear: number;
 
 }
 
@@ -334,7 +337,7 @@ export interface IExStorageState {
   theSite: ISite;
   pickedWeb : IPickedWebBasic;
   pickedList? : IEXStorageList;
-  allLists : IEXStorageList[];
+  pickLists : IEXStorageList[];
 
   currentUser: IUser;
 
