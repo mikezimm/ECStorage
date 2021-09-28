@@ -37,9 +37,11 @@ export function tricksTable() {
 
     table.rows.push( [ makeCenteredSpan('scenario'), makeCenteredSpan('dev'), hasScenarioDev,    <span>Opens up additional options - 'Rails Off' meaning limited safety checks. </span>] );
     table.rows.push( [ makeCenteredSpan('gulp serve'), makeCenteredSpan('dev'), hasGulp,    <span>Adds param to Url to use gulp serve code instead of published code</span>] );
-    table.rows.push( [ makeCenteredSpan('crazy'), makeCenteredSpan('true'), hasAllowOther,   <span>Opens up additional even more options - 'DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING'. { '' } </span>] );
-    table.rows.push( [ makeCenteredSpan('allowOtherSites'), makeCenteredSpan('true'), hasCrazy,   <span>Allows you to do some 'Rails Off' functions on other sites</span>] );
-    table.rows.push( [ makeCenteredSpan('create'), makeCenteredSpan('true'), hasCreate,   <span>Opens up additional options - create sample items in lists</span>] );
+    table.rows.push( [ makeCenteredSpan('allowOtherSites'), makeCenteredSpan('true'), hasAllowOther,   <span>Allows you to do some 'Rails Off' functions on other sites { '' } </span>] );
+
+    // table.rows.push( [ makeCenteredSpan('crazy'), makeCenteredSpan('true'), hasCrazy,   <span>Opens up additional even more options - 'DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING'.</span>] );
+    // table.rows.push( [ makeCenteredSpan('create'), makeCenteredSpan('true'), hasCreate,   <span>Opens up additional options - create sample items in lists</span>] );
+
     // table.rows.push( [ makeCenteredSpan('scenario'), makeCenteredSpan('dev'),    <span>Opens up additional options</span>] );
 
     /*

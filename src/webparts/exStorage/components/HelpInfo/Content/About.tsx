@@ -7,15 +7,12 @@ export function aboutTable() {
 
     let table : IHelpTable  = {
         heading: 'Version History',
-        headers: ['Date','Version','Focus','Notes'],
+        headers: ['Date','Version','Focus'],
         rows: [],
     };
 
-
-    table.rows.push( ['2021-09-29', '1.0.0.11',    <span>Update Banner to show actual webpart specific help</span>,                ''] );
-    table.rows.push( ['2021-09-28', '1.0.0.10',    <span>Add Library Dropdown, Improve Summary, Dups, Items, Preview, Media tags</span>,                ''] );
-
-
+    table.rows.push( createAboutRow('2021-09-29', '1.0.0.11', `Update Banner to show actual webpart specific help` ) );
+    table.rows.push( createAboutRow('2021-09-28', '1.0.0.10', `Add Library Dropdown, Improve Summary, Dups, Items, Preview, Media tags` ) );
 
     /*
     table.rows.push( ['2021-00-00', '1.0.0.0',    <span>Add support to view <b>List attachments, List link, Stat chart updates</b></span>,    ''] );
@@ -23,4 +20,12 @@ export function aboutTable() {
     
     return { table: table };
 
+}
+
+function createAboutRow( date: string, version: string, focus: any ) {
+    let tds = [<span style={{whiteSpace: 'nowrap'}} >{ date }</span>, 
+        <span style={{whiteSpace: 'nowrap'}} >{ version }</span>, 
+        <span>{ focus }</span>,] ;
+
+    return tds;
 }
