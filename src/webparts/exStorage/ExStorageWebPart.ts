@@ -243,10 +243,10 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
           displayGroupsAsAccordion: true,
           groups: [
             WebPartInfoGroup( links.gitRepoEasyStorage, 'For analyzing extreme document libraries' ),
-            FPSOptionsGroup( false, true, true, true ), // this group,
+
             {
               groupName: strings.BasicGroupName,
-              isCollapsed: true ,
+              isCollapsed: false ,
               groupFields: [
                 PropertyPaneTextField('parentWeb', {
                   label: 'Site URL',
@@ -312,7 +312,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 // style: this.properties.bannerTitle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
 
               ]
-            }
+            },
+            FPSOptionsGroup( false, true, true, true ), // this group,
           ]
         }
       ]

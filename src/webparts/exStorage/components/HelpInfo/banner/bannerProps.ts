@@ -8,4 +8,5 @@ export interface IWebpartBannerProps {
 
 export interface IWebpartBannerState {
 	showPanel: boolean;
+	selectedKey: string;
 }

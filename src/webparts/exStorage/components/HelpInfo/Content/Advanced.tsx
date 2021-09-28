@@ -11,6 +11,8 @@ export function advancedContent() {
         <h2>Nothing advanced about this webpart yet :)</h2>
     </div>;
 
+    return null;
+
     return { html1: html1 };
 
 }

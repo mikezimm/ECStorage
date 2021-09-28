@@ -13,6 +13,21 @@ import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 import { QuichHelpVCard, AssetCard } from './AssetCard';
 import * as assets from "./assets";
 
+import WebPartLinks from './WebPartLinks';
+
+import SinglePage from './SinglePage';
+import { aboutTable } from '../Content/About';
+import { devTable } from '@mikezimm/npmfunctions/dist/HelpInfo/Content/Developer';
+import { gettingStartedContent } from '../Content/GettingStarted';
+
+import { errorsContent } from '../Content/Errors';
+import { advancedContent } from '../Content/Advanced';
+import { futureContent } from '../Content/FuturePlans';
+
+import { basicsContent } from '../Content/Basics';
+
+import { tricksTable } from '../Content/Tricks';
+
 import { IWebpartBannerProps, IWebpartBannerState } from './bannerProps';
 
 const pivotStyles = {
@@ -21,17 +36,31 @@ const pivotStyles = {
 	//   textAlign: "center"
 	}};
 
-const pivotHeading1 = 'TBD Help';  //Templates
-const pivotHeading2 = 'More info';  //Templates
-const pivotHeading3 = 'About';  //Templates
+const pivotHeading1 = 'Getting started';  //Templates
+const pivotHeading2 = 'Basics';  //Templates
+const pivotHeading3 = 'Advanced';  //Templates
+const pivotHeading4 = 'Future';  //Templates
+const pivotHeading5 = 'Dev';  //Templates
+const pivotHeading6 = 'Errors';  //Templates
+const pivotHeading7 = 'Tricks';  //Templates
+const pivotHeading8 = 'About';  //Templates
 
-export default class WebpartBanner extends React.Component<
-	IWebpartBannerProps, IWebpartBannerState > {
+export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
+		
+    private gettingStarted= gettingStartedContent();
+    private basics= basicsContent();
+    private advanced= advancedContent();
+    private futurePlans= futureContent();
+    private dev= devTable();
+		private errors= errorsContent();
+		private tricks= tricksTable();
+    private about= aboutTable();
 
     constructor(props: IWebpartBannerProps) {
 			super(props);
 			this.state = {
 				showPanel: false,
+				selectedKey: pivotHeading1,
 			};
 		}
 
@@ -50,63 +79,63 @@ export default class WebpartBanner extends React.Component<
 				<div> { bannerTitle } </div>
 				<div>More information</div>
 			</div>;
-	
-			let GettingStartedCards: JSX.Element[] = [];
-	
-			GettingStartedCards.push( <AssetCard { ...assets.WelcomeToQH } /> );
-			GettingStartedCards.push( <AssetCard { ...assets.NavigatQuickhelp } /> );
-	
-			let GettingStartedSkillpath = <AssetCard { ...assets.WelcomeToQHPlayList } />;
-	
-			let panelContent = <div>
-				<MessageBar messageBarType={MessageBarType.warning} style={{ fontSize: 'larger' }}>
+
+			let thisPage = null;
+
+			let panelContent = null;
+
+			if ( showPanel === true ) {
+			let content = null;
+			if ( this.state.selectedKey === pivotHeading1 ) {
+					content = this.gettingStarted;
+			} else if ( this.state.selectedKey === pivotHeading2 ) {
+					content= this.basics;
+			} else if ( this.state.selectedKey === pivotHeading3 ) {
+					content=  this.advanced;
+			} else if ( this.state.selectedKey === pivotHeading4 ) {
+					content=  this.futurePlans;
+			} else if ( this.state.selectedKey === pivotHeading5 ) {
+					content=  this.dev;
+			} else if ( this.state.selectedKey === pivotHeading6 ) {
+					content=  this.errors;
+			} else if ( this.state.selectedKey === pivotHeading7 ) {
+					content= this.tricks;
+			} else if ( this.state.selectedKey === pivotHeading8 ) {
+					content= this.about;
+			}
+
+			thisPage = content === null ? null : <SinglePage 
+					allLoaded={ true }
+					showInfo={ true }
+					content= { content }
+			></SinglePage>;
+
+			panelContent = <div>
+				<MessageBar messageBarType={MessageBarType.severeWarning} style={{ fontSize: 'larger' }}>
 					{ `Webpart is still under development` }
 				</MessageBar>
 				<h3> { `Early Access webpart :)` }</h3>
 				<Pivot
 						// styles={ pivotStyles }
 						linkFormat={PivotLinkFormat.links}
-						linkSize={PivotLinkSize.normal}
-						// onLinkClick={this._selectedIndex.bind(this)}
-				>
-						<PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ 'TriangleRight12' }>
-							{/* <ol>
-								<li>Click the content you want to see</li>
-								<li>Enter your Autoliv email</li>
-								<li>Create a profile</li>
-								<li>Explore and learn new things!</li>
-							</ol> */}
-	
-	
-							<div className={stylesComp.bannerComponent}>
-								<div className={stylesComp.flexContainer}>
-									{GettingStartedCards}
-								</div>
-								<div className={stylesComp.flexContainer} style={{ paddingTop: '30px'}}>
-									<h2>Playlist with more QuickHelp Tips</h2>
-									{GettingStartedSkillpath}
-								</div>
-							</div>
-	
-						</PivotItem>
-						<PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ 'Info'}>
-								{/* <div style={{marginTop: '20px'}}>
-									<h2>We do our best to review all content in Quickhelp</h2>
-									<p>However, there will be instances where some features highlighted in quickhelp are disabled at Autoliv.</p>
-									<p>If you find any of these, please help us help you by improving our content.</p>
-									<p>Please submit a help ticket if you have any questions about these features.  In your incident, please include a link to the playlist or video you are referring to and the feature that you are referring to.</p>
-									<p><a href="https://autolivprod.service-now.com/servicenet/" target="_blank">Submit incident in Service Now</a>
-										</p>
-								</div> */}
-						</PivotItem>
-						<PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
-								<div style={{marginTop: '20px'}}>
-									<h2>Webpart verison:</h2>
-									<p>{ assets.panelVersionNumber }</p>
-								</div>
-						</PivotItem>
+						linkSize={PivotLinkSize.normal }
+						onLinkClick={this._selectedIndex.bind(this)}
+				> 
+					{/* { pivotItems.map( item => { return  ( item ) ; }) }
+					 */}
+					 { this.gettingStarted === null ? null : <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }/> }
+					 { this.basics				 === null ? null : <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }/> }
+					 { this.advanced			 === null ? null : <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }/> }
+					 { this.futurePlans		 === null ? null : <PivotItem headerText={pivotHeading4} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ 'RenewalFuture' }/> }
+					 { this.errors 				 === null ? null : <PivotItem headerText={pivotHeading6} ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ 'Warning12' }/> }
+					 { this.dev						 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ 'TestAutoSolid' }/> }
+					 { this.tricks 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'AutoEnhanceOn' }/> }
+					 { this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
 				</Pivot>
+				{ thisPage }
 			</div>;
+		}
+
 	
 			let bannerPanel = <div><Panel
 					isOpen={ showPanel }
@@ -131,6 +160,16 @@ export default class WebpartBanner extends React.Component<
 		}
 
 
+	}
+
+	public _selectedIndex = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+
+		let itemKey = item.props.itemKey;
+
+		this.setState({ selectedKey: itemKey });
+		
 	}
 
 	private _closePanel ( )  {

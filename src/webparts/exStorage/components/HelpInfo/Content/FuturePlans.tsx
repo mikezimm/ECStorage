@@ -11,6 +11,8 @@ export function futureContent() {
         <h2>Were thinking of making this an extension so it doesn't need to be added to a page!</h2>
     </div>;
 
+    return null;
+    
     return { html1: html1 };
 
 }
