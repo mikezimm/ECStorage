@@ -34,6 +34,9 @@ export interface IItemDetail {
   authorName: string;
   editorName: string;
   parentFolder: string;
+
+  localFolder: string;  //localFolder is the folder Url with the site and library removed... just showing \foldername\subfoldername\
+
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;

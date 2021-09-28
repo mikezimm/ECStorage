@@ -453,7 +453,7 @@ public componentDidMount() {
       padding: '0px 4px 0px 10px',
     }};
 
-    let cellText = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef;
+    let cellText = this.props.itemsAreDups === true ? item.localFolder : item.FileLeafRef;
     cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText ) );
   
     let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
