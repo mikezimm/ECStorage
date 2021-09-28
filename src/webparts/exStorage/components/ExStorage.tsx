@@ -640,6 +640,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       title ={ this.props.bannerProps.title }
       style={ this.props.bannerProps.style }
       showTricks={ this.props.bannerProps.showTricks }
+      gitHubRepo={ this.props.bannerProps.gitHubRepo }
     ></WebpartBanner>;
     
     let urlColor = this.state.isCurrentWeb === true ? 'black' : 'red';

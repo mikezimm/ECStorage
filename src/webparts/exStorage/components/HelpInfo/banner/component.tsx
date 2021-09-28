@@ -72,6 +72,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			return (null);
 		} else {
 
+
 			let bannerTitle = this.props.title && this.props.title.length > 0 ? this.props.title : 'Extreme Storage Webpart';
 
 			let classNames = [ styles.container, styles.opacity, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
@@ -85,56 +86,67 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			let panelContent = null;
 
 			if ( showPanel === true ) {
-			let content = null;
-			if ( this.state.selectedKey === pivotHeading1 ) {
-					content = this.gettingStarted;
-			} else if ( this.state.selectedKey === pivotHeading2 ) {
-					content= this.basics;
-			} else if ( this.state.selectedKey === pivotHeading3 ) {
-					content=  this.advanced;
-			} else if ( this.state.selectedKey === pivotHeading4 ) {
-					content=  this.futurePlans;
-			} else if ( this.state.selectedKey === pivotHeading5 ) {
-					content=  this.dev;
-			} else if ( this.state.selectedKey === pivotHeading6 ) {
-					content=  this.errors;
-			} else if ( this.state.selectedKey === pivotHeading7 ) {
-					content= this.tricks;
-			} else if ( this.state.selectedKey === pivotHeading8 ) {
-					content= this.about;
+				const webPartLinks =  <WebPartLinks 
+					parentListURL = { null } //Get from list item
+					childListURL = { null } //Get from list item
+
+					parentListName = { null } // Static Name of list (for URL) - used for links and determined by first returned item
+					childListName = { null } // Static Name of list (for URL) - used for links and determined by first returned item
+
+					repoObject = { this.props.gitHubRepo }
+				></WebPartLinks>;
+
+				let content = null;
+				if ( this.state.selectedKey === pivotHeading1 ) {
+						content = this.gettingStarted;
+				} else if ( this.state.selectedKey === pivotHeading2 ) {
+						content= this.basics;
+				} else if ( this.state.selectedKey === pivotHeading3 ) {
+						content=  this.advanced;
+				} else if ( this.state.selectedKey === pivotHeading4 ) {
+						content=  this.futurePlans;
+				} else if ( this.state.selectedKey === pivotHeading5 ) {
+						content=  this.dev;
+				} else if ( this.state.selectedKey === pivotHeading6 ) {
+						content=  this.errors;
+				} else if ( this.state.selectedKey === pivotHeading7 ) {
+						content= this.tricks;
+				} else if ( this.state.selectedKey === pivotHeading8 ) {
+						content= this.about;
+				}
+
+				thisPage = content === null ? null : <SinglePage 
+						allLoaded={ true }
+						showInfo={ true }
+						content= { content }
+				></SinglePage>;
+
+				panelContent = <div>
+					<MessageBar messageBarType={MessageBarType.severeWarning} style={{ fontSize: 'larger' }}>
+						{ `Webpart is still under development` }
+					</MessageBar>
+					{ webPartLinks }
+					<h3> { `Early Access webpart :)` }</h3>
+					<Pivot
+							// styles={ pivotStyles }
+							linkFormat={PivotLinkFormat.links}
+							linkSize={PivotLinkSize.normal }
+							onLinkClick={this._selectedIndex.bind(this)}
+					> 
+						{/* { pivotItems.map( item => { return  ( item ) ; }) }
+						*/}
+						{ this.gettingStarted === null ? null : <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }/> }
+						{ this.basics				 === null ? null : <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }/> }
+						{ this.advanced			 === null ? null : <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }/> }
+						{ this.futurePlans		 === null ? null : <PivotItem headerText={pivotHeading4} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ 'RenewalFuture' }/> }
+						{ this.errors 				 === null ? null : <PivotItem headerText={pivotHeading6} ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ 'Warning12' }/> }
+						{ this.dev						 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ 'TestAutoSolid' }/> }
+						{ this.tricks 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'AutoEnhanceOn' }/> }
+						{ this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
+					</Pivot>
+					{ thisPage }
+				</div>;
 			}
-
-			thisPage = content === null ? null : <SinglePage 
-					allLoaded={ true }
-					showInfo={ true }
-					content= { content }
-			></SinglePage>;
-
-			panelContent = <div>
-				<MessageBar messageBarType={MessageBarType.severeWarning} style={{ fontSize: 'larger' }}>
-					{ `Webpart is still under development` }
-				</MessageBar>
-				<h3> { `Early Access webpart :)` }</h3>
-				<Pivot
-						// styles={ pivotStyles }
-						linkFormat={PivotLinkFormat.links}
-						linkSize={PivotLinkSize.normal }
-						onLinkClick={this._selectedIndex.bind(this)}
-				> 
-					{/* { pivotItems.map( item => { return  ( item ) ; }) }
-					 */}
-					 { this.gettingStarted === null ? null : <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }/> }
-					 { this.basics				 === null ? null : <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }/> }
-					 { this.advanced			 === null ? null : <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }/> }
-					 { this.futurePlans		 === null ? null : <PivotItem headerText={pivotHeading4} ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={pivotHeading4} itemIcon={ 'RenewalFuture' }/> }
-					 { this.errors 				 === null ? null : <PivotItem headerText={pivotHeading6} ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={pivotHeading6} itemIcon={ 'Warning12' }/> }
-					 { this.dev						 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={pivotHeading5} itemIcon={ 'TestAutoSolid' }/> }
-					 { this.tricks 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={pivotHeading7} itemIcon={ 'AutoEnhanceOn' }/> }
-					 { this.about 				 === null ? null : <PivotItem headerText={ null } ariaLabel={pivotHeading8} title={pivotHeading8} itemKey={pivotHeading8} itemIcon={ 'Info' }/> }
-				</Pivot>
-				{ thisPage }
-			</div>;
-		}
 
 	
 			let bannerPanel = <div><Panel
