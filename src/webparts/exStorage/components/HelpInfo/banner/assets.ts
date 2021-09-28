@@ -1,5 +1,5 @@
 
-export const panelVersionNumber = '1.0.0.10 - 2021-09-27'; //Added to show in panel
+export const panelVersionNumber = '1.0.0.11 - 2021-09-28'; //Added to show in panel
 
 export const NavigatQuickhelp = {
   "id": 0,
