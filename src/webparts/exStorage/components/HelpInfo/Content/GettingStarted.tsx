@@ -11,7 +11,7 @@ export function gettingStartedContent() {
 
         <h3>Add Webpart to your site</h3>
         <ol>
-            <li>Goto Site Contents</li>
+            <li>Go to Site Contents</li>
             <li>Click New, Add an App</li>
             <li>On left, click From Your Organization</li>
             <li>Search for Extreme Storage</li>
@@ -21,7 +21,7 @@ export function gettingStartedContent() {
         <h3>Add Webpart to your page</h3>
         <ol>
             <li>Go to a site page or create a new one</li>
-            <li>Click Edit (page) in upper right of page</li>
+            <li>Click Edit (page) in the upper right of page</li>
             <li>Insert new full width section (click + in left side of page)</li>
             <li>Insert new webpart (click + in center of section)</li>
             <li>Search for Extreme Storage</li>

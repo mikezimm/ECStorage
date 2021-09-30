@@ -185,7 +185,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT10G }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 1GB ${ this.props.heading }` }
+            heading = { ` larger than 10GB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -206,7 +206,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT01G }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 100MB ${ this.props.heading }` }
+            heading = { ` larger than 1GB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -226,7 +226,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT100M }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 10MB ${ this.props.heading }` }
+            heading = { ` larger than 100M ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
@@ -246,7 +246,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT10M }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 10GB ${ this.props.heading }` }
+            heading = { ` larger than 10MB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }

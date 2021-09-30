@@ -25,7 +25,8 @@
       "listTitle": "Documents",
       "showListDropdown": true,
       "showSystemLists": false,
-      "excludeListTitles": ""
+      "excludeListTitles": "",
+      "useMediaTags": true
     }
   }]
 }

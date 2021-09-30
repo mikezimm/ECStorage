@@ -20,7 +20,8 @@ export function tricksTable() {
         makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + 'scenario=dev' }>Activate!</a> ) ;
 
     let hasAllowOther = searchParams.indexOf('allowOtherSites=true') > -1 ?  
-        makeCenteredBoldSpan('true') : '' ;
+        makeCenteredBoldSpan('true') : 
+        makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + 'allowOtherSites=true' }>Activate!</a> ) ;
 
     let hasCrazy = searchParams.indexOf('crazy=true') > -1 ?  
         makeCenteredBoldSpan('true') : '' ;

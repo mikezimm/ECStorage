@@ -176,9 +176,14 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       excludeListTitles: this.properties.excludeListTitles,
     };
 
+    let showTricks = false;
+    links.trickyEmails.map( getsTricks => {
+      if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
+      if ( this.context.pageContext.user.loginName.indexOf( 'erri.scov') > -1 ){ showTricks = true ; }
+
     let bannerProps: IWebpartBannerProps = {
       showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
-      showTricks: true,      
+      showTricks: showTricks,      
       title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
       style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
       
