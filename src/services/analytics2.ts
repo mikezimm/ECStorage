@@ -258,24 +258,34 @@ export function saveAnalytics2 ( analyticsWeb: string, analyticsList: string, sa
     };
   }
 
-  finalSaveObject.screen = screen;
+  finalSaveObject.screen = JSON.stringify( screen );
   finalSaveObject.screenSize = `${innerHeight} x ${innerWidth}`;
 
   /**
    * get device information
    */
-  
-  let OSName = null;
-  if ( navigator && navigator.appVersion ) {
-    if ( navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
-    else if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
-    else if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
-    else if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
-  }
 
-  let device = {
-    OSName: OSName,
-  };
+   
+  let device = null;
+  if ( navigator && navigator.appVersion ) {
+    let OSName = null;
+    if ( navigator.appVersion ) {
+      if ( navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+      else if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+      else if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+      else if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+    }
+
+    device = {
+      OSName: OSName,
+      platform: navigator.platform,
+      maxTouchPoints: navigator.maxTouchPoints,
+      vendor: navigator.vendor,
+      language: navigator.language,
+      deviceMemory: navigator['deviceMemory'],
+    };
+
+  }
 
   finalSaveObject.device = JSON.stringify( device );
 
