@@ -398,11 +398,15 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       { sliderYearItself }
     </div>;
 
+    const sliderMax = this.state.pickedList ? this.state.pickedList.ItemCount : 0;
+    const sliderInc = sliderMax < 50 ? 1 : sliderMax < 100 ? 10 : sliderMax < 500 ? 25 : 500;
+    const siderMin = sliderInc > 1 ? sliderInc : 5;
+
     let sliderCountItself = !this.state.pickedList ? null : 
-      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, this.state.pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
+      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , siderMin, sliderMax, sliderInc , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
 
     let sliderCountComponent = !this.state.pickedList ? null : <div className={ styles.inflexWrapCenter}>
-      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${this.state.pickedList.ItemCount } Files` } </span>
+      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${sliderMax } Files` } </span>
       { sliderCountItself }
       <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
       { fetchButton }
@@ -1067,6 +1071,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       dropDownText: thisValue,
       listTitle: thisValue,
       loadProperties: loadProperties,
+      fetchSlider: pickedList ? pickedList.ItemCount: 0,
     });
 
     this.updateWebInfo( this.state.parentWeb , true );

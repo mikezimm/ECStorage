@@ -226,7 +226,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT100M }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 100M ${ this.props.heading }` }
+            heading = { ` larger than 100MB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
