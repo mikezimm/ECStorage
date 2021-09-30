@@ -3,6 +3,8 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { ILoadAnalytics } from '../../../services/analytics2';
+
 export interface IEXStorageList extends IPickedList {
 
   Created: string;
@@ -287,6 +289,12 @@ export interface IUniqueInfo {
 
 export type IAllItemTypes = IFolderDetail | IItemDetail;
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
+
+
+export interface IAnalyticsJSON1 {
+  
+}
+
 export interface IBatchData {
   totalCount: number;
   count: number;
@@ -312,6 +320,7 @@ export interface IBatchData {
   items: IAllItemTypes[];
 
 }
+
 
 export interface IEXStorageBatch {
   index: number;  //Should just be the index of the batch in the batches array
@@ -380,11 +389,11 @@ export interface IExStorageState {
 
   batches: IEXStorageBatch[];
   batchData: IBatchData;
-
   
   dropDownLabels: any[];
   dropDownIndex: number;
   dropDownText: string;
 
+  loadProperties: ILoadAnalytics;
 
 }

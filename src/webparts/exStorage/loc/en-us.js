@@ -4,7 +4,9 @@ define([], function() {
     "BasicGroupName": "Webpart Options",
     "DescriptionFieldLabel": "Description Field",
 
-    "analyticsList": "TBD",
+    "analyticsList": "eXTremeStorage",
     "analyticsWeb": "/sites/Templates/Analytics/",
+    "analyticsListErrors": "ErrorLog",
+
   }
 });
