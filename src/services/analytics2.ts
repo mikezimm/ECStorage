@@ -104,6 +104,10 @@ export interface IZFullAnalytics extends IZSentAnalytics {
   memory: string;
   browser: string;
   JSHeapSize: number;
+
+  screen: string;  // Extra screen info in object link window.inner/outer sizes
+  screenSize: string; // Basic dimensions 1080 x 1920
+  device: string; 
   
 }
 
@@ -152,12 +156,14 @@ export function saveAnalytics2 ( analyticsWeb: string, analyticsList: string, sa
   } else if ( typeof saveObject.zzzRichText1 === 'string' ) { 
     finalSaveObject.zzzRichText1 = saveObject.zzzRichText1 ; 
   }
+
   if ( typeof saveObject.zzzRichText2 === 'object' ) { 
     finalSaveObject.zzzRichText2 = JSON.stringify( saveObject.zzzRichText2 ); 
     console.log('Length of zzzRichText2:', finalSaveObject.zzzRichText2.length );
   } else if ( typeof saveObject.zzzRichText2 === 'string' ) { 
     finalSaveObject.zzzRichText2 = saveObject.zzzRichText2 ; 
   }
+
   if ( typeof saveObject.zzzRichText3 === 'object' ) { 
     finalSaveObject.zzzRichText3 = JSON.stringify( saveObject.zzzRichText3 ); 
     console.log('Length of zzzRichText3:', finalSaveObject.zzzRichText3.length );
@@ -208,6 +214,9 @@ export function saveAnalytics2 ( analyticsWeb: string, analyticsList: string, sa
     'Description': SiteTitle,
   };
 
+  /**
+   * Get Memory usage information
+   */
   //Courtesy of https://trackjs.com/blog/monitoring-javascript-memory/
   let memoryObj = window.performance['memory'];
 
@@ -220,13 +229,103 @@ export function saveAnalytics2 ( analyticsWeb: string, analyticsList: string, sa
     memoryObj.Used = getSizeLabel( memoryObj.usedJSHeapSize );
 
     finalSaveObject.memory = JSON.stringify( memoryObj );
-    finalSaveObject.browser = 'Chrome';
+    finalSaveObject.browser = 'Chromium';
     finalSaveObject.JSHeapSize = memoryObj.totalJSHeapSize;
 
   } else {
-    finalSaveObject.browser = 'Not Chrome';
+    finalSaveObject.browser = 'Not Chromium';
   }
+
+  /**
+   * Get screen information
+   */
+
+  let screen = null;
+  if ( window && window.screen ) {
+    screen = {
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+
+      outerWidth: window.outerWidth,
+      outerHeight: window.outerHeight,
+
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+
+      ratio: window.screen.width / window.screen.height,
+      aspect: getAspectRatio( window.screen.width, window.screen.height ),
+
+    };
+  }
+
+  finalSaveObject.screen = screen;
+  finalSaveObject.screenSize = `${innerHeight} x ${innerWidth}`;
+
+  /**
+   * get device information
+   */
+  
+  let OSName = null;
+  if ( navigator && navigator.appVersion ) {
+    if ( navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+    else if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+    else if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+    else if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+  }
+
+  let device = {
+    OSName: OSName,
+  };
+
+  finalSaveObject.device = JSON.stringify( device );
 
   saveThisLogItem( analyticsWeb, analyticsList, finalSaveObject );
 
+}
+
+export function getAspectRatio( width: number, height: number ) {
+  if ( height === 0 || width === 0 ) {
+    return 'na';
+  } else {
+    let result = `${width} / ${ height }`;
+    let ratio = roundRatio( width / height );
+    if ( ratio === roundRatio(16/9 ) ) { result = '16 / 9' ; }
+    else if ( ratio === roundRatio(9/16 ) ) { result = '9 / 16' ; }
+    else if ( ratio === roundRatio(4/3 ) ) { result = '4 / 3' ; }
+    else if ( ratio === roundRatio(3/4 ) ) { result = '3 / 4' ; }
+    else if ( ratio === roundRatio(21/9 ) ) { result = '21 / 9' ; }
+    else if ( ratio === roundRatio(9/21 ) ) { result = '9 / 21' ; }
+    else if ( ratio === roundRatio(14/9 ) ) { result = '14 / 9' ; }
+    else if ( ratio === roundRatio(9/14 ) ) { result = '9 / 14' ; }
+    else if ( ratio === roundRatio(18/9 ) ) { result = '18 / 9' ; }
+    else if ( ratio === roundRatio(9/18 ) ) { result = '9 / 18' ; }
+    else if ( ratio === roundRatio(23/16 ) ) { result = '23 / 16' ; } // Ipad Air 4
+    else if ( ratio === roundRatio(16/23 ) ) { result = '16 / 23' ; } // Ipad Air 4
+    else if ( ratio === roundRatio(19.5/9 ) ) { result = '19.5 / 9' ; } // Iphone 11-12-XR
+    else if ( ratio === roundRatio(9/23 ) ) { result = '9 / 19.5' ; } // Iphone 11-12-XR
+    else if ( ratio === roundRatio(4/5 ) ) { result = '4 / 5' ; }
+    else if ( ratio === roundRatio(5/4 ) ) { result = '5 / 4' ; }
+    else if ( ratio === roundRatio(32/9 ) ) { result = '32 / 9' ; }
+    else if ( ratio === roundRatio(9/32 ) ) { result = '9 / 32' ; }
+    return result;
+  }
+}
+
+export function roundRatio( num: number ) {
+  if ( num < 1 ) {
+    return round3decimals( num );
+  } else {
+    return round1decimals( num );
+  }
+}
+
+
+export function round3decimals( num: number ) {
+  return Math.round(num * 1000) / 1000;
+}
+export function round2decimals( num: number ) {
+  return Math.round(num * 100) / 100;
+}
+export function round1decimals( num: number ) {
+  return Math.round(num * 10) / 10;
 }

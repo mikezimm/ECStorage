@@ -11,6 +11,7 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2021-09-30', '1.0.0.12', `Fix typos in help, Add Tricks logic, improve analytics` ) );
     table.rows.push( createAboutRow('2021-09-29', '1.0.0.11', `Update Banner to show actual webpart specific help, add Analytics` ) );
     table.rows.push( createAboutRow('2021-09-28', '1.0.0.10', `Add Library Dropdown, Improve Summary, Dups, Items, Preview, Media tags` ) );
 
