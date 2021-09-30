@@ -84,7 +84,7 @@ import { getExpandColumns, getSelectColumns, IPerformanceSettings, createFetchLi
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import {getAllItems, IGridList } from './GetListData';
+import {updateAllItems, IGridList } from './GetListData';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -214,13 +214,13 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
           valueOperator: string;
         */
         let allColumns : string[] = [];
-        let dropDownColumns: string[] = this.props.dropDownColumns;
-        let searchColumns : string[] = this.props.searchColumns;
-        let metaColumns : string[] = this.props.metaColumns;
-        let expandDates : string[] = [this.props.dateColumn];
+        let dropDownColumns: string[] = this.props.columns.dropDownColumns;
+        let searchColumns : string[] = this.props.columns.searchColumns;
+        let metaColumns : string[] = this.props.columns.metaColumns;
+        let expandDates : string[] = [this.props.columns.dateColumn];
         let selectedDropdowns: string[] = [];
-        allColumns.push( this.props.dateColumn );
-        allColumns.push( this.props.valueColumn );
+        allColumns.push( this.props.columns.dateColumn );
+        allColumns.push( this.props.columns.valueColumn );
 
         searchColumns.map( c => { allColumns.push( c ) ; });
         metaColumns.map( c => { allColumns.push( c ) ; });
@@ -358,7 +358,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     public componentDidMount() {
 
       console.log('fetchList componentDidMount:', this.state.fetchList );
-      getAllItems( this.state.fetchList, this.addTheseItemsToState.bind(this), null, null );
+      updateAllItems( this.props.items, this.state.fetchList, this.addTheseItemsToState.bind(this), null, null );
       
     }
 
@@ -380,12 +380,9 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
       let refreshMe : any = false;
 
       let reloadOnThese = [
-        'stressMultiplierTime', 'webPartScenario', '', '', '',
         'parentListTitle', 'parentListName', 'parentListWeb', '', '',
         'dateColumn', 'valueColumn', 'valueType', 'valueOperator','dropDownColumns',
       ];
-
-      let reloadOnPerformance = [ 'fetchCount', 'fetchCountMobile', 'restFilter', 'minDataDownload' ] ;
 
       let refreshOnThese = [
         'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab', '',
@@ -395,10 +392,6 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
       reloadOnThese.map( key => {
         if ( prevProps[key] !== this.props[key] ) { reloadData = true; }
-      });
-
-      reloadOnPerformance.map ( key => {
-        if ( prevProps.performance[key] !== this.props.performance[key] ) { reloadData = true; }
       });
 
       if (reloadData === false) {
@@ -411,13 +404,13 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
         //Need to first update fetchList and pass it on.
 
         let allColumns : string[] = [];
-        let dropDownColumns: string[] = this.props.dropDownColumns;
-        let searchColumns : string[] = this.props.searchColumns;
-        let metaColumns : string[] = this.props.metaColumns;
-        let expandDates : string[] = [this.props.dateColumn];
+        let dropDownColumns: string[] = this.props.columns.dropDownColumns;
+        let searchColumns : string[] = this.props.columns.searchColumns;
+        let metaColumns : string[] = this.props.columns.metaColumns;
+        let expandDates : string[] = [this.props.columns.dateColumn];
         
-        allColumns.push( this.props.dateColumn );
-        allColumns.push( this.props.valueColumn );
+        allColumns.push( this.props.columns.dateColumn );
+        allColumns.push( this.props.columns.valueColumn );
 
         searchColumns.map( c => { allColumns.push( c ) ; });
         metaColumns.map( c => { allColumns.push( c ) ; });
@@ -434,7 +427,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
         let fetchList : IGridList = tempList;
 
         console.log('fetchList componentDidUpdate:', fetchList );
-        getAllItems( fetchList, this.addTheseItemsToState.bind(this), null, null );
+        updateAllItems( this.props.items, fetchList, this.addTheseItemsToState.bind(this), null, null );
         
       } else if ( refreshMe === true ) {  this.setState({ }) ; }
 
@@ -514,7 +507,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     let weekSliderMax = ( this.state.gridData.allDateArray.length -365 ) / 7 + 1;
 
     //Add extra 'weeks' or spaces for each month's gaps
-    weekSliderMax += this.state.gridData.allMonthsStringArray.length * parseInt( this.props.monthGap );
+    weekSliderMax += this.state.gridData.allMonthsStringArray.length * parseInt( this.props.gridStyles.monthGap );
 
     if ( weekSliderMax < 2 ) { weekSliderMax = 2 ; }
 
@@ -555,7 +548,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
         } else if ( squares.length < 370 ) { //Only push 1 year's worth of items
 
           //This will add 7 days of white spaces between months
-          let fillerDays = this.props.monthGap === "2" ? 14 : this.props.monthGap === "1" ? 7 : 0 ;
+          let fillerDays = this.props.gridStyles.monthGap === "2" ? 14 : this.props.gridStyles.monthGap === "1" ? 7 : 0 ;
           if ( fillerDays > 0 && index !== 0 && d.dateNo === 1 ) {
             for (let day = 0; day < fillerDays; day++) { //this works for regular leading blanks
               squares.push(<li data-level={ -1 } style={ dataLevelMinus1Style }></li>);
@@ -705,7 +698,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     let metrics : any = <div className={ styles.metrics }>TBD</div>;
     if ( this.state.gridData.count > 0 ) {
       let line1 = `${ this.state.gridData.count } items`;
-      let line2 = `${ this.props.valueOperator} of ${ this.props.valueColumn } = ${ this.state.gridData.total.toFixed(0) }`;
+      let line2 = `${ this.props.columns.valueOperator} of ${ this.props.columns.valueColumn } = ${ this.state.gridData.total.toFixed(0) }`;
       metrics = <div className={ styles.metrics }>
           <div>{line1}</div>
           <div>{line2}</div>
@@ -759,7 +752,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     const days : any[] = weekday3['en-us'];
 
     //let fillerDays = this.props.monthGap === "2" ? 14 : this.props.monthGap === "1" ? 7 : 0 ;
-    let monthGap = parseInt( this.props.monthGap ) * 2;
+    let monthGap = parseInt( this.props.gridStyles.monthGap ) * 2;
     const gridTemplateColumns : string = this.state.monthScales.map( v => 20* (v + monthGap ) *.9 + 'px').join( ' ');
 
     /**
@@ -1038,7 +1031,7 @@ private _updateChoiceSlider(newValue: number){
 
     searchCount = newFilteredItems.length;
 
-    let gridData : IGridchartsData = this.buildGridData (this.state.fetchList, newFilteredItems);
+    let gridData : IGridchartsData = this.buildGridData ( newFilteredItems);
     
     const s1 = gridData.startDate.getMonth();
     const s2 = s1 + 12;
@@ -1090,11 +1083,11 @@ private _updateChoiceSlider(newValue: number){
 
       let allItems = allNewData === false ? this.state.allItems : theseItems;
 
-      let gridData : IGridchartsData = this.buildGridData (fetchList, theseItems);
+      let gridData : IGridchartsData = this.buildGridData (theseItems);
 
-      gridData= this.buildVisibleItems ( gridData, fetchList );
+      gridData= this.buildVisibleItems ( gridData );
 
-      let dropDownItems : IDropdownOption[][] = allNewData === true ? this.buildDataDropdownItems( fetchList, allItems ) : this.state.dropDownItems ;
+      let dropDownItems : IDropdownOption[][] = allNewData === true ? this.buildDataDropdownItems( allItems ) : this.state.dropDownItems ;
       
       const s1 = gridData.startDate.getMonth();
       const s2 = s1 + 12;
@@ -1127,20 +1120,20 @@ private _updateChoiceSlider(newValue: number){
       return true;
   }
 
-  private buildVisibleItems( gridData : IGridchartsData , fetchList : IGridList ) {
+  private buildVisibleItems( gridData : IGridchartsData ) {
 
     return gridData;
   }
 
 
-  private buildDataDropdownItems( fetchList: IGridList, allItems : IGridItemInfo[] ) {
+  private buildDataDropdownItems( allItems : IGridItemInfo[] ) {
 
     let dropDownItems : IDropdownOption[][] = [];
 
-    this.props.dropDownColumns.map( ( col, colIndex ) => {
+    this.props.columns.dropDownColumns.map( ( col, colIndex ) => {
 
       let actualColName = col.replace('>', '' ).replace('+', '' ).replace('-', '' );
-      let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? this.props.dropDownColumns[colIndex - 1] : null;
+      let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? this.props.columns.dropDownColumns[colIndex - 1] : null;
       parentColName = parentColName !== null ? parentColName.replace('>', '' ).replace('+', '' ).replace('-', '' ) : null;
 
       let thisColumnChoices : IDropdownOption[] = [];
@@ -1182,7 +1175,7 @@ private _updateChoiceSlider(newValue: number){
  *                                                                                                                          
  */
 
-  private buildGridData ( fetchList: IGridList, allItems : IGridItemInfo[] ) {
+  private buildGridData ( allItems : IGridItemInfo[] ) {
     
     let count = allItems.length;
 
@@ -1209,8 +1202,8 @@ private _updateChoiceSlider(newValue: number){
     let lastDate = "";
 
     allItems.map( item => {
-      let theStartTimeMS = item['time' + this.props.dateColumn ].milliseconds;
-      let theStartTimeStr = item['time' + this.props.dateColumn ].theTime;
+      let theStartTimeMS = item['time' + this.props.columns.dateColumn ].milliseconds;
+      let theStartTimeStr = item['time' + this.props.columns.dateColumn ].theTime;
 
       if ( theStartTimeMS > lastTime ) { 
         lastTime = theStartTimeMS ; 
@@ -1294,10 +1287,10 @@ private _updateChoiceSlider(newValue: number){
     let minValue = 951212732100099;
     let maxValue = -951212732100099;
     let gridDataTotal = 0;
-    let valueOperator = this.props.valueOperator.toLowerCase() ;
+    let valueOperator = this.props.columns.valueOperator.toLowerCase() ;
 
     allItems.map( item => {
-      let itemDateProp = item['time' + this.props.dateColumn ];
+      let itemDateProp = item['time' + this.props.columns.dateColumn ];
       let itemDateDate = new Date( itemDateProp.theTime );
       let itemDate = itemDateDate.toLocaleDateString();
       let dateIndex = allDateStringArray.indexOf( itemDate ) ;
@@ -1326,7 +1319,7 @@ private _updateChoiceSlider(newValue: number){
       item.searchString += 'yearMonth=' + item.yearMonth + '|||' + 'yearWeek=' + item.yearWeek + '|||' + 'year=' + item.year + '|||' + 'week=' + item.week + '|||';
 
       //Copied section from GridCharts VVVV
-      let valueColumn = item[ this.props.valueColumn ];
+      let valueColumn = item[ this.props.columns.valueColumn ];
       let valueType = typeof valueColumn;
 
       if ( valueType === 'string' ) { valueColumn = parseFloat( valueColumn ) ; }
@@ -1385,7 +1378,7 @@ private _updateChoiceSlider(newValue: number){
 
     allDataPoints.map( data => {
       data.avg = data.count !== null && data.count !== undefined && data.count !== 0 ? data.sum / data.count : null;
-      data.value = data[ this.props.valueOperator.toLowerCase() ] ;
+      data.value = data[ this.props.columns.valueOperator.toLowerCase() ] ;
 
       if ( data.count === 0 ) { data.dataLevel = 0 ; }
       else if ( data.value > ( maxValue - 1 * dataLevelIncriment ) ) { data.dataLevel = 3 ; }
@@ -1393,7 +1386,7 @@ private _updateChoiceSlider(newValue: number){
       else if ( data.value >= minValue ) { data.dataLevel = 1 ; }
       else { data.dataLevel = 0 ; }
 
-      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.valueOperator} = ${data.value.toFixed(this.props.valueOperator === 'count' ? 0 : 2 )}  ( ${data.valuesString.join(', ') } )`;
+      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.columns.valueOperator} = ${data.value.toFixed(this.props.columns.valueOperator === 'count' ? 0 : 2 )}  ( ${data.valuesString.join(', ') } )`;
     });
 
     let gridData: IGridchartsData = {

@@ -90,6 +90,36 @@ export interface IGridList extends IZBasicList {
 //                                                                                                
 //        
 
+
+// This is what it was before I split off the other part
+export function updateAllItems( newItems: any[], fetchList: IGridList, addTheseItemsToState: any, setProgress: any, markComplete: any ) {
+    let errMessage = null;
+
+    let allItems : IGridItemInfo[] = newItems;
+
+    /**
+     * Add meta and searchString to every item
+     */
+    allItems.map( i => {
+        //Add all date field objects
+        fetchList.expandDates.map( d => {
+            i['time' + d] = makeTheTimeObject(i[d]);
+        });
+
+        //Add Meta tags
+        i.meta = buildMetaFromItem( i, fetchList );
+        
+        //Add Search string
+        i.searchString = buildSearchStringFromItem( i, fetchList );
+    });
+
+    //private addTheseItemsToState( fetchList: IGridList, allItems , errMessage : string ) {
+    allItems = addTheseItemsToState( fetchList, allItems, errMessage );
+
+}
+
+
+
 // This is what it was before I split off the other part
 export async function getAllItems( fetchList: IGridList, addTheseItemsToState: any, setProgress: any, markComplete: any ): Promise<void>{
 

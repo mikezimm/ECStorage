@@ -68,6 +68,33 @@ export interface IExStorageWebPartProps {
   useMediaTags: boolean;
   quickCloseItem: boolean;
   maxVisibleItems: number;
+
+
+  /**
+   * Imported for GridCharts VVVVVVVVVVVVVVVVVVV
+   */
+  gridColor?: 'green' | 'red' | 'blue' | 'theme';
+
+  cellColor: string;
+  yearStyles: string;
+  monthStyles: string;
+  dayStyles: string;
+  cellStyles: string;
+  cellhoverInfoColor: string;
+  other: string;
+  
+  squareCustom: string;
+  squareColor: string;
+  emptyColor: string;
+  backGroundColor: string;   
+
+  monthGap: string; 
+  
+  otherStyles: string;
+  /**
+   * END Imported for GridCharts ^^^^^^^^^^^^^^^^^^^^^
+   */
+
 } 
 
 export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWebPartProps> {
@@ -225,6 +252,24 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         uiOptions: uiOptions,
     
         currentUser: this.currentUser,
+
+        gridStyles: {
+          cellColor: this.properties.cellColor ? this.properties.cellColor : '',
+          yearStyles: this.properties.yearStyles ? this.properties.yearStyles : '',
+          monthStyles: this.properties.monthStyles ? this.properties.monthStyles : '',
+          dayStyles: this.properties.dayStyles ? this.properties.dayStyles : '',
+          cellStyles: this.properties.cellStyles ? this.properties.cellStyles : '',
+          cellhoverInfoColor: this.properties.cellhoverInfoColor ? this.properties.cellhoverInfoColor : '',
+          other: this.properties.otherStyles ? this.properties.otherStyles : '',
+
+          squareColor: this.properties.cellColor === 'swatch' && this.properties.squareColor ? this.properties.squareColor : '',
+          squareCustom: this.properties.cellColor === 'custom' && this.properties.squareCustom && this.properties.squareCustom.length > 0 ? this.properties.squareCustom : '',
+          emptyColor: this.properties.cellColor === 'swatch' && this.properties.emptyColor ? this.properties.emptyColor : '',
+          backGroundColor: this.properties.cellColor === 'swatch' && this.properties.backGroundColor ? this.properties.backGroundColor : '',
+
+          monthGap: this.properties.monthGap === null || this.properties.monthGap === undefined || this.properties.monthGap === '' ? '1' : this.properties.monthGap ,
+          
+        },
 
       }
     );

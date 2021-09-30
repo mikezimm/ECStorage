@@ -72,6 +72,11 @@ import ExDups from './pages/dups/ExDups';
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
+import Gridcharts from './pages/GridCharts/Gridcharts';
+
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
+import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
+
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
   root: {
@@ -89,7 +94,17 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
+const pivotHeading10 = 'Timeline';
 
+const mainGridColumns: IGridColumns = {
+  dateColumn: 'Created,Modified',
+  valueColumn: 'size',
+  valueType: 'number',
+  valueOperator: 'sum',
+  dropDownColumns: [],
+  searchColumns: [], 
+  metaColumns: [], 
+};
 
 
 export default class ExStorage extends React.Component<IExStorageProps, IExStorageState> {
@@ -570,6 +585,65 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
+    let gridPivotContent = !this.state.isLoaded || this.state.items.length === 0 ? null : 
+      <Gridcharts
+
+        items = { [] }
+
+        // 0 - Context
+        pageContext = { this.context.pageContext }
+        wpContext = { this.context}
+        tenant = { this.props.tenant }
+        urlVars = { this.props.urlVars }
+        today = { makeTheTimeObject('')}
+
+        // 2 - Source and destination list information
+        parentListWeb = { this.props.parentWeb }
+        parentListTitle = { this.props.listTitle }
+        parentListURL = { null}
+        listName = { null}
+        
+        columns = { mainGridColumns }
+
+        enableSearch = { true }
+
+        scaleMethod = { 'blink' }
+
+        gridStyles = { this.props.gridStyles }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+    
+        // 9 - Other web part options
+        WebpartHeight = {this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        // 1 - Analytics options  
+        useListAnalytics = { false }
+        analyticsWeb = { strings.analyticsWeb }
+        analyticsList = {strings.analyticsList}
+        
+        // 9 - Other web part options 
+        webPartScenario = { null } //Choice used to create mutiple versions of the webpart.
+      
+        allLoaded = {null}
+    
+        performance = { null }
+    
+        parentListFieldTitles = {null}
+
+        // 6 - User Feedback:
+        //progress: IMyProgress,
+
+        /**
+         * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
+         */
+
+        //For DD
+        handleSwitch = {null}
+        handleListPost = {null}
+      ></Gridcharts>;
+
     let componentPivot = 
     <Pivot
         styles={ pivotStyles }
@@ -613,6 +687,11 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       <PivotItem headerText={ pivotHeading9 } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={ pivotHeading9 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { folderPivotContent }
       </PivotItem>
+
+      <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { gridPivotContent }
+      </PivotItem>
+
     </Pivot>;
 
     let userPanel = null;

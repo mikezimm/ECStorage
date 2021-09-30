@@ -48,6 +48,33 @@ import { ICSSChartSeries,  } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCha
  * 
  * 
  */
+export interface IGridStyles {
+
+    cellColor: string;
+    yearStyles: string;
+    monthStyles: string;
+    dayStyles: string;
+    cellStyles: string;
+    cellhoverInfoColor: string;
+    other: string;
+    
+    squareCustom: string;
+    squareColor: string;
+    emptyColor: string;
+    backGroundColor: string;
+    monthGap: string; 
+
+}
+
+export interface IGridColumns {
+  dateColumn: string;
+  valueColumn: string;
+  searchColumns: string[];
+  valueType: string;
+  valueOperator: string;
+  dropDownColumns: string[];
+  metaColumns: string[];
+}
 
 export interface IPerformanceSettings {
     fetchCount: number;
@@ -60,12 +87,7 @@ export type IScaleMethod = 'slider' | 'blink' | 'pivot' | 'other' | 'na' | 'TBD'
 
 export interface IGridchartsProps {
 
-      // 0 - Context
-      description: string;
-
       WebpartElement?: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-      gridData?: ICSSChartSeries;
-      color?: 'green' | 'red' | 'blue' | 'theme';
 
       pageContext: PageContext;
       wpContext: WebPartContext;
@@ -78,21 +100,16 @@ export interface IGridchartsProps {
       tenant: string;
       urlVars: {};
       today: ITheTime;
+
+      items: any[]; //Added to bring in any items into this component
   
       parentListWeb?: string;
       parentListURL?: string;
       parentListTitle?: string;
       listName : string;
 
-      dateColumn: string;
-      monthGap: string;
+      columns: IGridColumns;
 
-      valueColumn: string;
-      searchColumns: string[];
-      valueType: string;
-      valueOperator: string;
-      dropDownColumns: string[];
-      metaColumns: string[];
       enableSearch: boolean;
 
       allLoaded: boolean;
@@ -127,30 +144,12 @@ export interface IGridchartsProps {
       WebpartHeight?:  number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
       WebpartWidth?:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
   
-      pivotSize: string;
-      pivotFormat: string;
-      pivotOptions: string;
-      pivotTab: string;  //May not be needed because we have projectMasterPriority
-  
       /**
        * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
        */
       onRefiner0Selected?: any;
   
-      gridStyles: {
-        cellColor: string;
-        yearStyles: string;
-        monthStyles: string;
-        dayStyles: string;
-        cellStyles: string;
-        cellhoverInfoColor: string;
-        other: string;
-        
-        squareCustom: string;
-        squareColor: string;
-        emptyColor: string;
-        backGroundColor: string;    
-      };
+      gridStyles: IGridStyles;
   
       //For DD
       handleSwitch: any;
@@ -158,6 +157,6 @@ export interface IGridchartsProps {
 
       // 9 - Other web part options
       webPartScenario: string; //Choice used to create mutiple versions of the webpart. 
-      showEarlyAccess: boolean;
+      // showEarlyAccess: boolean;
 
 }
