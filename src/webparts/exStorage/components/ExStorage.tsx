@@ -919,7 +919,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
     let hasSignificantData = batchData.totalCount > 0 && filePercent > .95 ? true : false;
 
-    if ( batchData.totalCount > 0) {
+    if ( batchData.count > 0) {
       zzzRichText1 = {};
       let saveSummaryObjects = [ 'large','oldCreated','oldModified', 'folderInfo', 'duplicateInfo' ];
       saveSummaryObjects.map( objKey => {
@@ -928,18 +928,37 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       });
       zzzRichText2 = {};
       zzzRichText2[ 'typesInfo' ] = { types: [] };
+      let typeItems = [];
       batchData.typesInfo.types.map( type => {
         let smallType : any = {};
         Object.keys( type ).map( key => {
-          let skipTypesKeys = [ 'items', 'createdMs', 'modifiedMs', 'sizes', ];
-          if ( key !== 'items' ) { smallType[ key ] = type[ key ] ; }
+          let skipTypesKeys = [ 'items', 'createdMs', 'sizes' ];
+          //Skip modifiedMs if there are lots of items to avoid memory issue per column
+          /**
+           * During testing, found that 41,000 items in 60 items: 
+           * a complete array of modifiedMs stringified was 574k bytes
+           * The entire object was 595k bytes
+           * Therefore to be safe, the number of item ModifiedMS that could safely be saved would be
+           *  ( 800k / 595k ) * 41k items = 
+           */
+          if ( batchData.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
+          if ( skipTypesKeys.indexOf( key ) < 0 ) { smallType[ key ] = type[ key ] ; }
         });
         zzzRichText2[ 'typesInfo' ]['types'].push( smallType );
+        typeItems.push( type[ 'modifiedMs' ] );
+
       });
+      // This was used to determine how many items we could safely save the modifiedMs for and still save analytics
+      // let typeItemsString = JSON.stringify( typeItems );
+      // console.log( 'typeItemsString:', typeItemsString.length, typeItemsString );
     }
 
     console.log( 'zzzRichText1:', zzzRichText1);
     console.log( 'zzzRichText2:', zzzRichText2);
+
+    if ( zzzRichText1 ) { zzzRichText1 = JSON.stringify( zzzRichText1 ); }
+    if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
+    if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
 
     let msPerFetch = batchData.count > 0 ?( batchInfo.fetchMs / batchData.count ) : null;
     let msPerAnalyze = batchData.count > 0 ?( batchInfo.analyzeMs / batchData.count ) : null;
@@ -957,7 +976,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
       zzzText5: ``,
       zzzText6: ``,
-      zzzText7: ``,
+      zzzText7: `zzzRichText1: ${zzzRichText1 ? zzzRichText1.length : 'na'} zzzRichText2: ${zzzRichText2 ? zzzRichText2.length : 'na'} zzzRichText3: ${zzzRichText3 ? zzzRichText3.length : 'na'}`,
     
       zzzNumber1: batchInfo.totalLength,
       zzzNumber2: batchInfo.fetchMs,

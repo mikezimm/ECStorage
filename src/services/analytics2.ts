@@ -146,13 +146,24 @@ export function saveAnalytics2 ( analyticsWeb: string, analyticsList: string, sa
   finalSaveObject.ListID = saveObject.loadProperties.ListID;  //Current list ID for easy filtering in large list
   finalSaveObject.ListTitle = saveObject.loadProperties.ListTitle;
 
-  if ( typeof saveObject.zzzRichText1 === 'object' ) { finalSaveObject.zzzRichText1 = JSON.stringify( saveObject.zzzRichText1 ); }
-  if ( typeof saveObject.zzzRichText2 === 'object' ) { finalSaveObject.zzzRichText1 = JSON.stringify( saveObject.zzzRichText2 ); }
-  if ( typeof saveObject.zzzRichText3 === 'object' ) { finalSaveObject.zzzRichText1 = JSON.stringify( saveObject.zzzRichText3 ); }
-
-  finalSaveObject.zzzRichText1 = saveObject.zzzRichText1 ? JSON.stringify(saveObject.zzzRichText1) : null;
-  finalSaveObject.zzzRichText2 = saveObject.zzzRichText2 ? JSON.stringify(saveObject.zzzRichText2) : null;
-  finalSaveObject.zzzRichText3 = saveObject.zzzRichText3 ? JSON.stringify(saveObject.zzzRichText3) : null;
+  if ( typeof saveObject.zzzRichText1 === 'object' ) { 
+    finalSaveObject.zzzRichText1 = JSON.stringify( saveObject.zzzRichText1 ); 
+    console.log('Length of zzzRichText1:', finalSaveObject.zzzRichText1.length );
+  } else if ( typeof saveObject.zzzRichText1 === 'string' ) { 
+    finalSaveObject.zzzRichText1 = saveObject.zzzRichText1 ; 
+  }
+  if ( typeof saveObject.zzzRichText2 === 'object' ) { 
+    finalSaveObject.zzzRichText2 = JSON.stringify( saveObject.zzzRichText2 ); 
+    console.log('Length of zzzRichText2:', finalSaveObject.zzzRichText2.length );
+  } else if ( typeof saveObject.zzzRichText2 === 'string' ) { 
+    finalSaveObject.zzzRichText2 = saveObject.zzzRichText2 ; 
+  }
+  if ( typeof saveObject.zzzRichText3 === 'object' ) { 
+    finalSaveObject.zzzRichText3 = JSON.stringify( saveObject.zzzRichText3 ); 
+    console.log('Length of zzzRichText3:', finalSaveObject.zzzRichText3.length );
+  } else if ( typeof saveObject.zzzRichText3 === 'string' ) { 
+    finalSaveObject.zzzRichText3 = saveObject.zzzRichText3 ; 
+  }
 
   //Convert TargetSite to actual link object
   if ( typeof saveObject.loadProperties.TargetSite === 'string' ) {
