@@ -11,7 +11,7 @@ import {
 import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { createRatioNote } from './summaryFunctions';
 

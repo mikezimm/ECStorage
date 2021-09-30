@@ -9,7 +9,7 @@ import {
 } from "office-ui-fabric-react";
 
 import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
 

@@ -3,7 +3,7 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IZLoadAnalytics } from '../../../services/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
 export interface IEXStorageList extends IPickedList {
 
@@ -289,11 +289,6 @@ export interface IUniqueInfo {
 
 export type IAllItemTypes = IFolderDetail | IItemDetail;
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
-
-
-export interface IAnalyticsJSON1 {
-  
-}
 
 export interface IBatchData {
   totalCount: number;

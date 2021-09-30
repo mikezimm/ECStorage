@@ -52,11 +52,12 @@ import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-import { sortObjectArrayByChildNumberKey, } from '../../../../../services/complexArraySorting';
+import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+
 import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';

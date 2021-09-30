@@ -47,7 +47,7 @@ import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Servic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import * as strings from 'ExStorageWebPartStrings';
 
@@ -69,7 +69,8 @@ import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
-import { IZLoadAnalytics, IZSentAnalytics, saveAnalytics2 } from '../../../services/analytics2';
+import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
