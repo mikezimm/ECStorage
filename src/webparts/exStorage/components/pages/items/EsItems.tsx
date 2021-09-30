@@ -51,8 +51,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-import { sortObjectArrayByNumberKey, } from '../../../../../services/complexArraySorting';
+// import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, } from '../../../../../services/complexArraySorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
@@ -328,10 +328,10 @@ public componentDidMount() {
     let tableTitle = data;
     let itemsSorted: any[] = [];
     if ( objectType === 'Items' ) {
-      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
 
     } else if ( objectType === 'Duplicates' ){
-      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
 
     }
     

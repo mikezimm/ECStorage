@@ -1,6 +1,4 @@
 
-export const panelVersionNumber = '1.0.0.11 - 2021-09-28'; //Added to show in panel
-
 export const AssetInfo1 = {
   "id": 0,
   "thumbnail": "",

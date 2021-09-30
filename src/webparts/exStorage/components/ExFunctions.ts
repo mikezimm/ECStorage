@@ -25,15 +25,22 @@ import { Search, Suggest } from "@pnp/sp/search";
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+// import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { sortObjectArrayByNumberKey, } from '../../../services/complexArraySorting';
+import { sortObjectArrayByChildNumberKey, } from '../../../services/complexArraySorting';
 
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+
+import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/constants';
+
+import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
+
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
     IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IExStorageState';
 
@@ -41,8 +48,6 @@ import { IDataOptions, IUiOptions } from './IExStorageProps';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/constants';
 
  /**
   * These properties throw error on fetching.
@@ -1317,8 +1322,8 @@ function expandArray ( count: number ) : any[] {
 
   });
 
-  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.size');
-  // batchData.userInfo.allUsers = sortObjectArrayByNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.sizeToCountRatio');
+  // batchData.userInfo.allUsers = sortObjectArrayByChildNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.size');
+  // batchData.userInfo.allUsers = sortObjectArrayByChildNumberKey( batchData.userInfo.allUsers, 'dec', 'summary.sizeToCountRatio');
 
   //Sort totals by largest first
   allUserCreateSize = sortNumberArray( allUserCreateSize , 'dec');
@@ -1459,42 +1464,6 @@ function expandArray ( count: number ) : any[] {
  
  }
 
-/***
- *     d888b  d88888b d888888b      .d8888. d888888b d88888D d88888b      db       .d8b.  d8888b. d88888b db      
- *    88' Y8b 88'     `~~88~~'      88'  YP   `88'   YP  d8' 88'          88      d8' `8b 88  `8D 88'     88      
- *    88      88ooooo    88         `8bo.      88       d8'  88ooooo      88      88ooo88 88oooY' 88ooooo 88      
- *    88  ooo 88~~~~~    88           `Y8b.    88      d8'   88~~~~~      88      88~~~88 88~~~b. 88~~~~~ 88      
- *    88. ~8~ 88.        88         db   8D   .88.    d8' db 88.          88booo. 88   88 88   8D 88.     88booo. 
- *     Y888P  Y88888P    YP         `8888Y' Y888888P d88888P Y88888P      Y88888P YP   YP Y8888P' Y88888P Y88888P 
- *                                                                                                                
- *    import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';                                                                                                  
- */
- export function getSizeLabel ( size: number) {
-  return size > 1e9 ? `${ (size / 1e9).toFixed(1) } GB` : size > 1e6 ? `${ (size / 1e6).toFixed(1) } MB` : `${ ( size / 1e3).toFixed(1) } KB`;
- }
-
- /***
- *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      d8b   db d88888b db    db d888888b       .d88b.  d8888b. d88888b d8b   db      d888888b d8b   db d8888b. d88888b db    db 
- *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          888o  88 88'     `8b  d8' `~~88~~'      .8P  Y8. 88  `8D 88'     888o  88        `88'   888o  88 88  `8D 88'     `8b  d8' 
- *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      88V8o 88 88ooooo  `8bd8'     88         88    88 88oodD' 88ooooo 88V8o 88         88    88V8o 88 88   88 88ooooo  `8bd8'  
- *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      88 V8o88 88~~~~~  .dPYb.     88         88    88 88~~~   88~~~~~ 88 V8o88         88    88 V8o88 88   88 88~~~~~  .dPYb.  
- *    88b  d88 88      88  .8D 88   88    88    88.          88  V888 88.     .8P  Y8.    88         `8b  d8' 88      88.     88  V888        .88.   88  V888 88  .8D 88.     .8P  Y8. 
- *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      VP   V8P Y88888P YP    YP    YP          `Y88P'  88      Y88888P VP   V8P      Y888888P VP   V8P Y8888D' Y88888P YP    YP 
- *                                                                                                                                                                                     
- *    import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
- */
- function updateNextOpenIndex( targetArray: any[], start: number, value: any ): any[] {
-  let exit: boolean = false;
-
-  for (let index = start; index < targetArray.length; index++) {
-    if ( !exit && targetArray[ index ] === null ) { 
-      targetArray[ index ] = value ;
-      exit = true;
-     }
-  }
-  return targetArray;
-
- }
 
  /***
  *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d888888b d888888b d88888b .88b  d88.        d8888b. d88888b d888888b  .d8b.  d888888b db      

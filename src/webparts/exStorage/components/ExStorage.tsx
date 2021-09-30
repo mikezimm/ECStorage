@@ -47,12 +47,14 @@ import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Servic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
 
 import * as strings from 'ExStorageWebPartStrings';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from './ExFunctions';
+import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
+
 import { getSearchedFiles } from './ExSearch';
 import { createBatchSummary } from './pages/summary/ExBatchSummary';
 
@@ -67,7 +69,7 @@ import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
-import { ILoadAnalytics, IZSentAnalytics, saveAnalytics2 } from '../../../services/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, saveAnalytics2 } from '../../../services/analytics2';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -284,7 +286,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   console.log('pickLists', pickLists );
 
   let theSiteAny: any = theSite;
-  let loadProperties: ILoadAnalytics = {
+  let loadProperties: IZLoadAnalytics = {
     SiteID: theSiteAny.Id,  //Current site collection ID for easy filtering in large list
     WebID:  pickedWeb.guid,  //Current web ID for easy filtering in large list
     SiteTitle:  pickedWeb.title, //Web Title

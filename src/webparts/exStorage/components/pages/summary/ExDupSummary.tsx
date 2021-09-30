@@ -8,9 +8,11 @@ import {
 
 } from "office-ui-fabric-react";
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices'; 
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
+import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
+
 
 import { createRatioNote } from './summaryFunctions';
 

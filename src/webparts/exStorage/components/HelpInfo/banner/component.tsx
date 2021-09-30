@@ -1,6 +1,5 @@
 import * as React from "react";
 import styles from "./banner.module.scss";
-import stylesComp from "./component.module.scss";
 
 import { escape } from "@microsoft/sp-lodash-subset";
 
@@ -10,8 +9,8 @@ import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBa
 
 import { Icon, IIconProps } from 'office-ui-fabric-react/lib/Icon';
 
-import { QuichHelpVCard, AssetCard } from './AssetCard';
-import * as assets from "./assets";
+import { QuichHelpVCard, AssetCard } from './Cards/AssetCard';
+import * as assets from "./Cards/assets";
 
 import WebPartLinks from './WebPartLinks';
 

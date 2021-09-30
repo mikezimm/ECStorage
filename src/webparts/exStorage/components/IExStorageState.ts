@@ -3,7 +3,7 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { ILoadAnalytics } from '../../../services/analytics2';
+import { IZLoadAnalytics } from '../../../services/analytics2';
 
 export interface IEXStorageList extends IPickedList {
 
@@ -394,6 +394,6 @@ export interface IExStorageState {
   dropDownIndex: number;
   dropDownText: string;
 
-  loadProperties: ILoadAnalytics;
+  loadProperties: IZLoadAnalytics;
 
 }
