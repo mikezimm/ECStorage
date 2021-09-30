@@ -187,7 +187,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
       style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
       
-      gitHubRepo: links.gitRepoEasyStorage,
+      gitHubRepo: links.gitRepoEasyStorageSmall,
     };
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
