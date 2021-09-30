@@ -852,7 +852,7 @@ function expandArray ( count: number ) : any[] {
     batch.items.map( ( item, itemIndex )=> {
 
       //Get item summary
-      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions );
+      let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions, pickedList.LibraryUrl );
 
       batchData.count ++;
       batchData.size += detail.size;
@@ -1506,7 +1506,7 @@ function expandArray ( count: number ) : any[] {
  *                                                                                                                                                        
  *                                                                                                                                                        
  */
- function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser, dataOptions: IDataOptions ) : IItemDetail {
+ function createGenericItemDetail ( batchIndex:  number, itemIndex:  number, item: any, currentUser: IUser, dataOptions: IDataOptions, LibraryUrl: string ) : IItemDetail {
   let created = new Date(item.Created);
   let modified = new Date(item.Modified);
 
@@ -1518,6 +1518,8 @@ function expandArray ( count: number ) : any[] {
   let size = item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0;
 
   let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
+  let localFolder = `/${ parentFolder.replace( LibraryUrl, '' )}`;
+
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
     index: itemIndex, //index of item in state.batches[batch].items
@@ -1531,6 +1533,8 @@ function expandArray ( count: number ) : any[] {
     authorName: item.Author.Name,
     editorName: item.Editor.Name,
     parentFolder: parentFolder,
+    localFolder: localFolder,
+
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
     ServerRedirectedEmbedUrl: item.ServerRedirectedEmbedUrl,

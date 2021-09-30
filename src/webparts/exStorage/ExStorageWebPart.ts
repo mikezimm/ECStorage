@@ -181,6 +181,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       showTricks: true,      
       title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
       style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
+      
+      gitHubRepo: links.gitRepoEasyStorage,
     };
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
@@ -243,10 +245,10 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
           displayGroupsAsAccordion: true,
           groups: [
             WebPartInfoGroup( links.gitRepoEasyStorage, 'For analyzing extreme document libraries' ),
-            FPSOptionsGroup( false, true, true, true ), // this group,
+
             {
               groupName: strings.BasicGroupName,
-              isCollapsed: true ,
+              isCollapsed: false ,
               groupFields: [
                 PropertyPaneTextField('parentWeb', {
                   label: 'Site URL',
@@ -312,7 +314,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 // style: this.properties.bannerTitle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
 
               ]
-            }
+            },
+            FPSOptionsGroup( false, true, true, true ), // this group,
           ]
         }
       ]

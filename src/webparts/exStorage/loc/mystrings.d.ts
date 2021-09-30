@@ -6,6 +6,7 @@ declare interface IExStorageWebPartStrings {
   // 1 - Analytics options
   analyticsWeb: string;
   analyticsList: string;
+  analyticsListErrors: string;
   
 }
 

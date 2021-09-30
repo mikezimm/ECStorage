@@ -7,7 +7,6 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { Web, IList, Site } from "@pnp/sp/presets/all";
 
-
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import {
@@ -49,10 +48,11 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
 
+import * as strings from 'ExStorageWebPartStrings';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
+import { getStorageItems, batchSize, createBatchData, getSizeLabel } from './ExFunctions';
 import { getSearchedFiles } from './ExSearch';
 import { createBatchSummary } from './pages/summary/ExBatchSummary';
 
@@ -67,6 +67,7 @@ import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
+import { ILoadAnalytics, IZSentAnalytics, saveAnalytics2 } from '../../../services/analytics2';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -158,7 +159,9 @@ public constructor(props:IExStorageProps){
         
         dropDownLabels: [],
         dropDownIndex: 0,
-        dropDownText: 'Oops!  No Libraries was found'
+        dropDownText: 'Oops!  No Libraries was found',
+
+        loadProperties: null,
   
   };
 }
@@ -280,24 +283,41 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   console.log('allLists', allLists );
   console.log('pickLists', pickLists );
 
+  let theSiteAny: any = theSite;
+  let loadProperties: ILoadAnalytics = {
+    SiteID: theSiteAny.Id,  //Current site collection ID for easy filtering in large list
+    WebID:  pickedWeb.guid,  //Current web ID for easy filtering in large list
+    SiteTitle:  pickedWeb.title, //Web Title
+    TargetSite:  pickedWeb.url,  //Saved as link column.  Displayed as Relative Url
+
+    ListID:  theList.Id,  //Current list ID for easy filtering in large list
+    ListTitle:  theList.Title,
+    TargetList:  theList.LibraryUrl,  //Saved as link column.  Displayed as Relative Url
+
+  };
+
+  console.log('loadProperties:', loadProperties );
 
   // let theList: IEXStorageList = await listObject.select( listSelect ).get();
   // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
 
   let currentUser = this.props.currentUser === null ? await this.getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
 
-
   //Automatically kick off if it's under 5k items
   if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
-        pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false });
+        pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false,
+        loadProperties: loadProperties,
+       });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
   } else {
 
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
       pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
-      pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: true });
+      pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: true,
+      loadProperties: loadProperties,
+    });
 
   }
 
@@ -563,16 +583,16 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         { usersPivotContent }
       </PivotItem>
 
+      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { youPivotContent }
+      </PivotItem>
+
       <PivotItem headerText={ pivotHeading4 } ariaLabel={pivotHeading4} title={pivotHeading4} itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { sizePivotContent }
       </PivotItem> 
       
       <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5} itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { agePivotContent }
-      </PivotItem>
-
-      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6} itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { youPivotContent }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading7 } ariaLabel={pivotHeading7} title={pivotHeading7} itemKey={ pivotHeading7 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
@@ -640,6 +660,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       title ={ this.props.bannerProps.title }
       style={ this.props.bannerProps.style }
       showTricks={ this.props.bannerProps.showTricks }
+      gitHubRepo={ this.props.bannerProps.gitHubRepo }
     ></WebpartBanner>;
     
     let urlColor = this.state.isCurrentWeb === true ? 'black' : 'red';
@@ -870,8 +891,108 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       batches: batchInfo.batches,
       batchData: batchInfo.batchData,
 
-
     });
+
+    this.saveLoadAnalytics( batchInfo );
+
+  }
+
+  private saveLoadAnalytics( batchInfo ) {
+
+    // let batchInfo = {
+    //   batches: batches,
+    //   batchData: batchData,
+    //   fetchMs: fetchMs,
+    //   analyzeMs: analyzeMs,
+    //   totalLength: totalLength,
+    //   userInfo: userInfo,
+    // };
+
+    //IZSentAnalytics, saveAnalytics2
+
+    let batchData: IBatchData = batchInfo.batchData;
+
+    let zzzRichText1 = null;
+    let zzzRichText2 = null;
+    let zzzRichText3 = null;
+
+    let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
+    let hasSignificantData = batchData.totalCount > 0 && filePercent > .95 ? true : false;
+
+    if ( batchData.count > 0) {
+      zzzRichText1 = {};
+      let saveSummaryObjects = [ 'large','oldCreated','oldModified', 'folderInfo', 'duplicateInfo' ];
+      saveSummaryObjects.map( objKey => {
+        zzzRichText1[ objKey ] = {};
+        zzzRichText1[ objKey ][ 'summary' ] = batchData[ objKey ][ 'summary' ];
+      });
+      zzzRichText2 = {};
+      zzzRichText2[ 'typesInfo' ] = { types: [] };
+      let typeItems = [];
+      batchData.typesInfo.types.map( type => {
+        let smallType : any = {};
+        Object.keys( type ).map( key => {
+          let skipTypesKeys = [ 'items', 'createdMs', 'sizes' ];
+          //Skip modifiedMs if there are lots of items to avoid memory issue per column
+          /**
+           * During testing, found that 41,000 items in 60 items: 
+           * a complete array of modifiedMs stringified was 574k bytes
+           * The entire object was 595k bytes
+           * Therefore to be safe, the number of item ModifiedMS that could safely be saved would be
+           *  ( 800k / 595k ) * 41k items = 
+           */
+          if ( batchData.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
+          if ( skipTypesKeys.indexOf( key ) < 0 ) { smallType[ key ] = type[ key ] ; }
+        });
+        zzzRichText2[ 'typesInfo' ]['types'].push( smallType );
+        typeItems.push( type[ 'modifiedMs' ] );
+
+      });
+      // This was used to determine how many items we could safely save the modifiedMs for and still save analytics
+      // let typeItemsString = JSON.stringify( typeItems );
+      // console.log( 'typeItemsString:', typeItemsString.length, typeItemsString );
+    }
+
+    console.log( 'zzzRichText1:', zzzRichText1);
+    console.log( 'zzzRichText2:', zzzRichText2);
+
+    if ( zzzRichText1 ) { zzzRichText1 = JSON.stringify( zzzRichText1 ); }
+    if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
+    if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
+
+    let msPerFetch = batchData.count > 0 ?( batchInfo.fetchMs / batchData.count ) : null;
+    let msPerAnalyze = batchData.count > 0 ?( batchInfo.analyzeMs / batchData.count ) : null;
+
+    let saveObject: IZSentAnalytics = {
+      loadProperties: this.state.loadProperties,
+
+      Title: 'Loaded Items',  //General Label used to identify what analytics you are saving:  such as Web Permissions or List Permissions.
+    
+      Result: 'Success',  //Success or Error
+    
+      zzzText1: `${ batchData.count } of ${ batchData.totalCount } files [ ${ filePercent.toPrecision(2) } % ] = [ ${ getSizeLabel( batchData.size ) } ]`, //Start-Now in some webparts
+      zzzText2: `${ hasSignificantData === true ? 'Significant' : 'Insignificant'}`, //Start-TheTime in some webparts
+      zzzText3: ``, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
+      zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
+      zzzText5: ``,
+      zzzText6: ``,
+      zzzText7: `zzzRichText1: ${zzzRichText1 ? zzzRichText1.length : 'na'} zzzRichText2: ${zzzRichText2 ? zzzRichText2.length : 'na'} zzzRichText3: ${zzzRichText3 ? zzzRichText3.length : 'na'}`,
+    
+      zzzNumber1: batchInfo.totalLength,
+      zzzNumber2: batchInfo.fetchMs,
+      zzzNumber3: batchInfo.analyzeMs,
+      zzzNumber4: batchData.sizeGB,
+      zzzNumber5: filePercent,
+      zzzNumber6: msPerFetch,
+      zzzNumber7: msPerAnalyze,
+    
+      zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
+      zzzRichText2: zzzRichText2,
+      zzzRichText3: zzzRichText3,
+
+    };
+
+    saveAnalytics2( strings.analyticsWeb, strings.analyticsList, saveObject );
 
   }
 
@@ -931,12 +1052,18 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
     // let history = this.state.historyAll[ idx ];
     // let progress = this.state.progressAll[ idx ];
 
+    let loadProperties = JSON.parse(JSON.stringify(this.state.loadProperties));
+    loadProperties.ListID = pickedList.Id,  //Current list ID for easy filtering in large list
+    loadProperties.ListTitle = pickedList.Title,  //Current list ID for easy filtering in large list
+    loadProperties.TargetList = pickedList.LibraryUrl,  //Current list ID for easy filtering in large list
+
     this.setState({
       // mapThisList : this.state.mapThisListAll[ idx ],
       pickedList: pickedList,
       dropDownIndex: idx,
       dropDownText: thisValue,
       listTitle: thisValue,
+      loadProperties: loadProperties,
     });
 
     this.updateWebInfo( this.state.parentWeb , true );

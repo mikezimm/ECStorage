@@ -1,7 +1,7 @@
 
-export const panelVersionNumber = '1.0.0.10 - 2021-09-27'; //Added to show in panel
+export const panelVersionNumber = '1.0.0.11 - 2021-09-28'; //Added to show in panel
 
-export const NavigatQuickhelp = {
+export const AssetInfo1 = {
   "id": 0,
   "thumbnail": "",
   "title": "Asset Title 0",
@@ -14,7 +14,7 @@ export const NavigatQuickhelp = {
   "isPublished": true,
 };
 
-export const WelcomeToQHPlayList = {
+export const AssetInfo2 = {
   "id": 0,
   "thumbnail": "",
   "title": "Asset Title 1",
@@ -27,7 +27,7 @@ export const WelcomeToQHPlayList = {
   "isPublished": true,
 };
 
-export const WelcomeToQH = {
+export const AssetInfo3 = {
   "id": 0,
   "thumbnail": "",
   "title": "Asset Title 2",
@@ -41,7 +41,7 @@ export const WelcomeToQH = {
 };
 
 
-export const WhereToNextp = {
+export const AssetInfo4 = {
   "id": 0,
   "thumbnail": "",
   "title": "Asset Title 3",
