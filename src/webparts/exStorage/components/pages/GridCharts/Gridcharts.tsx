@@ -58,11 +58,6 @@ import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services
 
 import { getExpandColumns, getSelectColumns, IPerformanceSettings, createFetchList, IZBasicList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
-//import  EarlyAccess from '@mikezimm/npmfunctions/dist/HelpInfo/EarlyAccess';
-
-import  EarlyAccess from '../HelpInfo/EarlyAccess';
-import { IEarlyAccessItem } from '../HelpInfo/EarlyAccess';
-
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -73,8 +68,6 @@ import { IEarlyAccessItem } from '../HelpInfo/EarlyAccess';
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
-import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../../services/createAnalytics';
 
 
  /***
@@ -88,16 +81,10 @@ import { saveTheTime, saveAnalytics, getTheCurrentTime } from '../../../../servi
  *                                                                                                                       
  */
 
-import InfoPages from '../HelpInfo/Component/InfoPages';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
-
-import { createSlider, createChoiceSlider } from '../fields/sliderFieldBuilder';
+import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
 import {getAllItems, IGridList } from './GetListData';
-
-import { createIconButton , defCommandIconStyles} from "../createButtons/IconButton";
-import stylesB from '../createButtons/CreateButtons.module.scss';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -735,19 +722,19 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
       let activeSlider = null;
       if ( currentTimeScale === 'Weeks' ) {
 
-        activeSlider = createSlider('Slide to adjust ' + currentTimeScale , sliderValueWeek , weekSliderMax, 1 , this._updateTimeSliderWeeks.bind(this)) ;
+        activeSlider = createSlider('Slide to adjust ' + currentTimeScale , sliderValueWeek , 0, weekSliderMax, 1 , this._updateTimeSliderWeeks.bind(this), false, 250 ) ;
 
       } else if ( currentTimeScale === 'Years' ) {
         let sliderValue = this.state.gridData.allYearsStringArray[sliderValueYear];
-        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , this.state.gridData.allYearsStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this)) ;
+        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , 0, this.state.gridData.allYearsStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this), false, 250) ;
 
       } else if ( currentTimeScale === 'Months' ) {
         let sliderValue = this.state.gridData.allMonthsStringArray[sliderValueMonth];
-        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , this.state.gridData.allMonthsStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this)) ;
+        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , 0, this.state.gridData.allMonthsStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this), false, 250) ;
 
       } else if ( currentTimeScale === 'WeekNo' ) {
         let sliderValue = this.state.gridData.allWeekNosStringArray[sliderValueWeekNo];
-        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , this.state.gridData.allWeekNosStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this)) ;
+        activeSlider = createSlider('Slide to adjust ' + currentTimeScale, sliderValue , 0, this.state.gridData.allWeekNosStringArray.length -1, 1 , this._updateTimeSliderPeriods.bind(this), false, 250) ;
 
       }
 
@@ -774,57 +761,6 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     //let fillerDays = this.props.monthGap === "2" ? 14 : this.props.monthGap === "1" ? 7 : 0 ;
     let monthGap = parseInt( this.props.monthGap ) * 2;
     const gridTemplateColumns : string = this.state.monthScales.map( v => 20* (v + monthGap ) *.9 + 'px').join( ' ');
-
-    /**
-     * Add early access bar
-     */
-    let earlyAccess = null;
-    defCommandIconStyles.icon.fontWeight = '600' ;
-    
-    let buttonHelp = <div title={ "Feedback" } className= {stylesB.buttons} id={ 'NoID' } style={{background: 'white', opacity: .7, borderRadius: '10px', cursor: 'pointer' }}>
-      <IconButton iconProps={{ iconName: 'Help' }} 
-        text= { 'parent component' }
-        title= { 'titleText'} 
-        //uniqueId= { titleText } 
-        //data= { titleText } 
-        //key= { titleText } 
-        //ariaLabel= { titleText } 
-        disabled={false} 
-        checked={false}
-        onClick={ this._toggleInfoPages.bind(this) }
-        styles={ defCommandIconStyles }
-        />
-    </div>;
-
-    if ( this.props.showEarlyAccess === true ) {
-      let messages : IEarlyAccessItem[] = [];
-      let linksArray : IEarlyAccessItem[] = [];
-
-      messages.push( { minWidth: 1000, item: <div><span><b>{ 'Welcome to ALV Webpart Early Access!!!' }</b></span></div> });
-      messages.push( { minWidth: 1000, item: <div><span><b>{ 'Get more info here -->' }</b></span></div> });
-
-      messages.push( { minWidth: 700, maxWidth: 799.9, item: <div><span><b>{ 'Webpart Early Access!!!' }</b></span></div> });
-      messages.push( { minWidth: 700, maxWidth: 799.9, item: <div><span><b>{ 'More info ->' }</b></span></div> });
-
-      messages.push( { minWidth: 400, maxWidth: 699.9, item: <div><span><b>{ 'info ->' }</b></span></div> });
-
-      linksArray.push( { minWidth: 450, item: links.gitRepoGridCharts.wiki });
-      linksArray.push( { minWidth: 600, item: links.gitRepoGridCharts.issues });
-      linksArray.push( { minWidth: 800, item: links.gitRepoGridCharts.projects });
-  
-      earlyAccess = 
-      <div style={{ paddingBottom: 10 }}>
-        <EarlyAccess 
-            image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
-            messages = { messages }
-            links = { linksArray }
-            email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Drilldown Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
-            farRightIcons = { [ { item: buttonHelp } ] }
-            WebpartWidth = { this.state.WebpartWidth }
-        ></EarlyAccess>
-      </div>;
-
-    }
 
     /**
      * months were:   monthLabels
@@ -866,32 +802,9 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
                     </span></div> ;
     }
 
-    //Build up hard coded array of user emails that can
-    let showTricks = false;
-    links.trickyEmails.map( getsTricks => {
-      if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
-     
-    let infoPages = <div style={{ display: ( this.state.showTips ? '' : 'none' )}}><InfoPages 
-        showInfo = { true }
-        allLoaded = { true }
-        showTricks = { showTricks }
-
-        parentListURL = { this.state.fetchList.parentListURL }
-        childListURL = { null }
-
-        parentListName = { this.state.fetchList.name }
-        childListName = { null }
-
-        gitHubRepo = { links.gitRepoCarrotCharts }
-
-        hideWebPartLinks = { false }
-    ></InfoPages></div>;
-
     return (
       <div className={ styles.gridcharts }>
         <div className={ styles.container }>
-          { earlyAccess }
-          { infoPages }
           { searchStack }
           { theGraph }
         </div>
