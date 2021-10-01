@@ -585,14 +585,14 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
-    let gridPivotContent = !this.state.isLoaded || this.state.items.length === 0 ? null : 
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.count === 0 ? null : 
       <Gridcharts
 
-        items = { [] }
+        items = { this.state.batchData.items }
 
         // 0 - Context
-        pageContext = { this.context.pageContext }
-        wpContext = { this.context}
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
         tenant = { this.props.tenant }
         urlVars = { this.props.urlVars }
         today = { makeTheTimeObject('')}
@@ -632,16 +632,6 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     
         parentListFieldTitles = {null}
 
-        // 6 - User Feedback:
-        //progress: IMyProgress,
-
-        /**
-         * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
-         */
-
-        //For DD
-        handleSwitch = {null}
-        handleListPost = {null}
       ></Gridcharts>;
 
     let componentPivot = 

@@ -150,10 +150,6 @@ export interface IGridchartsProps {
       onRefiner0Selected?: any;
   
       gridStyles: IGridStyles;
-  
-      //For DD
-      handleSwitch: any;
-      handleListPost: any;
 
       // 9 - Other web part options
       webPartScenario: string; //Choice used to create mutiple versions of the webpart. 

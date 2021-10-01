@@ -400,6 +400,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
         });
       }
 
+      if ( this.props.items.length !== prevProps.items.length ) { reloadData = true ; }
+
       if (reloadData === true) {
         //Need to first update fetchList and pass it on.
 
