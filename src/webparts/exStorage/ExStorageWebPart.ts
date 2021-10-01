@@ -254,7 +254,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
         currentUser: this.currentUser,
 
         gridStyles: {
-          cellColor: this.properties.cellColor ? this.properties.cellColor : '',
+          cellColor: this.properties.cellColor ? this.properties.cellColor : 'green',
           yearStyles: this.properties.yearStyles ? this.properties.yearStyles : '',
           monthStyles: this.properties.monthStyles ? this.properties.monthStyles : '',
           dayStyles: this.properties.dayStyles ? this.properties.dayStyles : '',
@@ -263,7 +263,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
           other: this.properties.otherStyles ? this.properties.otherStyles : '',
 
           squareColor: this.properties.cellColor === 'swatch' && this.properties.squareColor ? this.properties.squareColor : '',
-          squareCustom: this.properties.cellColor === 'custom' && this.properties.squareCustom && this.properties.squareCustom.length > 0 ? this.properties.squareCustom : '',
+          squareCustom: this.properties.cellColor === 'custom' && this.properties.squareCustom && this.properties.squareCustom.length > 0 ? this.properties.squareCustom : 'transparent,#ebedf0,#c6e48b,#7bc96f,#196127',
           emptyColor: this.properties.cellColor === 'swatch' && this.properties.emptyColor ? this.properties.emptyColor : '',
           backGroundColor: this.properties.cellColor === 'swatch' && this.properties.backGroundColor ? this.properties.backGroundColor : '',
 

@@ -1205,7 +1205,7 @@ function expandArray ( count: number ) : any[] {
       //Update main list of folder's stats for direct items
       if ( thisDetailsParentFolder.FileRef !== detail.FileRef ) {
         thisDetailsParentFolder.directSize += detail.size;
-        thisDetailsParentFolder.size += detail.size;
+        // thisDetailsParentFolder.size += detail.size;
         thisDetailsParentFolder.directCount ++;
         thisDetailsParentFolder.directSizes.push( detail.size );
         thisDetailsParentFolder.directItems.push( detail );
@@ -1492,6 +1492,8 @@ function expandArray ( count: number ) : any[] {
     batch: batchIndex, //index of the batch in state.batches
     index: itemIndex, //index of item in state.batches[batch].items
     value: null, //value to highlight/sort for this detail
+    Created: item.Created,
+    Modified: item.Modified,
     created: created,
     modified: modified,
     authorId: item.AuthorId,

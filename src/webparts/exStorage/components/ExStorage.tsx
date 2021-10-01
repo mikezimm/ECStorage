@@ -97,12 +97,12 @@ const pivotHeading9 = 'Folders';
 const pivotHeading10 = 'Timeline';
 
 const mainGridColumns: IGridColumns = {
-  dateColumn: 'Created,Modified',
+  dateColumn: 'Modified',
   valueColumn: 'size',
-  valueType: 'number',
-  valueOperator: 'sum',
-  dropDownColumns: [],
-  searchColumns: [], 
+  valueType: 'Number',
+  valueOperator: 'Sum',
+  dropDownColumns: ['+authorTitle','+editorTitle','+docIcon'],
+  searchColumns: ['FileLeafRef'], 
   metaColumns: [], 
 };
 
@@ -180,6 +180,8 @@ public constructor(props:IExStorageProps){
         dropDownText: 'Oops!  No Libraries was found',
 
         loadProperties: null,
+
+        refreshId: '',
   
   };
 }
@@ -326,7 +328,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
         pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false,
-        loadProperties: loadProperties,
+        loadProperties: loadProperties, 
        });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
   } else {
@@ -632,6 +634,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     
         parentListFieldTitles = {null}
 
+        refreshId = { this.state.refreshId }
+
       ></Gridcharts>;
 
     let componentPivot = 
@@ -935,6 +939,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ 
       isLoading: true,
       errorMessage: '',
+      isLoaded: false,
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
     getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.dataOptions, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
@@ -948,11 +953,15 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     //   isLoading === true ?  true : false;
 
 
+    let startTime = new Date();
+    let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
+
     console.log('addTheseItemsToState');
     this.setState({ 
       // items: batch.items,
       
       isLoading: false,
+      isLoaded: true,
       // showNeedToWait: false,
 
       // errorMessage: batch.errMessage,
@@ -966,6 +975,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       showBegin: false,
       batches: batchInfo.batches,
       batchData: batchInfo.batchData,
+      refreshId: refreshId,
 
     });
 

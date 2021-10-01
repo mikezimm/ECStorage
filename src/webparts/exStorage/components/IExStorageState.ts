@@ -27,7 +27,9 @@ export interface IItemDetail {
   index: number; //index of item in state.batches[batch].items
   id: number;
   value: number | string; //value to highlight/sort for this detail
+  Created: any; //This is the actual item Created property.
   created: any;
+  Modified: any; //This is the actual item Modified property
   modified: any;
   authorId: number;
   editorId: number;
@@ -42,7 +44,7 @@ export interface IItemDetail {
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
-  docIcon?: string;
+  docIcon?: string;  
   iconName: string;
   iconColor: string;
   iconTitle: string;
@@ -390,5 +392,7 @@ export interface IExStorageState {
   dropDownText: string;
 
   loadProperties: IZLoadAnalytics;
+
+  refreshId: string; //used to trigger redraw of grid
 
 }

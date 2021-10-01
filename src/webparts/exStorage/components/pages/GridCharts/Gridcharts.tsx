@@ -402,6 +402,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
       if ( this.props.items.length !== prevProps.items.length ) { reloadData = true ; }
 
+      if ( this.props.refreshId !== prevProps.refreshId ) { reloadData = true; }
+
       if (reloadData === true) {
         //Need to first update fetchList and pass it on.
 
@@ -653,7 +655,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
                   options={dropDownChoicesSorted}
                   selectedKey={ this.state.selectedDropdowns [index ] === '' ? null : this.state.selectedDropdowns [ index ] }
                   onChange={(ev: any, value: IDropdownOption) => {
-                    this.searchForItems(value.key.toString(), index, ev);
+                    this.searchForItems(value.key.toString(), index, DDLabel, ev);
                   }}
                   styles={{ dropdown: { width: 200 } }}
               />;
@@ -898,7 +900,7 @@ private _updateChoiceSlider(newValue: number){
     choiceSliderValue: newValue,
   });
 
-  this.fullSearch( theChoice, null, this.state.currentTimeScale );
+  this.fullSearch( theChoice, choiceSliderDropdown, null, this.state.currentTimeScale );
 
 }
 
@@ -921,11 +923,11 @@ private _updateChoiceSlider(newValue: number){
   */
   private textSearch = ( searchText: string ): void => {
 
-    this.fullSearch( null, searchText, this.state.currentTimeScale );
+    this.fullSearch( null, this.state.choiceSliderDropdown, searchText, this.state.currentTimeScale );
 
   }
 
-  public searchForItems = (item, choiceSliderDropdown: number, ev: any): void => {
+  public searchForItems = (item, choiceSliderDropdown: number, DDLabel: string, ev: any): void => {
 
     let choiceSliderValue = null;  //choiceSliderValue
 
@@ -946,12 +948,13 @@ private _updateChoiceSlider(newValue: number){
       showChoiceSlider: showChoiceSlider,
     });
 
+    item = this.state.fetchList.dropDownColumns[ choiceSliderDropdown ] + '|>|' + item;
     console.log('searchForItems: ',item, choiceSliderDropdown, choiceSliderValue, ev ) ;
-    this.fullSearch( item, null, this.state.currentTimeScale );
+    this.fullSearch( item, choiceSliderDropdown, null, this.state.currentTimeScale );
 
   }
 
-  public fullSearch = (item: any, searchText: string , currentTimeScale: ITimeScale, ): void => {
+  public fullSearch = (item: any, choiceSliderDropdown: number, searchText: string , currentTimeScale: ITimeScale, ): void => {
 
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
@@ -978,25 +981,23 @@ private _updateChoiceSlider(newValue: number){
 
     let selectedDropdowns = this.state.selectedDropdowns;
     let dropDownItems = this.state.dropDownItems;
-    let dropdownColumnIndex = null; //Index of dropdown column that was picked
 
-    if ( searchText === null ) { //Then this is a choice dropdown filter
-
-      dropDownItems.map ( ( thisDropDown, ddIndex ) => {
-        thisDropDown.map( thisChoice => {
-          if ( dropdownColumnIndex === null && thisChoice.text === item ) { dropdownColumnIndex = ddIndex ; thisChoice.isSelected = true ; }  else { thisChoice.isSelected = false;} 
-        });
+    if ( choiceSliderDropdown > -1 ) { //Then this is a choice dropdown filter
+      //This map updates the dropdowns to find the selected one.
+      let dropDownLabel = item.indexOf('|>|') > -1 ? item.split('|>|')[1] : item;
+      dropDownItems[choiceSliderDropdown].map( thisChoice => {
+        if ( choiceSliderDropdown === null && thisChoice.text === dropDownLabel ) { thisChoice.isSelected = true ; }  else { thisChoice.isSelected = false;} 
       });
 
+      //This map updates the array of selected dropdowns
       selectedDropdowns.map( (dd, index ) => {
-        if ( dropdownColumnIndex !== null ) {  //This should never be null but just in case... 
-          selectedDropdowns[index] = dropdownColumnIndex === index ? item : ''; 
-        }
+        selectedDropdowns[index] = choiceSliderDropdown === index ? dropDownLabel : ''; 
       });
 
-      if ( item === '' ) {
+      if ( dropDownLabel === '' ) {
         newFilteredItems = searchItems;
       } else {
+        //This loop actually finds the newFilteredItems
         for (let thisItem of searchItems) {
           let searchChoices = thisItem.meta ;
           if(searchChoices.indexOf( item ) > -1) {
@@ -1049,7 +1050,7 @@ private _updateChoiceSlider(newValue: number){
         searchMeta: [],
         dropDownItems: dropDownItems,
         selectedDropdowns: selectedDropdowns,
-        dropdownColumnIndex: dropdownColumnIndex,
+        dropdownColumnIndex: choiceSliderDropdown,
         gridData: gridData,
         allLoaded: true,
         monthLables: monthLables,

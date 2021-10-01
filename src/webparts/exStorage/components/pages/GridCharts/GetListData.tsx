@@ -231,7 +231,13 @@ function buildMetaFromItem( theItem: IGridItemInfo, fetchList: IGridList, ) {
         let thisItemsChoices = theItem[ actualColName ];
         if ( parentColName !== null ) { thisItemsChoices = theItem[ parentColName ] + ' > ' + theItem[ actualColName ] ; }
 
+        //2021-10-01:  Added this to solve the issue where CreatedBy and ModifiedBy are dropdowns and a person is in both columns.
         meta = addItemToArrayIfItDoesNotExist( meta, thisItemsChoices ) ;
+        if ( theItem[ actualColName ] ) {
+            meta = addItemToArrayIfItDoesNotExist( meta, col + '|>|' + theItem[ actualColName ] ) ;
+        } else {
+            meta = addItemToArrayIfItDoesNotExist( meta, col + '|>|-is Empty-' ) ;
+        }
 
     });
 

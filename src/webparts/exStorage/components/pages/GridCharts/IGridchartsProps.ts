@@ -154,5 +154,6 @@ export interface IGridchartsProps {
       // 9 - Other web part options
       webPartScenario: string; //Choice used to create mutiple versions of the webpart. 
       // showEarlyAccess: boolean;
+      refreshId?: string; //used to trigger redraw of grid
 
 }
