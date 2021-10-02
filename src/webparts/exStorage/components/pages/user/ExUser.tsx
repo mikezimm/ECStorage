@@ -47,6 +47,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
+import * as strings from 'ExStorageWebPartStrings';
+
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
 import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
@@ -54,10 +56,15 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createUserSummary } from '../summary/ExUserSummary';
 
+import Gridcharts from '../GridCharts/Gridcharts';
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
+import { IGridColumns } from '../GridCharts/IGridchartsProps';
+
 import ExTypes from '../types/ExTypes';
 import ExSize from '../size/ExSize';
 import ExAge from '../age/ExAge';
 import ExDups from '../dups/ExDups';
+import EsItems from '../items/EsItems';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -76,6 +83,8 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
+const pivotHeading10 = 'All Files';
+const pivotHeading11 = 'Timeline';
 
 
 
@@ -326,6 +335,86 @@ public componentDidMount() {
         <ReactJson src={ userSummary.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
       </div>;
 
+    let itemsContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.items }
+      itemsAreDups = { false }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+
+      >
+    </EsItems>;
+
+          
+    let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? null : 
+    <Gridcharts
+
+      items = { this.props.userSummary.items }
+
+      // 0 - Context
+      pageContext = { this.props.pageContext }
+      wpContext = { this.props.wpContext }
+      tenant = { this.props.tenant }
+      urlVars = { null }
+      today = { makeTheTimeObject('')}
+
+      // 2 - Source and destination list information
+      parentListWeb = { this.props.pickedWeb.url }
+      parentListTitle = { this.props.pickedList.Title }
+      parentListURL = { null}
+
+      esItemsHeading = { ``}
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+
+      listName = { null}
+      
+      columns = { this.props.columns }
+
+      enableSearch = { true }
+
+      scaleMethod = { 'blink' }
+
+      gridStyles = { this.props.gridStyles }
+
+      //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+      WebpartElement = { this.props.WebpartElement }
+
+      // 9 - Other web part options
+      WebpartHeight = {this.props.WebpartHeight }
+      WebpartWidth = { this.props.WebpartWidth }
+
+      // 1 - Analytics options  
+      useListAnalytics = { false }
+      analyticsWeb = { strings.analyticsWeb }
+      analyticsList = { strings.analyticsList}
+      
+      // 9 - Other web part options 
+      webPartScenario = { null } //Choice used to create mutiple versions of the webpart.
+
+      allLoaded = {null}
+
+      performance = { null }
+
+      parentListFieldTitles = {null}
+
+      refreshId = { this.props.refreshId }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+
+    ></Gridcharts>;
+
     let componentPivot = 
     <Pivot
         styles={ pivotStyles }
@@ -359,6 +448,14 @@ public componentDidMount() {
 
       <PivotItem headerText={ pivotHeading9 } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={ pivotHeading9 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { folderPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { itemsContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { gridPivotContent }
       </PivotItem>
     </Pivot>;
 

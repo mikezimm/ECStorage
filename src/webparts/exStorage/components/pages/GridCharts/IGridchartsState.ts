@@ -220,6 +220,8 @@ export interface IGridchartsState {
     lastStateChange: string;
     stateChanges: string[]; //Log of state changes into array
 
+    showItems: number;
+
   }
 
 

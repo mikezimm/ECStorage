@@ -23,6 +23,12 @@ import { ITheTime} from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
 import { ICSSChartSeries,  } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
 
+import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+
+import { IEXStorageList } from '../../IExStorageState';
+
+import { IDataOptions, IUiOptions } from '../../IExStorageProps';
+
 /**
  * 
  * 
@@ -105,6 +111,18 @@ export interface IGridchartsProps {
   
       parentListWeb?: string;
       parentListURL?: string;
+
+      //VVV Added from Extreme Storage for Items
+      pickedWeb? : IPickedWebBasic;
+      pickedList? : IEXStorageList;
+
+      dataOptions: IDataOptions;
+      uiOptions: IUiOptions;
+
+      //^^^ Added from Extreme Storage for Items 
+
+      esItemsHeading: string;
+
       parentListTitle?: string;
       listName : string;
 

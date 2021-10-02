@@ -18,6 +18,8 @@ import { Stack, IStackStyles, IStackTokens } from 'office-ui-fabric-react/lib/St
 
 import { IconButton, IIconProps, IContextualMenuProps, Link } from 'office-ui-fabric-react';
 
+import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
+
 import {
   MessageBar,
   MessageBarType,
@@ -101,6 +103,7 @@ import styles from './Gridcharts.module.scss';
 import { IGridchartsProps } from './IGridchartsProps';
 import { IGridchartsState, IGridchartsData, IGridchartsDataPoint, IGridItemInfo, ITimeScale } from './IGridchartsState';
 
+import EsItems from '../items/EsItems';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -348,6 +351,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
           lastStateChange: 'Loading',
           stateChanges: [],
+
+          showItems: -1,
 //          style: this.props.style ? this.props.style : 'commandBar',
 
         };  
@@ -599,7 +604,17 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
           else if ( d.dataLevel === 3 ) { thisStyle = dataLevel3Style ; }
           else { thisStyle = dataLevel3Style ; }
 
-          squares.push( <li style={ thisStyle } title={ d.label + ' : ' + d.dataLevel } data-level={ d.dataLevel }></li> ) ;
+          if ( d.items.length > 0 ) {
+            //Add onClick to open panel
+            squares.push( <li className = { styles.pointer } style={ thisStyle } title={ d.label + ' : level ' + d.dataLevel } data-level={ d.dataLevel }
+              onClick= {(ev) => {
+                this._showTheseItems(d.label, index, ev);
+              }}
+            ></li> ) ;
+          } else {
+            squares.push( <li style={ thisStyle } title={ d.label + ' : ' + d.dataLevel } data-level={ d.dataLevel }></li> ) ;
+          }
+
 
         }
       });
@@ -799,16 +814,67 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
                     </span></div> ;
     }
 
+
+
+    let panel = null;
+    
+    if ( this.state.showItems > -1 ) {
+      let panelItems: any[] = this.state.gridData.allDataPoints[ this.state.showItems ].items;
+      panel =     
+      <div><Panel
+        isOpen={ this.state.showItems === -1 ? false : true }
+        // this prop makes the panel non-modal
+        isBlocking={true}
+        onDismiss={ this._onCloseItems.bind(this) }
+        closeButtonAriaLabel="Close"
+        type = { PanelType.large }
+        isLightDismiss = { true }
+        >
+          <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+  
+            items = { panelItems }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { `${ this.props.esItemsHeading }` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { ['Nothing was found'] }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+            
+          ></EsItems>
+      </Panel></div>;
+  
+    }
+
     return (
       <div className={ styles.gridcharts }>
         <div className={ styles.container }>
           { searchStack }
           { theGraph }
+          { panel }
         </div>
       </div>
     );
   }
 
+  private _showTheseItems( label: string, index: number, ev: any ) {
+
+    this.setState({
+      showItems: index,
+    });
+  }
+
+
+  private _onCloseItems( event ){
+    this.setState({
+      showItems: -1,
+    });
+  }
 
   private _toggleInfoPages() {
     this.setState({
@@ -1379,7 +1445,7 @@ private _updateChoiceSlider(newValue: number){
     dataLevelLabels.push( ); //DataLevel 4 label
 
 
-    allDataPoints.map( data => {
+    allDataPoints.map( (data, index)  => {
       data.avg = data.count !== null && data.count !== undefined && data.count !== 0 ? data.sum / data.count : null;
       data.value = data[ this.props.columns.valueOperator.toLowerCase() ] ;
 
@@ -1389,7 +1455,8 @@ private _updateChoiceSlider(newValue: number){
       else if ( data.value >= minValue ) { data.dataLevel = 1 ; }
       else { data.dataLevel = 0 ; }
 
-      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.columns.valueOperator} = ${data.value.toFixed(this.props.columns.valueOperator === 'count' ? 0 : 2 )}  ( ${data.valuesString.join(', ') } )`;
+      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.columns.valueOperator} = ${data.value.toFixed(this.props.columns.valueOperator === 'count' ? 0 : 2 )} 
+        idx: ${ index } count: ${ data.items.length }`;
     });
 
     let gridData: IGridchartsData = {

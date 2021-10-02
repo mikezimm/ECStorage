@@ -522,8 +522,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let youPivotContent = <div>
         <ExUser 
-          pageContext = { this.context.pageContext }
-          wpContext = { this.context }
+          pageContext = { this.props.pageContext }
+          wpContext = { this.props.wpContext }
           tenant = { this.props.tenant }
       
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -537,7 +537,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
           pickedList = { this.state.pickedList }
           theSite = {null }
   
-          isLoaded = {false }
+          isLoaded = { this.state.isLoaded }
       
           currentUser = {this.state.currentUser }
           isCurrentUser = { true }
@@ -547,6 +547,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
                         
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
+
+          columns = { mainGridColumns }
+          gridStyles = { this.props.gridStyles }
         >
         </ExUser>
       </div>;
@@ -603,14 +606,19 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         parentListWeb = { this.props.parentWeb }
         parentListTitle = { this.props.listTitle }
         parentListURL = { null}
+
+        esItemsHeading = { ``}
+
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+
         listName = { null}
         
-        columns = { mainGridColumns }
-
         enableSearch = { true }
 
         scaleMethod = { 'blink' }
 
+        columns = { mainGridColumns }
         gridStyles = { this.props.gridStyles }
 
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -635,6 +643,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         parentListFieldTitles = {null}
 
         refreshId = { this.state.refreshId }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
 
       ></Gridcharts>;
 
@@ -692,8 +703,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     
     if ( this.state.showUser > -1 ) { 
       let panelContent = <ExUser 
-        pageContext = { this.context.pageContext }
-        wpContext = { this.context }
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
         tenant = { this.props.tenant }
     
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -707,9 +718,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         pickedList = { this.state.pickedList }
         theSite = {null }
 
-        isLoaded = {false }
+        isLoaded = { this.state.isLoaded }
     
-        currentUser = {this.state.currentUser }
+        currentUser = { this.state.currentUser }
         isCurrentUser = { true }
         userSummary = { batchData.userInfo.allUsers[ this.state.showUser ] }
         batches = { batches }
@@ -717,6 +728,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
                       
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
+
+        columns = { mainGridColumns }
+        gridStyles = { this.props.gridStyles }
       >
     </ExUser>;
 

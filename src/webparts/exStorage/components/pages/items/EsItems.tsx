@@ -440,9 +440,17 @@ public componentDidMount() {
     let id = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
     let detailItemIcon = this.buildDetailIcon( item, id );
 
+    let userStyle: any =  { width: '150px' } ;
+    let userTitle = null;
+    if ( item.authorTitle !== item.editorTitle ) { 
+      userStyle.color = 'red';
+      userStyle.fontWeight = 600;
+      userTitle = `Edited by ${ item.editorTitle }`;
+    }
+
     cells.push( detailItemIcon );
     cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
-    cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
+    cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
     cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
     cells.push( this.buildFolderIcon( item ) );
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
