@@ -61,7 +61,7 @@ import EsItems from '../items/EsItems';
 const pivotStyles = {
   root: {
     whiteSpace: "normal",
-    marginTop: '30px',
+    marginTop: '1em',
   //   textAlign: "center"
   }};
 

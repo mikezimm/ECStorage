@@ -71,7 +71,7 @@ import EsItems from '../items/EsItems';
 const pivotStyles = {
   root: {
     whiteSpace: "normal",
-    marginTop: '30px',
+    marginTop: '1em',
   //   textAlign: "center"
   }};
 
@@ -461,7 +461,7 @@ public componentDidMount() {
 
     return (
       <div className={ styles.exStorage }>
-        <div className={ styles.container }>
+        <div className={ styles.container } style={{ paddingTop: '1em !important'}}>
 
           {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
           {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
