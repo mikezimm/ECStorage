@@ -47,7 +47,7 @@ import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Servic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
+import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import * as strings from 'ExStorageWebPartStrings';
 
@@ -423,7 +423,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , siderMin, sliderMax, sliderInc , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
 
     let sliderCountComponent = !this.state.pickedList ? null : <div className={ styles.inflexWrapCenter}>
-      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${sliderMax } Files` } </span>
+      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${ getCommaSepLabel( sliderMax ) } Files` } </span>
       { sliderCountItself }
       <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
       { fetchButton }
@@ -1181,9 +1181,9 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           choices.map(val => {
 
             if ( val === this.state.dropDownText ) { 
-              console.log(`_createDropdownField val MATCH: ${ val } `);
+              // console.log(`_createDropdownField val MATCH: ${ val } `);
             } else {
-              console.log(`_createDropdownField val: ${ val } `);
+              // console.log(`_createDropdownField val: ${ val } `);
             }
               return {
                   key: getChoiceKey(val),
@@ -1193,7 +1193,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           });
 
       let keyVal = this.state.dropDownText;
-      console.log(`_createDropdownField keyVal: ${ keyVal } `);
+      // console.log(`_createDropdownField keyVal: ${ keyVal } `);
 
       let thisDropdown = sOptions == null ? null : <div
           style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '15px'   }}

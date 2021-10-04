@@ -56,7 +56,7 @@ import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Se
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getSizeLabel, getCountLabel, } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { getSearchedFiles } from '../../ExSearch';
 
@@ -82,7 +82,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
 
-  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCountLabel(this.items.length) } items, use Search box to find more)`;
+  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.items.length) } items, use Search box to find more)`;
   private sliderMax = this.items.length < 400 ? this.items.length : 400;
   private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
@@ -277,7 +277,7 @@ public componentDidMount() {
       let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
       page = <div>
         <div className={styles.flexWrapStart}>
-          <h3>{ items.length } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
+          <h3>{ getCommaSepLabel( items.length ) } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
         </div>
         <div className={ styles.inflexWrapCenter}>
           <div> { sliderTypeCount } </div>
@@ -312,7 +312,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ this.props.items.length } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
+        { `Search all ${ getCommaSepLabel( this.props.items.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;

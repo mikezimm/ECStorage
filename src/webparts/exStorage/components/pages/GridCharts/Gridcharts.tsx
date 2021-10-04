@@ -126,6 +126,10 @@ import EsItems from '../items/EsItems';
 
 export default class Gridcharts extends React.Component<IGridchartsProps, IGridchartsState> {
 
+    private valueOperatorOptions :IDropdownOption[] = this.props.columns.valueOperators.map( operator => {
+      return { key: operator, text: operator } ;
+    });
+
     //https://stackoverflow.com/a/4413721
     private addDays (tempDate, days) {
       var date = new Date(tempDate.valueOf());
@@ -708,6 +712,19 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
         }
 
+        let valueOpDropdown = <Dropdown
+            placeholder={ `Select an operation` }
+            label={ 'Operation' }
+            options={ this.valueOperatorOptions }
+            selectedKey={ this.state.valueOperator }
+            onChange={(ev: any, value: IDropdownOption) => {
+              this.changeOperation(value.key.toString(), ev);
+            }}
+            styles={{ dropdown: { width: 200 } }}
+        />;
+
+        searchElements.push( valueOpDropdown ) ;
+
         searchStack = <div style={{marginLeft: '38px'}}>
                 <Stack horizontal horizontalAlign="start" verticalAlign="end" wrap tokens={wrapStackTokens}>
                   { searchElements }
@@ -1003,6 +1020,40 @@ private _updateChoiceSlider(newValue: number){
   private textSearch = ( searchText: string ): void => {
 
     this.fullSearch( null, this.state.choiceSliderDropdown, searchText, this.state.currentTimeScale );
+
+  }
+
+
+  private changeOperation ( operation: any , ev: any ) {
+
+    let gridData : IGridchartsData = this.buildGridData (this.state.allItems, operation, this.state.gridData.sizeOrCount );
+
+    gridData= this.buildVisibleItems ( gridData );
+
+    const s1 = gridData.startDate.getMonth();
+    const s2 = s1 + 12;
+
+    const monthLables = monthStr3["en-us"].concat( ... monthStr3["en-us"] ).slice(s1,s2) ;
+    const monthScales = [ 4,4,4,5,4,4,5,4,4,5,4,5   ,   4,4,4,5,4,4,5,4,4,5,4,5 ].slice(s1,s2) ;
+
+    this.setState({
+      valueOperator: operation,
+      gridData: gridData,
+
+      choiceSliderDropdown: null,
+      showChoiceSlider: false,
+      dropdownColumnIndex: null,
+      choiceSliderValue: null,
+
+      searchedItems: this.state.allItems, //newFilteredItems,  //Replaced with theseItems to update when props change.
+      searchCount: this.state.allItems.length,
+      searchText: '',
+      searchMeta: [],
+
+      monthLables: monthLables,
+      monthScales: monthScales,
+
+    });
 
   }
 
@@ -1435,7 +1486,23 @@ private _updateChoiceSlider(newValue: number){
 
     });
 
-    if ( valueOperator === 'Avg' ) { gridDataTotal = count != 0 ? gridDataTotal / count : null ; } 
+    if ( valueOperator === 'Avg' ) { 
+      if ( count != 0 ) {
+        gridDataTotal = gridDataTotal / count ;
+        minValue = 951212732100099;
+        maxValue = -951212732100099;
+        allDataPoints.map( item => {
+          if ( item.Count && item.Count !== 0 ) {
+            item.Avg = item.Sum / item.Count;
+            let compareValue = item.Avg;
+            if ( compareValue < minValue ) { minValue = compareValue; }
+            if ( compareValue > maxValue ) { maxValue = compareValue; } 
+          } else {
+
+          }
+        });
+      }    
+    } 
 
     /**
      * Update datalevel based on min/max
@@ -1448,10 +1515,36 @@ private _updateChoiceSlider(newValue: number){
     let dataLevel1: any = minValue;
     let dataLevelTop: any = maxValue;
 
-    dataLevel3 = sizeOrCount === 'size' ? getSizeLabel( dataLevel3 ) : getCountLabel( dataLevel3 ) ;
-    dataLevel2 = sizeOrCount === 'size' ? getSizeLabel( dataLevel2 ) : getCountLabel( dataLevel2 ) ;
-    dataLevel1 = sizeOrCount === 'size' ? getSizeLabel( dataLevel1 ) : getCountLabel( dataLevel1 ) ;
-    dataLevelTop = sizeOrCount === 'size' ? getSizeLabel( dataLevelTop ) : getCountLabel( dataLevelTop ) ;
+    allDataPoints.map( (data, index)  => {
+      data.Avg = data.Count !== null && data.Count !== undefined && data.Count !== 0 ? data.Sum / data.Count : null;
+      data.value = data[ valueOperator ] ;
+
+      if ( data.Count === 0 ) { data.dataLevel = 0 ; }
+      else if ( data.value > ( maxValue - 1 * dataLevelIncriment ) ) { data.dataLevel = 3 ; }
+      else if ( data.value > dataLevel2 ) { data.dataLevel = 2 ; }
+      else if ( data.value >= minValue ) { data.dataLevel = 1 ; }
+      else { data.dataLevel = 0 ; }
+      let value = valueOperator !== 'Count' && sizeOrCount === 'size' ? getSizeLabel( data.value, 2 ) : getCountLabel( data.value );
+      data.label = data.Count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${valueOperator} = ${ value } 
+        count: ${ data.items.length } idx: ${ index }`;
+    });
+
+
+    let totalLabel = null;
+    if ( valueOperator === 'Count' ) {
+      totalLabel = getCommaSepLabel( gridDataTotal );
+      dataLevel3 = getCommaSepLabel( dataLevel3 ) ;
+      dataLevel2 = getCommaSepLabel( dataLevel2 ) ;
+      dataLevel1 = getCommaSepLabel( dataLevel1 ) ;
+      dataLevelTop = getCommaSepLabel( dataLevelTop ) ;
+
+    } else {
+      totalLabel = sizeOrCount === 'size' ? getSizeLabel( gridDataTotal ) : getCountLabel( gridDataTotal );
+      dataLevel3 = sizeOrCount === 'size' ? getSizeLabel( dataLevel3 ) : getCountLabel( dataLevel3 ) ;
+      dataLevel2 = sizeOrCount === 'size' ? getSizeLabel( dataLevel2 ) : getCountLabel( dataLevel2 ) ;
+      dataLevel1 = sizeOrCount === 'size' ? getSizeLabel( dataLevel1 ) : getCountLabel( dataLevel1 ) ;
+      dataLevelTop = sizeOrCount === 'size' ? getSizeLabel( dataLevelTop ) : getCountLabel( dataLevelTop ) ;
+    }
 
     let dataLevelLabels : string[] = [];
 
@@ -1460,24 +1553,7 @@ private _updateChoiceSlider(newValue: number){
     dataLevelLabels.push( '> ' + dataLevel2 ); //DataLevel 2 label
     dataLevelLabels.push( '> ' + dataLevel3 ); //DataLevel 3 label
     dataLevelLabels.push( ); //DataLevel 4 label
-
-
-    allDataPoints.map( (data, index)  => {
-      data.Avg = data.Count !== null && data.Count !== undefined && data.Count !== 0 ? data.Sum / data.Count : null;
-      data.value = data[ this.state.valueOperator ] ;
-
-      if ( data.Count === 0 ) { data.dataLevel = 0 ; }
-      else if ( data.value > ( maxValue - 1 * dataLevelIncriment ) ) { data.dataLevel = 3 ; }
-      else if ( data.value > dataLevel2 ) { data.dataLevel = 2 ; }
-      else if ( data.value >= minValue ) { data.dataLevel = 1 ; }
-      else { data.dataLevel = 0 ; }
-      let value = this.state.valueOperator !== 'Count' && sizeOrCount === 'size' ? getSizeLabel( data.value, 2 ) : getCountLabel( data.value );
-      data.label = data.Count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.state.valueOperator} = ${ value } 
-        count: ${ data.items.length } idx: ${ index }`;
-    });
-
-    let totalLabel = sizeOrCount === 'size' ? getSizeLabel( gridDataTotal ) : getCountLabel( gridDataTotal );
-
+    
     let gridData: IGridchartsData = {
       total: gridDataTotal,
       totalLabel: totalLabel,

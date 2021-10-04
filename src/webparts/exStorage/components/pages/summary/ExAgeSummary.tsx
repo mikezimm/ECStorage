@@ -10,7 +10,7 @@ import {
 
 import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 import { createRatioNote } from './summaryFunctions';
 
 
@@ -29,7 +29,7 @@ export function createAgeSummary ( oldFiles: IOldFiles, batchData: IBatchData ) 
   let secondHeading = `This represents${fullLoad} ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
-  tableRows.push( <tr><td>{ `${ getCountLabel(oldFiles.summary.count) } of ${ getCountLabel(batchData.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(oldFiles.summary.count) } of ${ getCommaSepLabel(batchData.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
   if ( loadPercent !== 100 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
@@ -37,7 +37,7 @@ export function createAgeSummary ( oldFiles: IOldFiles, batchData: IBatchData ) 
   }
   tableRows.push( <tr><td>{ `${ oldFiles.summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files oldFilesr created before ${ currentYear - 1 }`}</td></tr> );
 
-  let GT100M = getCountLabel(oldFiles.summary.count);
+  let GT100M = getCommaSepLabel(oldFiles.summary.count);
   let GT100SizeLabel = getSizeLabel(oldFiles.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
