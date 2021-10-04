@@ -72,12 +72,15 @@ export interface IGridStyles {
 
 }
 
+
+export type IValueOperator = 'Sum' | 'Min' | 'Max' | 'Avg' | 'Count';
+
 export interface IGridColumns {
   dateColumn: string;
   valueColumn: string;
   searchColumns: string[];
   valueType: string;
-  valueOperator: string;
+  valueOperators: IValueOperator[];
   dropDownColumns: string[];
   metaColumns: string[];
 }
@@ -90,6 +93,7 @@ export interface IPerformanceSettings {
 }
 
 export type IScaleMethod = 'slider' | 'blink' | 'pivot' | 'other' | 'na' | 'TBD';
+
 
 export interface IGridchartsProps {
 

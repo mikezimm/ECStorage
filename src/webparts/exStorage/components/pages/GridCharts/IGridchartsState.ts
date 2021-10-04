@@ -62,9 +62,13 @@ import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
  *                                                                                                                                               
  */
 
+ import { IValueOperator } from './IGridchartsProps';
+
 import { IGridList } from './GetListData';
 
 export type ITimeScale  = 'Weeks' | 'Years' | 'Months' | "WeekNo";
+
+export type ISizeOrCount = 'size' | 'count';
 
 export interface IGridchartsData {
 
@@ -92,7 +96,7 @@ export interface IGridchartsData {
     leadingBlanks: number; //Number of empty squares... basically prior month's squares that are not visible
     total: number;
     totalLabel: string;
-    sizeOrCount: 'size' | 'count';
+    sizeOrCount: ISizeOrCount;
 
     maxValue: number;
     minValue: number;
@@ -122,11 +126,11 @@ export interface IGridchartsDataPoint {
     label: any;
     dataLevel: number;
     value: number;
-    count: number;
-    sum: number;
-    avg: number;
-    min: number;
-    max: number;
+    Count: number;
+    Sum: number;
+    Avg: number;
+    Min: number;
+    Max: number;
     values: number[];
     valuesString: string[];
     items: IGridItemInfo[];
@@ -165,6 +169,7 @@ export interface IGridchartsState {
     dropDownItems: IDropdownOption[][]; //array of array of options for selected dropdown fields
 
     gridData: IGridchartsData; //One IGridchartsDataPoint per date between lowest and highest date range for input data
+    valueOperator: IValueOperator;
 
     monthLables: string[];  //Used to build the month labels on top of the gridChart
     monthScales: number[];  //Used to space the month labels on top of the gridChart

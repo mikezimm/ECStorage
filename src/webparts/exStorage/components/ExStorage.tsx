@@ -100,7 +100,7 @@ const mainGridColumns: IGridColumns = {
   dateColumn: 'Modified',
   valueColumn: 'size',
   valueType: 'Number',
-  valueOperator: 'Sum',
+  valueOperators: ['Sum','Count','Avg'],
   dropDownColumns: ['+authorTitle','+editorTitle','+docIcon'],
   searchColumns: ['FileLeafRef'], 
   metaColumns: [], 
