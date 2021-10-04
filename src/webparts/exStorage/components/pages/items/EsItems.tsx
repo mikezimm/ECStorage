@@ -451,6 +451,7 @@ public componentDidMount() {
   private createSingleItemRow( key: string, item: IItemDetail ) {
 
     let created = new Date( item.created );
+    let modified = new Date( item.modified );
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
@@ -474,12 +475,12 @@ public componentDidMount() {
 
     if ( item.createMs < item.modMs ) {
       dateStyle.color = 'blue';
-      dateTitle = `Modified: ${ created.toLocaleString() }`;
+      dateTitle = `Modified: ${ modified.toLocaleString() }`;
     
     } else if ( item.createMs > item.modMs ) {
       dateStyle.color = 'red';
       dateStyle.fontWeight = 600;
-      dateTitle = `Modified Before Created!!! : ${ created.toLocaleString() }`;
+      dateTitle = `Modified Before Created!!! : ${ modified.toLocaleString() }`;
 
     }
 

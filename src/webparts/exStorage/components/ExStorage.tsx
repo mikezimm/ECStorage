@@ -133,6 +133,11 @@ public constructor(props:IExStorageProps){
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
 
+  let mainGridColumnsActual = mainGridColumns;
+  if ( this.props.dataOptions.useMediaTags === true ) {
+    mainGridColumnsActual.searchColumns = ['MediaServiceAutoTags','MediaServiceKeyPoints','MediaServiceLocation','MediaServiceOCR'];
+  }
+
   this.state = {
 
         pickedList : null,
@@ -149,6 +154,8 @@ public constructor(props:IExStorageProps){
         showUser: -1,
         currentUser: null,
         isCurrentWeb: null,
+
+        mainGridColumns: mainGridColumnsActual,
 
         parentWeb: parentWeb,
         listTitle: this.props.listTitle,
@@ -548,7 +555,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
 
-          columns = { mainGridColumns }
+          columns = { this.state.mainGridColumns }
           gridStyles = { this.props.gridStyles }
         >
         </ExUser>
@@ -618,7 +625,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         scaleMethod = { 'blink' }
 
-        columns = { mainGridColumns }
+        columns = { this.state.mainGridColumns }
         gridStyles = { this.props.gridStyles }
 
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -729,7 +736,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
 
-        columns = { mainGridColumns }
+        columns = { this.state.mainGridColumns }
         gridStyles = { this.props.gridStyles }
       >
     </ExUser>;

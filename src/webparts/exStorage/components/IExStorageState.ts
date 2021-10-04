@@ -5,6 +5,8 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
+import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
+
 export interface IEXStorageList extends IPickedList {
 
   Created: string;
@@ -386,6 +388,7 @@ export interface IExStorageState {
 
   batches: IEXStorageBatch[];
   batchData: IBatchData;
+  mainGridColumns: IGridColumns;
   
   dropDownLabels: any[];
   dropDownIndex: number;
