@@ -1024,7 +1024,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let zzzRichText3 = null;
 
     let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
-    let hasSignificantData = batchData.totalCount > 0 && filePercent > .95 ? true : false;
+    let hasSignificantData = batchData.isSignificant;
 
     if ( batchData.count > 0) {
       zzzRichText1 = {};

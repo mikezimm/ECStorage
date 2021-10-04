@@ -705,7 +705,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
               iconProps={{ iconName : 'Search'}}
               onSearch={ this.textSearch.bind(this) }
               value={this.state.searchText}
-              onChange={ this.textSearch.bind(this) } />
+              onChange={ this.textSearch.bind(this) }
+               />
           </div>;
 
           searchElements.push( searchBox ) ;
@@ -1019,7 +1020,7 @@ private _updateChoiceSlider(newValue: number){
   */
   private textSearch = ( searchText: string ): void => {
 
-    this.fullSearch( null, this.state.choiceSliderDropdown, searchText, this.state.currentTimeScale );
+    this.fullSearch( null, null, searchText, this.state.currentTimeScale );
 
   }
 
@@ -1112,7 +1113,7 @@ private _updateChoiceSlider(newValue: number){
     let selectedDropdowns = this.state.selectedDropdowns;
     let dropDownItems = this.state.dropDownItems;
 
-    if ( choiceSliderDropdown && choiceSliderDropdown > -1 ) { //Then this is a choice dropdown filter
+    if ( choiceSliderDropdown !== null && choiceSliderDropdown !== undefined && choiceSliderDropdown > -1 ) { //Then this is a choice dropdown filter
       //This map updates the dropdowns to find the selected one.
       let dropDownLabel = item.indexOf('|>|') > -1 ? item.split('|>|')[1] : item;
       dropDownItems[choiceSliderDropdown].map( thisChoice => {
