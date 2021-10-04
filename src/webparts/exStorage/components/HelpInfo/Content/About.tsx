@@ -13,6 +13,7 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2021-10-04', '1.0.0.15', `Add Timeline tab (grid charts), Items Date flag style, Labels, styling` ) );
     table.rows.push( createAboutRow('2021-09-31', '1.0.0.14', `npmFunctions update.` ) );
     table.rows.push( createAboutRow('2021-09-30', '1.0.0.12', `Fix typos in help, Add Tricks logic, improve analytics` ) );
     table.rows.push( createAboutRow('2021-09-29', '1.0.0.11', `Update Banner to show actual webpart specific help, add Analytics` ) );
