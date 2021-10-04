@@ -1112,7 +1112,7 @@ private _updateChoiceSlider(newValue: number){
     let selectedDropdowns = this.state.selectedDropdowns;
     let dropDownItems = this.state.dropDownItems;
 
-    if ( choiceSliderDropdown > -1 ) { //Then this is a choice dropdown filter
+    if ( choiceSliderDropdown && choiceSliderDropdown > -1 ) { //Then this is a choice dropdown filter
       //This map updates the dropdowns to find the selected one.
       let dropDownLabel = item.indexOf('|>|') > -1 ? item.split('|>|')[1] : item;
       dropDownItems[choiceSliderDropdown].map( thisChoice => {
