@@ -18,9 +18,8 @@ import { createRatioNote } from './summaryFunctions';
 export function createBatchSummary ( summary: IBatchData ) : React.ReactElement {
   let fullLoad = summary.count === summary.totalCount ? ' all' : ' ONLY';
 
-  let loadPercent = summary.totalCount !== 0 ? (( summary.count / summary.totalCount ) * 100) : 0;
-  let loadPercentLabel = loadPercent.toFixed(1);
-  let partialFlag = loadPercent === 100 ? '' : '*';
+  let loadPercentLabel = summary.significance.toFixed(1);
+  let partialFlag = summary.isSignificant === true ? '' : '*';
 
   let mainHeading = `Showing results for${fullLoad} ${ summary.count } of ${ summary.totalCount }`;
   let secondHeading = `This represents${fullLoad} ${ loadPercentLabel } of the files in this library.`;
@@ -28,7 +27,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
 
   tableRows.push( <tr><td>{ `${ getCommaSepLabel(summary.count) } of ${ getCommaSepLabel(summary.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
-  if ( loadPercent !== 100 ) {
+  if ( summary.significance !== 1 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
     tableRows.push( <tr><td>{ null } </td><td>{ `For a complete picture, slide the Fetch counter all the way to the right and press Begin button` }</td></tr> );
   }

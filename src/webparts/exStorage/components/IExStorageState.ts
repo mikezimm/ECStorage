@@ -318,6 +318,9 @@ export interface IBatchData {
 
   items: IAllItemTypes[];
 
+  significance: number; // % of all items returned
+  isSignificant: boolean;
+
 }
 
 

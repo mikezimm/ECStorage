@@ -568,6 +568,8 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
   return {  
     totalCount: totalCount,
     count: 0,
+    significance: 0,
+    isSignificant: false,
     size: 0,
     sizeGB: 0,
     sizeLabel: '',
@@ -1435,6 +1437,9 @@ function expandArray ( count: number ) : any[] {
     currentUserAllIndex = batchData.userInfo.allUsers.length - 1;
 
   }
+
+  batchData.significance = batchData.count > 0 ? batchData.count / batchData.totalCount : 0 ;
+  if ( batchData.significance > .95 ) { batchData.isSignificant = true ; }
 
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
   batchData.items = cleanedItems;
