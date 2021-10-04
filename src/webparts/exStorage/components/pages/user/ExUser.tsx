@@ -353,7 +353,6 @@ public componentDidMount() {
 
       >
     </EsItems>;
-
           
     let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? null : 
     <Gridcharts

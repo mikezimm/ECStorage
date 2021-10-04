@@ -15,8 +15,11 @@ export interface IEsItemsState {
   hasError: boolean;
 
   items: any[];
+
   dups: IDuplicateFile[];
   showItems: IItemDetail[];
+  
+  totalSize: number;
 
   minYear: number;
   maxYear: number;

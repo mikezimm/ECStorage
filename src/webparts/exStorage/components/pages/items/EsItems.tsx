@@ -107,6 +107,12 @@ public constructor(props:IEsItemsProps){
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
 
+  
+  let totalSize: number = 0;
+  this.props.items.map( item => {
+    totalSize += item.size;
+  });
+
   this.state = {
 
         isLoaded: true,
@@ -118,6 +124,8 @@ public constructor(props:IEsItemsProps){
         showPane: false,
 
         items: [],
+        totalSize: totalSize,
+        
         showItems: [],
         dups: this.itemsOrDups === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
 
@@ -304,7 +312,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ this.props.items.length } items` }
+        { `Search all ${ this.props.items.length } items [ ${ getSizeLabel( this.state.totalSize ) }]` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
