@@ -60,7 +60,7 @@ import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services
 
 import { getExpandColumns, getSelectColumns, IPerformanceSettings, createFetchList, IZBasicList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
-import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -726,7 +726,7 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
     let metrics : any = <div className={ styles.metrics }>TBD</div>;
     if ( this.state.gridData.count > 0 ) {
 
-      let line1 = `${ this.state.gridData.count } items`;
+      let line1 = `${ this.getCommaSepLabel( this.state.gridData.count) } items`;
       let line2 = `${ this.props.columns.valueOperator} of ${ this.props.columns.valueColumn } = ${ this.state.gridData.totalLabel }`;
       metrics = <div className={ styles.metrics }>
           <div>{line1}</div>
