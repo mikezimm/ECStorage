@@ -56,7 +56,7 @@ import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Se
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel, } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { getSearchedFiles } from '../../ExSearch';
 
@@ -82,7 +82,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
 
-  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.items.length} items, use Search box to find more)`;
+  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCountLabel(this.items.length) } items, use Search box to find more)`;
   private sliderMax = this.items.length < 400 ? this.items.length : 400;
   private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;

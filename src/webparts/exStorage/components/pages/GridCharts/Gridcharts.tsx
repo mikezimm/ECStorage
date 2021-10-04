@@ -1464,7 +1464,7 @@ private _updateChoiceSlider(newValue: number){
 
     allDataPoints.map( (data, index)  => {
       data.Avg = data.Count !== null && data.Count !== undefined && data.Count !== 0 ? data.Sum / data.Count : null;
-      data.value = data[ this.state.valueOperator.toLowerCase() ] ;
+      data.value = data[ this.state.valueOperator ] ;
 
       if ( data.Count === 0 ) { data.dataLevel = 0 ; }
       else if ( data.value > ( maxValue - 1 * dataLevelIncriment ) ) { data.dataLevel = 3 ; }

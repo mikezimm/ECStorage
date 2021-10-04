@@ -10,7 +10,7 @@ import {
 
 import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { createRatioNote } from './summaryFunctions';
 
@@ -26,7 +26,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
   let secondHeading = `This represents${fullLoad} ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
-  tableRows.push( <tr><td>{ `${ summary.count } of ${ summary.totalCount }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCountLabel(summary.count) } of ${ getCountLabel(summary.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
   if ( loadPercent !== 100 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
@@ -38,7 +38,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
   tableRows.push( <tr><td>{ `${ summary.uniqueInfo.count } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
   tableRows.push( <tr><td>{ `${ summary.userInfo.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
 
-  let GT100M = summary.large.summary.count;
+  let GT100M = getCountLabel(summary.large.summary.count);
   let GT100SizeLabel = getSizeLabel(summary.large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );

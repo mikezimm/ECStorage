@@ -10,7 +10,7 @@ import {
 
 import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { createRatioNote } from './summaryFunctions';
 
@@ -21,23 +21,23 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
   let loadPercentLabel = loadPercent.toFixed(1);
   let partialFlag = loadPercent === 100 ? '' : '*';
 
-  let mainHeading = `Showing results for ${ userSummary.summary.count } of ${ batchData.totalCount }`;
+  let mainHeading = `Showing results for ${ getCountLabel(userSummary.summary.count) } of ${ getCountLabel(batchData.totalCount) }`;
   let secondHeading = `This represents ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
-  tableRows.push( <tr><td>{ `${ userSummary.summary.count } of ${ batchData.totalCount }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCountLabel(userSummary.summary.count) } of ${ getCountLabel(batchData.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
   if ( loadPercent !== 100 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
     tableRows.push( <tr><td>{ null } </td><td>{ `For a complete picture, slide the Fetch counter all the way to the right and press Begin button` }</td></tr> );
   }
   tableRows.push( <tr><td>{ `${ userSummary.summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files fetched` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.typesInfo.count } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.duplicateInfo.count } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.uniqueInfo.count } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCountLabel(userSummary.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCountLabel(userSummary.duplicateInfo.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCountLabel(userSummary.uniqueInfo.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
   // tableRows.push( <tr><td>{ `${ userSummary.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
 
-  let GT100M = userSummary.large.summary.count;
+  let GT100M = getCountLabel(userSummary.large.summary.count);
   let GT100SizeLabel = getSizeLabel(userSummary.large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );

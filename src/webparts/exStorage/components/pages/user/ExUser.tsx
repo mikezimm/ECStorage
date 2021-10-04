@@ -46,6 +46,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import * as strings from 'ExStorageWebPartStrings';
 
@@ -178,13 +179,13 @@ public componentDidMount() {
 
       <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
         <div>Created</div>
-        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.createCount } / { userSummary.summary.countP.toFixed(1) }% files</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ getCountLabel(userSummary.createCount) } / { userSummary.summary.countP.toFixed(1) }% files</div>
         <div style={{whiteSpace: 'nowrap'}}>{ userSummary.createTotalSizeLabel } / { userSummary.summary.sizeP.toFixed(1) }%</div>
       </div>
 
       <div className={ [styles.inflexNoWrapStart, styles.margRight15Divs ].join(' ') }>
         <div>Modified</div>
-        <div style={{whiteSpace: 'nowrap'}}>{ userSummary.modifyCount } files</div>
+        <div style={{whiteSpace: 'nowrap'}}>{ getCountLabel(userSummary.modifyCount) } files</div>
         <div style={{whiteSpace: 'nowrap'}}>{ userSummary.modifyTotalSizeLabel }</div>
       </div>
 
