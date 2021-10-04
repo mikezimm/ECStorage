@@ -64,7 +64,7 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

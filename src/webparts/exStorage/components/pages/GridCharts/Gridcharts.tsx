@@ -60,6 +60,8 @@ import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services
 
 import { getExpandColumns, getSelectColumns, IPerformanceSettings, createFetchList, IZBasicList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -123,6 +125,8 @@ import EsItems from '../items/EsItems';
  */
 
 export default class Gridcharts extends React.Component<IGridchartsProps, IGridchartsState> {
+
+    private sizeOrCount : 'size' | 'count' = this.props.columns.valueOperator !== 'Count' || this.props.columns.valueColumn.toLowerCase().indexOf('size') > -1 ? 'size' : 'count';
 
     //https://stackoverflow.com/a/4413721
     private addDays (tempDate, days) {
@@ -222,6 +226,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
         let metaColumns : string[] = this.props.columns.metaColumns;
         let expandDates : string[] = [this.props.columns.dateColumn];
         let selectedDropdowns: string[] = [];
+
+        
         allColumns.push( this.props.columns.dateColumn );
         allColumns.push( this.props.columns.valueColumn );
 
@@ -287,6 +293,9 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
           maxValue: null,
           minValue: null,
+
+          totalLabel: '',
+          sizeOrCount: this.sizeOrCount,
 
           dataLevelLabels: [],
 
@@ -716,8 +725,9 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
     let metrics : any = <div className={ styles.metrics }>TBD</div>;
     if ( this.state.gridData.count > 0 ) {
+
       let line1 = `${ this.state.gridData.count } items`;
-      let line2 = `${ this.props.columns.valueOperator} of ${ this.props.columns.valueColumn } = ${ this.state.gridData.total.toFixed(0) }`;
+      let line2 = `${ this.props.columns.valueOperator} of ${ this.props.columns.valueColumn } = ${ this.state.gridData.totalLabel }`;
       metrics = <div className={ styles.metrics }>
           <div>{line1}</div>
           <div>{line2}</div>
@@ -1431,17 +1441,22 @@ private _updateChoiceSlider(newValue: number){
     
     let dataLevelIncriment = ( maxValue - minValue ) / 3;
 
-    let dataLevel3 = maxValue - 1 * dataLevelIncriment;
-    let dataLevel2 = maxValue - 2 * dataLevelIncriment;
-    let dataLevel1 = minValue;
-    let dataLevelTop = maxValue;
+    let dataLevel3: any = maxValue - 1 * dataLevelIncriment;
+    let dataLevel2: any = maxValue - 2 * dataLevelIncriment;
+    let dataLevel1: any = minValue;
+    let dataLevelTop: any = maxValue;
+
+    dataLevel3 = this.sizeOrCount === 'size' ? getSizeLabel( dataLevel3 ) : getCountLabel( dataLevel3 ) ;
+    dataLevel2 = this.sizeOrCount === 'size' ? getSizeLabel( dataLevel2 ) : getCountLabel( dataLevel2 ) ;
+    dataLevel1 = this.sizeOrCount === 'size' ? getSizeLabel( dataLevel1 ) : getCountLabel( dataLevel1 ) ;
+    dataLevelTop = this.sizeOrCount === 'size' ? getSizeLabel( dataLevelTop ) : getCountLabel( dataLevelTop ) ;
 
     let dataLevelLabels : string[] = [];
 
     dataLevelLabels.push( 'No data'); //DataLevel 0 label
-    dataLevelLabels.push( '>= ' + dataLevel1.toFixed( valueOperator === 'count' ? 0 : 2 ) ); //DataLevel 1 label
-    dataLevelLabels.push( '> ' + dataLevel2.toFixed( valueOperator === 'count' ? 0 : 2 ) ); //DataLevel 2 label
-    dataLevelLabels.push( '> ' + dataLevel3.toFixed( valueOperator === 'count' ? 0 : 2 ) ); //DataLevel 3 label
+    dataLevelLabels.push( '>= ' + dataLevel1 ) ; //DataLevel 1 label
+    dataLevelLabels.push( '> ' + dataLevel2 ); //DataLevel 2 label
+    dataLevelLabels.push( '> ' + dataLevel3 ); //DataLevel 3 label
     dataLevelLabels.push( ); //DataLevel 4 label
 
 
@@ -1454,14 +1469,18 @@ private _updateChoiceSlider(newValue: number){
       else if ( data.value > dataLevel2 ) { data.dataLevel = 2 ; }
       else if ( data.value >= minValue ) { data.dataLevel = 1 ; }
       else { data.dataLevel = 0 ; }
-
-      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.columns.valueOperator} = ${data.value.toFixed(this.props.columns.valueOperator === 'count' ? 0 : 2 )} 
-        idx: ${ index } count: ${ data.items.length }`;
+      let value = this.props.columns.valueOperator !== 'Count' && this.sizeOrCount === 'size' ? getSizeLabel( data.value, 2 ) : getCountLabel( data.value );
+      data.label = data.count === 0 ? `${data.dateString} : No data available` : `${data.dateString} : ${this.props.columns.valueOperator} = ${ value } 
+        count: ${ data.items.length } idx: ${ index }`;
     });
+
+    let totalLabel = this.sizeOrCount === 'size' ? getSizeLabel( gridDataTotal ) : getCountLabel( gridDataTotal );
 
     let gridData: IGridchartsData = {
       total: gridDataTotal,
+      totalLabel: totalLabel,
       count: count,
+      sizeOrCount: this.sizeOrCount,
       leadingBlanks: leadingBlanks,
       gridStart: startDate,
       gridEnd: gridEnd,

@@ -91,6 +91,8 @@ export interface IGridchartsData {
     count: number;
     leadingBlanks: number; //Number of empty squares... basically prior month's squares that are not visible
     total: number;
+    totalLabel: string;
+    sizeOrCount: 'size' | 'count';
 
     maxValue: number;
     minValue: number;

@@ -60,7 +60,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

@@ -56,7 +56,7 @@ import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Se
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { getSearchedFiles } from '../../ExSearch';
 
@@ -312,7 +312,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ this.props.items.length } items [ ${ getSizeLabel( this.state.totalSize ) }]` }
+        { `Search all ${ this.props.items.length } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -363,7 +363,7 @@ public componentDidMount() {
     let table = <div style={{marginRight: '10px'}}>
       <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
       {/* <table style={{padding: '0 20px'}}> */}
-      <table style={{ tableLayout:"fixed", width:"80%" }} id="Select-b">
+      <table style={{ tableLayout:"fixed", width:"95%" }} id="Select-b">
         { rows }
       </table>
     </div>;
@@ -395,6 +395,16 @@ public componentDidMount() {
 
       } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
         visible = true;
+
+      } else if ( textSearch.toUpperCase() === 'USER<>' ) {
+        if ( item.authorTitle !== item.editorTitle ) {
+          visible = true;
+        }
+ 
+      } else if ( textSearch.toUpperCase() === 'USER=' ) {
+        if ( item.authorTitle === item.editorTitle ) {
+          visible = true;
+        }
 
       } else {
 
@@ -457,12 +467,12 @@ public componentDidMount() {
     }
 
     cells.push( detailItemIcon );
-    cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
+    cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
-    cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
+    cells.push( <td style={{width: '160px'}} >{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
     cells.push( this.buildFolderIcon( item ) );
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
-
+    cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
 
     const iconStyles: any = { root: {
       fontSize: 'larger',
