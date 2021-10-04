@@ -8,9 +8,9 @@ import {
 
 } from "office-ui-fabric-react";
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
+import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { createRatioNote } from './summaryFunctions';
 
@@ -18,17 +18,16 @@ import { createRatioNote } from './summaryFunctions';
 export function createBatchSummary ( summary: IBatchData ) : React.ReactElement {
   let fullLoad = summary.count === summary.totalCount ? ' all' : ' ONLY';
 
-  let loadPercent = summary.totalCount !== 0 ? (( summary.count / summary.totalCount ) * 100) : 0;
-  let loadPercentLabel = loadPercent.toFixed(1);
-  let partialFlag = loadPercent === 100 ? '' : '*';
+  let loadPercentLabel = summary.significance.toFixed(1);
+  let partialFlag = summary.isSignificant === true ? '' : '*';
 
   let mainHeading = `Showing results for${fullLoad} ${ summary.count } of ${ summary.totalCount }`;
   let secondHeading = `This represents${fullLoad} ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
-  tableRows.push( <tr><td>{ `${ summary.count } of ${ summary.totalCount }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(summary.count) } of ${ getCommaSepLabel(summary.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
-  if ( loadPercent !== 100 ) {
+  if ( summary.significance !== 1 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
     tableRows.push( <tr><td>{ null } </td><td>{ `For a complete picture, slide the Fetch counter all the way to the right and press Begin button` }</td></tr> );
   }
@@ -38,7 +37,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
   tableRows.push( <tr><td>{ `${ summary.uniqueInfo.count } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
   tableRows.push( <tr><td>{ `${ summary.userInfo.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
 
-  let GT100M = summary.large.summary.count;
+  let GT100M = getCommaSepLabel(summary.large.summary.count);
   let GT100SizeLabel = getSizeLabel(summary.large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
@@ -60,7 +59,7 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

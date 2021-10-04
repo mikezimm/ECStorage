@@ -47,7 +47,7 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
@@ -61,7 +61,7 @@ import EsItems from '../items/EsItems';
 const pivotStyles = {
   root: {
     whiteSpace: "normal",
-    marginTop: '30px',
+    marginTop: '1em',
   //   textAlign: "center"
   }};
 
@@ -226,7 +226,7 @@ public componentDidMount() {
             items = { this.props.largeData.GT100M }
             itemsAreDups = { false }
             duplicateInfo = { null }
-            heading = { ` larger than 100M ${ this.props.heading }` }
+            heading = { ` larger than 100MB ${ this.props.heading }` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }

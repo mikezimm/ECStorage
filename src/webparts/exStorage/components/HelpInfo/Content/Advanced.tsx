@@ -7,11 +7,11 @@ import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mike
 
 export function advancedContent() {
 
+    return null;
+
     let html1 = <div>
         <h2>Nothing advanced about this webpart yet :)</h2>
     </div>;
-
-    return null;
 
     return { html1: html1 };
 

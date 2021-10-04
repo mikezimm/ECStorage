@@ -7,6 +7,8 @@ import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mike
 
 export function errorsContent() {
 
+    return null;
+
     let html1 = <div>
         <h2>Please submit any issues or suggestions on github (requires free account)</h2>
     </div>;

@@ -47,8 +47,8 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-import { sortObjectArrayByNumberKey, } from '../../../../../services/complexArraySorting';
+// import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
@@ -147,7 +147,7 @@ public componentDidMount() {
     let sortedTypes =  types.map( type => {
       return type;
     });
-    sortedTypes = sortObjectArrayByNumberKey( sortedTypes, 'dec', 'sizeToCountRatio' );
+    sortedTypes = sortObjectArrayByChildNumberKey( sortedTypes, 'dec', 'sizeToCountRatio' );
 
     const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'size' );
     const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'count' );
@@ -273,7 +273,7 @@ public componentDidMount() {
 
     let elements = [];
     let tableTitle = data;
-    const typesSorted: IFileType[] = sortObjectArrayByNumberKey( types, 'dec', sortKey );
+    const typesSorted: IFileType[] = sortObjectArrayByChildNumberKey( types, 'dec', sortKey );
 
     typesSorted.map( ( type, index ) => {
 

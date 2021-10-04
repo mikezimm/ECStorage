@@ -3,7 +3,9 @@ import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { ILoadAnalytics } from '../../../services/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
+
+import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
 export interface IEXStorageList extends IPickedList {
 
@@ -27,7 +29,9 @@ export interface IItemDetail {
   index: number; //index of item in state.batches[batch].items
   id: number;
   value: number | string; //value to highlight/sort for this detail
+  Created: any; //This is the actual item Created property.
   created: any;
+  Modified: any; //This is the actual item Modified property
   modified: any;
   authorId: number;
   editorId: number;
@@ -42,7 +46,7 @@ export interface IItemDetail {
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
-  docIcon?: string;
+  docIcon?: string;  
   iconName: string;
   iconColor: string;
   iconTitle: string;
@@ -290,11 +294,6 @@ export interface IUniqueInfo {
 export type IAllItemTypes = IFolderDetail | IItemDetail;
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 
-
-export interface IAnalyticsJSON1 {
-  
-}
-
 export interface IBatchData {
   totalCount: number;
   count: number;
@@ -318,6 +317,9 @@ export interface IBatchData {
   duplicateInfo: IDuplicateInfo;
 
   items: IAllItemTypes[];
+
+  significance: number; // % of all items returned
+  isSignificant: boolean;
 
 }
 
@@ -389,11 +391,14 @@ export interface IExStorageState {
 
   batches: IEXStorageBatch[];
   batchData: IBatchData;
+  mainGridColumns: IGridColumns;
   
   dropDownLabels: any[];
   dropDownIndex: number;
   dropDownText: string;
 
-  loadProperties: ILoadAnalytics;
+  loadProperties: IZLoadAnalytics;
+
+  refreshId: string; //used to trigger redraw of grid
 
 }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { escape } from "@microsoft/sp-lodash-subset";
 
-import styles from "./banner.module.scss";
+import styles from "../banner.module.scss";
 import stylesComp from "./component.module.scss";
 
 import { Icon, IIconProps, } from 'office-ui-fabric-react/lib/Icon';

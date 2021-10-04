@@ -51,12 +51,13 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-// import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
-import { sortObjectArrayByNumberKey, } from '../../../../../services/complexArraySorting';
+// import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
+import { getSizeLabel, getCountLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+
 import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';
@@ -81,7 +82,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
 
-  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${this.items.length} items, use Search box to find more)`;
+  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.items.length) } items, use Search box to find more)`;
   private sliderMax = this.items.length < 400 ? this.items.length : 400;
   private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
@@ -106,6 +107,12 @@ public constructor(props:IEsItemsProps){
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
 
+  
+  let totalSize: number = 0;
+  this.props.items.map( item => {
+    totalSize += item.size;
+  });
+
   this.state = {
 
         isLoaded: true,
@@ -117,6 +124,8 @@ public constructor(props:IEsItemsProps){
         showPane: false,
 
         items: [],
+        totalSize: totalSize,
+        
         showItems: [],
         dups: this.itemsOrDups === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
 
@@ -268,7 +277,7 @@ public componentDidMount() {
       let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
       page = <div>
         <div className={styles.flexWrapStart}>
-          <h3>{ items.length } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
+          <h3>{ getCommaSepLabel( items.length ) } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
         </div>
         <div className={ styles.inflexWrapCenter}>
           <div> { sliderTypeCount } </div>
@@ -303,7 +312,7 @@ public componentDidMount() {
         onChange={ this._searchForItems.bind(this) }
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ this.props.items.length } items` }
+        { `Search all ${ getCommaSepLabel( this.props.items.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -328,10 +337,10 @@ public componentDidMount() {
     let tableTitle = data;
     let itemsSorted: any[] = [];
     if ( objectType === 'Items' ) {
-      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
 
     } else if ( objectType === 'Duplicates' ){
-      itemsSorted = sortObjectArrayByNumberKey( items, 'dec', sortKey );
+      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
 
     }
     
@@ -354,7 +363,7 @@ public componentDidMount() {
     let table = <div style={{marginRight: '10px'}}>
       <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
       {/* <table style={{padding: '0 20px'}}> */}
-      <table style={{ tableLayout:"fixed", width:"80%" }} id="Select-b">
+      <table style={{ tableLayout:"fixed", width:"95%" }} id="Select-b">
         { rows }
       </table>
     </div>;
@@ -386,6 +395,16 @@ public componentDidMount() {
 
       } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
         visible = true;
+
+      } else if ( textSearch.toUpperCase() === 'USER<>' ) {
+        if ( item.authorTitle !== item.editorTitle ) {
+          visible = true;
+        }
+ 
+      } else if ( textSearch.toUpperCase() === 'USER=' ) {
+        if ( item.authorTitle === item.editorTitle ) {
+          visible = true;
+        }
 
       } else {
 
@@ -432,6 +451,7 @@ public componentDidMount() {
   private createSingleItemRow( key: string, item: IItemDetail ) {
 
     let created = new Date( item.created );
+    let modified = new Date( item.modified );
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
@@ -439,13 +459,35 @@ public componentDidMount() {
     let id = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
     let detailItemIcon = this.buildDetailIcon( item, id );
 
+    let userStyle: any =  { width: '150px' } ;
+    let userTitle = null;
+    if ( item.authorTitle !== item.editorTitle ) { 
+      userStyle.color = 'red';
+      userStyle.fontWeight = 600;
+      userTitle = `Edited by ${ item.editorTitle }`;
+    }
+
     cells.push( detailItemIcon );
-    cells.push( <td style={{width: '100px'}} >{ getSizeLabel( item.size ) }</td> );
-    cells.push( <td style={{width: '150px'}} >{ item.authorTitle }</td> );
-    cells.push( <td style={{width: '200px'}} >{ created.toLocaleString() }</td> );
+    cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
+    cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
+    let dateStyle : React.CSSProperties = {width: '160px'};
+    let dateTitle : string = '';
+
+    if ( item.createMs < item.modMs ) {
+      dateStyle.color = 'blue';
+      dateTitle = `Modified: ${ modified.toLocaleString() }`;
+    
+    } else if ( item.createMs > item.modMs ) {
+      dateStyle.color = 'red';
+      dateStyle.fontWeight = 600;
+      dateTitle = `Modified Before Created!!! : ${ modified.toLocaleString() }`;
+
+    }
+
+    cells.push( <td style={dateStyle} title={ dateTitle }>{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
     cells.push( this.buildFolderIcon( item ) );
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
-
+    cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
 
     const iconStyles: any = { root: {
       fontSize: 'larger',

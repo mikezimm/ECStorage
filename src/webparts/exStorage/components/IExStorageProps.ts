@@ -14,6 +14,8 @@ import { IChoiceGroupOptionStyleProps } from "office-ui-fabric-react";
 
 import { IWebpartBannerProps, IWebpartBannerState } from './HelpInfo/banner/bannerProps';
 
+import {  IGridStyles , IGridColumns} from './pages/GridCharts/IGridchartsProps';
+
 export interface IDataOptions {
   useMediaTags: boolean;
 
@@ -76,5 +78,7 @@ export interface IExStorageProps {
 
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
+
+      gridStyles: IGridStyles;
 
 }

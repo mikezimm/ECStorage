@@ -8,36 +8,35 @@ import {
 
 } from "office-ui-fabric-react";
 
-import { sortObjectArrayByNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from '../../ExFunctions';
+import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
 import { createRatioNote } from './summaryFunctions';
 
 export function createUserSummary ( userSummary: IUserSummary, batchData: IBatchData ) : React.ReactElement {
   // const summary = userSummary.summary;
 
-  let loadPercent = batchData.totalCount !== 0 ? (( userSummary.summary.count / batchData.totalCount ) * 100) : 0;
-  let loadPercentLabel = loadPercent.toFixed(1);
-  let partialFlag = loadPercent === 100 ? '' : '*';
+  let loadPercentLabel = batchData.significance.toFixed(1);
+  let partialFlag = batchData.isSignificant === true ? '' : '*';
 
-  let mainHeading = `Showing results for ${ userSummary.summary.count } of ${ batchData.totalCount }`;
+  let mainHeading = `Showing results for ${ getCommaSepLabel(userSummary.summary.count) } of ${ getCommaSepLabel(batchData.totalCount) }`;
   let secondHeading = `This represents ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
-  tableRows.push( <tr><td>{ `${ userSummary.summary.count } of ${ batchData.totalCount }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.summary.count) } of ${ getCommaSepLabel(batchData.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td>{ `% of all the files available` }</td></tr> );
-  if ( loadPercent !== 100 ) {
+  if ( batchData.significance !== 1 ) {
     tableRows.push( <tr><td>{ partialFlag } </td><td>{ `Loading only part of the files may provide mis-leading results.` }</td></tr> );
     tableRows.push( <tr><td>{ null } </td><td>{ `For a complete picture, slide the Fetch counter all the way to the right and press Begin button` }</td></tr> );
   }
   tableRows.push( <tr><td>{ `${ userSummary.summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files fetched` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.typesInfo.count } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.duplicateInfo.count } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ userSummary.uniqueInfo.count } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.duplicateInfo.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.uniqueInfo.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
   // tableRows.push( <tr><td>{ `${ userSummary.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
 
-  let GT100M = userSummary.large.summary.count;
+  let GT100M = getCommaSepLabel(userSummary.large.summary.count);
   let GT100SizeLabel = getSizeLabel(userSummary.large.summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files larger than 100MB ` }</td></tr> );
@@ -64,7 +63,7 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
     <div>{ secondHeading }</div>
 
   </div>;
-  return <div style={{paddingTop: '20px' }}>
+  return <div style={{  }}>
     { summaryTable }
   </div>;
 

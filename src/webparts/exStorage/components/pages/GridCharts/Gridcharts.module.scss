@@ -1,0 +1,389 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+
+
+.gridcharts {
+  /* Article - https://bitsofco.de/github-contribution-graph-css-grid/ */
+
+  /* Grid-related CSS */
+
+  /*
+  :root {
+    --square-size: 15px;
+    --square-gap: 5px;
+    --week-width: calc(15px + var(5px));
+  }
+*/
+ /* */
+
+  margin-top: 1em;
+
+  .pointer { cursor: pointer; }
+
+  .metrics { grid-area: metrics; }
+  .timeSlide { grid-area: timeSlide; }
+  .legend { grid-area: legend; }
+  .graphFooter { grid-area: graphFooter; }
+
+  .legend {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(5, auto);
+  }
+
+  .graphFooter {
+    display: inline-grid;
+    grid-template-areas: "metrics timeSlide legend";
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 10px;
+    column-gap: 10px;
+    padding-left: 40px;
+  }
+
+  .years { grid-area: years; }
+  .months { grid-area: months; }
+  .days { grid-area: days; }
+  .squares { grid-area: squares; }
+
+  .graph {
+    display: inline-grid;
+    grid-template-areas: "empty years"
+                        "empty months"
+                        "days squares"
+                        "graphFooter graphFooter";
+    grid-template-rows: 25px 25px auto auto ;
+    grid-template-columns: auto 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 0px 10px 10px;
+    column-gap: 10px;
+    row-gap: 0px 10px 10px;
+  }
+
+  .years {
+    display: grid;
+    //grid-auto-columns: 15px;
+    grid-gap: 3px;
+    grid-template-columns: repeat(55, 15px);
+  }
+
+  .months {
+    display: grid;
+    //grid-auto-columns: 15px;
+    grid-gap: 3px;
+    grid-template-columns: repeat(55, 15px);
+  }
+
+  .days,
+  .squares {
+    display: grid;
+    grid-gap: 3px;
+    grid-template-rows: repeat(7, 15px);
+  }
+
+  .squares {
+    grid-auto-flow: column;
+    grid-auto-columns: 15px;
+  }
+
+
+  /* Other styling */
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 12px;
+  }
+
+  .graph {
+//    padding: 20px;
+//    border: 1px #e1e4e8 solid;
+//    margin: 20px;
+  }
+
+  .days li:nth-child(odd) {
+    visibility: hidden;
+  }
+
+  $squareTransition: .15s;
+
+  .squares li {
+    //background-color: #ebedf0;
+    transition: all, $squareTransition ease;
+//    opacity: 0;
+  }
+
+  .squares li[data-level="-1"] {
+    //background-color: transparent;
+    transition: all, $squareTransition ease;
+//    opacity: 1;
+  }
+
+  .squares li[data-level="1"] {  //transparent,#ebedf0,#c6e48b,#7bc96f,#196127   li, -1, 1, 2, 3
+    //background-color: #c6e48b;
+    transition: all, $squareTransition ease;
+//    opacity: .5;
+  }
+
+  .squares li[data-level="2"] {
+    //background-color: #7bc96f;
+    transition: all, $squareTransition ease;
+//    opacity: .75;
+  }
+
+  .squares li[data-level="3"] {
+    //background-color: #196127;
+    transition: all, $squareTransition ease;
+//    opacity: 1;
+  }
+
+
+/**
+  :global css was copied from TrackMyTime7v2021
+*/
+  :global {
+    [class^=ms-Dropdown-container] > .ms-Label {
+      font-weight: 700
+    }
+
+    [class^=ms-Toggle] > .ms-Label {
+      font-weight: 700
+    }
+  }
+
+
+
+  /**
+  TextField styles copied from TrackMyTime.module.scss
+  */
+.textField {
+  display: table-cell;
+  width: 100%;
+  
+  label {
+    font-weight: bold;
+  }
+  
+  input {
+    //height: 32px;
+    min-width: 80px;
+  }
+  }
+  
+  .textField1 {
+  display: table-cell;
+  width: 100%;
+  
+  label {
+    font-weight: bold;
+  }
+  
+  input {
+    @extend .highlightBlink1;
+    //height: 32px;
+    min-width: 80px;
+  }
+  }
+  
+  .textField2 {
+  display: table-cell;
+  width: 100%;
+  
+  label {
+    font-weight: bold;
+  }
+  
+  input {
+    @extend .highlightBlink2;
+    //height: 32px;
+    min-width: 80px;
+  }
+  }
+
+
+  .highlightBlink1 {
+    position: relative;
+    animation-name: slide1;
+    animation-duration: .3s;
+    animation-timing-function: ease-in;
+    }
+    
+    .highlightBlink2 {
+    position: relative;
+    animation-name: slide2;
+    animation-duration: .3s;
+    animation-timing-function: ease-in;
+    }
+    
+    @keyframes slide1 {
+    0% {      background-color: white;    }
+    50% {      background-color: darkgrey;    }
+    100% {      background-color: white;    }
+    }
+    
+    
+    @keyframes slide2 {
+    0% {      background-color: white;    }
+    50% {      background-color: rgb(153, 153, 153);    }
+    100% {      background-color: white;    }
+    }
+    
+    
+    //Copied from pivot-tiles
+    
+    .hideMe {
+    display:none;
+    }
+    
+    .floatLeft {
+    //width: 1200px;
+    //max-width: 500px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    //align-items: center makes items centered vertically
+    align-items: center;
+    
+    //These did nothing to prevent the left icons from shifting on hover.
+    //border: 0px;
+    //margin: 0px;
+    //padding: 0px;
+    }
+    
+    .searchBox {
+    //@extend .floatLeft;
+    width: 100%;
+    //padding-bottom: 20px;
+    }
+    
+    .searchStatus {
+    @extend .floatRight;
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 60px;
+    padding-right: 60px;
+    //text-align: right;
+    }
+
+
+.showSearch {
+transition:all 0.4s ease;
+//transition:height 0.4s ease;
+//transition:padding-bottom 0.4s ease;
+//transition:transform 0.4s ease;
+transform:scaleY(1);
+transform-origin:top;
+height:50px;
+//max-height: 100px;
+overflow: hidden;
+padding-bottom: 20px;
+}
+
+.hideSearch {
+transition:all 0.4s ease;
+//transition:height 0.4s ease;
+//transition:padding-bottom 0.4s ease;
+//transition:transform 0.4s ease;
+height:0;
+overflow: hidden;
+padding-bottom: 0px;
+transform:scaleY(0);
+}
+
+.floatRight {
+//width: 1200px;
+//max-width: 500px;
+display: flex;
+justify-content: space-between;
+//align-items: center makes items centered vertically
+align-items: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  .container {
+    max-width: 100%;
+    margin: 0px auto;
+    padding-bottom: 20px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .row {
+    @include ms-Grid-row;
+    @include ms-fontColor-white;
+    background-color: $ms-color-themeDark;
+    padding: 20px;
+  }
+
+  .column {
+    @include ms-Grid-col;
+    @include ms-lg10;
+    @include ms-xl8;
+    @include ms-xlPush2;
+    @include ms-lgPush1;
+  }
+
+  .title {
+    @include ms-font-xl;
+    @include ms-fontColor-white;
+  }
+
+  .subTitle {
+    @include ms-font-l;
+    @include ms-fontColor-white;
+  }
+
+  .description {
+    @include ms-font-l;
+    @include ms-fontColor-white;
+  }
+
+  .button {
+    // Our button
+    text-decoration: none;
+    height: 32px;
+
+    // Primary Button
+    min-width: 80px;
+    background-color: $ms-color-themePrimary;
+    border-color: $ms-color-themePrimary;
+    color: $ms-color-white;
+
+    // Basic Button
+    outline: transparent;
+    position: relative;
+    font-family: "Segoe UI WestEuropean","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: $ms-font-size-m;
+    font-weight: $ms-font-weight-regular;
+    border-width: 0;
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 16px;
+
+    .label {
+      font-weight: $ms-font-weight-semibold;
+      font-size: $ms-font-size-m;
+      height: 32px;
+      line-height: 32px;
+      margin: 0 4px;
+      vertical-align: top;
+      display: inline-block;
+    }
+  }
+}

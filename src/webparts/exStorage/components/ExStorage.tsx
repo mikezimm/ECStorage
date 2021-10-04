@@ -47,12 +47,14 @@ import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Servic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import * as strings from 'ExStorageWebPartStrings';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
 
-import { getStorageItems, batchSize, createBatchData, getSizeLabel } from './ExFunctions';
+import { getStorageItems, batchSize, createBatchData } from './ExFunctions';
+
 import { getSearchedFiles } from './ExSearch';
 import { createBatchSummary } from './pages/summary/ExBatchSummary';
 
@@ -67,7 +69,13 @@ import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
-import { ILoadAnalytics, IZSentAnalytics, saveAnalytics2 } from '../../../services/analytics2';
+import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
+import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
+
+import Gridcharts from './pages/GridCharts/Gridcharts';
+
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
+import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -86,7 +94,17 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
+const pivotHeading10 = 'Timeline';
 
+const mainGridColumns: IGridColumns = {
+  dateColumn: 'Modified',
+  valueColumn: 'size',
+  valueType: 'Number',
+  valueOperators: ['Sum','Count','Avg'],
+  dropDownColumns: ['+authorTitle','+editorTitle','+docIcon'],
+  searchColumns: ['FileLeafRef'], 
+  metaColumns: [], 
+};
 
 
 export default class ExStorage extends React.Component<IExStorageProps, IExStorageState> {
@@ -115,6 +133,11 @@ public constructor(props:IExStorageProps){
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
 
+  let mainGridColumnsActual = mainGridColumns;
+  if ( this.props.dataOptions.useMediaTags === true ) {
+    mainGridColumnsActual.searchColumns = ['MediaServiceAutoTags','MediaServiceKeyPoints','MediaServiceLocation','MediaServiceOCR'];
+  }
+
   this.state = {
 
         pickedList : null,
@@ -131,6 +154,8 @@ public constructor(props:IExStorageProps){
         showUser: -1,
         currentUser: null,
         isCurrentWeb: null,
+
+        mainGridColumns: mainGridColumnsActual,
 
         parentWeb: parentWeb,
         listTitle: this.props.listTitle,
@@ -162,6 +187,8 @@ public constructor(props:IExStorageProps){
         dropDownText: 'Oops!  No Libraries was found',
 
         loadProperties: null,
+
+        refreshId: '',
   
   };
 }
@@ -284,7 +311,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   console.log('pickLists', pickLists );
 
   let theSiteAny: any = theSite;
-  let loadProperties: ILoadAnalytics = {
+  let loadProperties: IZLoadAnalytics = {
     SiteID: theSiteAny.Id,  //Current site collection ID for easy filtering in large list
     WebID:  pickedWeb.guid,  //Current web ID for easy filtering in large list
     SiteTitle:  pickedWeb.title, //Web Title
@@ -308,7 +335,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
         pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false,
-        loadProperties: loadProperties,
+        loadProperties: loadProperties, 
        });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
   } else {
@@ -395,11 +422,15 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       { sliderYearItself }
     </div>;
 
+    const sliderMax = this.state.pickedList ? this.state.pickedList.ItemCount : 0;
+    const sliderInc = sliderMax < 50 ? 1 : sliderMax < 100 ? 10 : sliderMax < 500 ? 25 : 500;
+    const siderMin = sliderInc > 1 ? sliderInc : 5;
+
     let sliderCountItself = !this.state.pickedList ? null : 
-      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , 0, this.state.pickedList.ItemCount, batchSize , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
+      <div style={{margin: '0 50px'}}> { createSlider( null , this.state.fetchSlider , siderMin, sliderMax, sliderInc , this._updateMaxFetch.bind(this), this.state.isLoading, 350) }</div> ;
 
     let sliderCountComponent = !this.state.pickedList ? null : <div className={ styles.inflexWrapCenter}>
-      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${this.state.pickedList.ItemCount } Files` } </span>
+      <span style={{ fontSize: 'larger', fontWeight: 'bolder', minWidth: '300px' }}> { `Fetch up to ${ getCommaSepLabel( sliderMax ) } Files` } </span>
       { sliderCountItself }
       <span style={{marginRight: '50px'}}> { `Plan for about ${etaMinutes} minutes` } </span>
       { fetchButton }
@@ -498,8 +529,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let youPivotContent = <div>
         <ExUser 
-          pageContext = { this.context.pageContext }
-          wpContext = { this.context }
+          pageContext = { this.props.pageContext }
+          wpContext = { this.props.wpContext }
           tenant = { this.props.tenant }
       
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -513,7 +544,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
           pickedList = { this.state.pickedList }
           theSite = {null }
   
-          isLoaded = {false }
+          isLoaded = { this.state.isLoaded }
       
           currentUser = {this.state.currentUser }
           isCurrentUser = { true }
@@ -523,6 +554,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
                         
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
+
+          columns = { this.state.mainGridColumns }
+          gridStyles = { this.props.gridStyles }
         >
         </ExUser>
       </div>;
@@ -562,6 +596,65 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       </div>;
 
     let summaryPivot = createBatchSummary( this.state.batchData );
+
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.count === 0 ? null : 
+      <Gridcharts
+
+        items = { this.state.batchData.items }
+
+        // 0 - Context
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+        urlVars = { this.props.urlVars }
+        today = { makeTheTimeObject('')}
+
+        // 2 - Source and destination list information
+        parentListWeb = { this.props.parentWeb }
+        parentListTitle = { this.props.listTitle }
+        parentListURL = { null}
+
+        esItemsHeading = { ``}
+
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+
+        listName = { null}
+        
+        enableSearch = { true }
+
+        scaleMethod = { 'blink' }
+
+        columns = { this.state.mainGridColumns }
+        gridStyles = { this.props.gridStyles }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+    
+        // 9 - Other web part options
+        WebpartHeight = {this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        // 1 - Analytics options  
+        useListAnalytics = { false }
+        analyticsWeb = { strings.analyticsWeb }
+        analyticsList = {strings.analyticsList}
+        
+        // 9 - Other web part options 
+        webPartScenario = { null } //Choice used to create mutiple versions of the webpart.
+      
+        allLoaded = {null}
+    
+        performance = { null }
+    
+        parentListFieldTitles = {null}
+
+        refreshId = { this.state.refreshId }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+      ></Gridcharts>;
 
     let componentPivot = 
     <Pivot
@@ -606,14 +699,19 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       <PivotItem headerText={ pivotHeading9 } ariaLabel={pivotHeading9} title={pivotHeading9} itemKey={ pivotHeading9 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { folderPivotContent }
       </PivotItem>
+
+      <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { gridPivotContent }
+      </PivotItem>
+
     </Pivot>;
 
     let userPanel = null;
     
     if ( this.state.showUser > -1 ) { 
       let panelContent = <ExUser 
-        pageContext = { this.context.pageContext }
-        wpContext = { this.context }
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
         tenant = { this.props.tenant }
     
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -627,9 +725,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         pickedList = { this.state.pickedList }
         theSite = {null }
 
-        isLoaded = {false }
+        isLoaded = { this.state.isLoaded }
     
-        currentUser = {this.state.currentUser }
+        currentUser = { this.state.currentUser }
         isCurrentUser = { true }
         userSummary = { batchData.userInfo.allUsers[ this.state.showUser ] }
         batches = { batches }
@@ -637,6 +735,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
                       
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
+
+        columns = { this.state.mainGridColumns }
+        gridStyles = { this.props.gridStyles }
       >
     </ExUser>;
 
@@ -859,6 +960,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ 
       isLoading: true,
       errorMessage: '',
+      isLoaded: false,
     });
     getSearchedFiles( this.props.tenant, pickedList, true);
     getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.dataOptions, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
@@ -872,11 +974,15 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     //   isLoading === true ?  true : false;
 
 
+    let startTime = new Date();
+    let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
+
     console.log('addTheseItemsToState');
     this.setState({ 
       // items: batch.items,
       
       isLoading: false,
+      isLoaded: true,
       // showNeedToWait: false,
 
       // errorMessage: batch.errMessage,
@@ -890,6 +996,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       showBegin: false,
       batches: batchInfo.batches,
       batchData: batchInfo.batchData,
+      refreshId: refreshId,
 
     });
 
@@ -917,7 +1024,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let zzzRichText3 = null;
 
     let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
-    let hasSignificantData = batchData.totalCount > 0 && filePercent > .95 ? true : false;
+    let hasSignificantData = batchData.isSignificant;
 
     if ( batchData.count > 0) {
       zzzRichText1 = {};
@@ -1064,6 +1171,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       dropDownText: thisValue,
       listTitle: thisValue,
       loadProperties: loadProperties,
+      fetchSlider: pickedList ? pickedList.ItemCount: 0,
     });
 
     this.updateWebInfo( this.state.parentWeb , true );
@@ -1080,9 +1188,9 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           choices.map(val => {
 
             if ( val === this.state.dropDownText ) { 
-              console.log(`_createDropdownField val MATCH: ${ val } `);
+              // console.log(`_createDropdownField val MATCH: ${ val } `);
             } else {
-              console.log(`_createDropdownField val: ${ val } `);
+              // console.log(`_createDropdownField val: ${ val } `);
             }
               return {
                   key: getChoiceKey(val),
@@ -1092,7 +1200,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           });
 
       let keyVal = this.state.dropDownText;
-      console.log(`_createDropdownField keyVal: ${ keyVal } `);
+      // console.log(`_createDropdownField keyVal: ${ keyVal } `);
 
       let thisDropdown = sOptions == null ? null : <div
           style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '15px'   }}
