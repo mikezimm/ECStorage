@@ -469,7 +469,21 @@ public componentDidMount() {
     cells.push( detailItemIcon );
     cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
     cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
-    cells.push( <td style={{width: '160px'}} >{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
+    let dateStyle : React.CSSProperties = {width: '160px'};
+    let dateTitle : string = '';
+
+    if ( item.createMs < item.modMs ) {
+      dateStyle.color = 'blue';
+      dateTitle = `Modified: ${ created.toLocaleString() }`;
+    
+    } else if ( item.createMs > item.modMs ) {
+      dateStyle.color = 'red';
+      dateStyle.fontWeight = 600;
+      dateTitle = `Modified Before Created!!! : ${ created.toLocaleString() }`;
+
+    }
+
+    cells.push( <td style={dateStyle} title={ dateTitle }>{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
     cells.push( this.buildFolderIcon( item ) );
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
     cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
