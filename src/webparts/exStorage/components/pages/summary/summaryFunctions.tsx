@@ -46,6 +46,8 @@ export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary,
 
 export function createSummaryTopStats( tableRows: any[], summary: IBucketSummary, batchData: IBatchData, partialFlag: string ) {
 
+  let fullLoad = summary.count === batchData.totalCount ? ' all' : ' ONLY';
+
   let loadPercentLabel = ( batchData.significance * 100 ).toFixed(1);
 
   tableRows.push( <tr><td>{ `${ getCommaSepLabel( summary.count) } of ${ getCommaSepLabel(batchData.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
