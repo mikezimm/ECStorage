@@ -2,9 +2,10 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
 
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IBucketSummary } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IBucketSummary, IOldFiles } from '../../IExStorageState';
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 export function createRatioNote ( summary: IBucketSummary, userLabel: string ) {
   if ( !userLabel || userLabel.length === 0 ) { userLabel = 'all' ; }
@@ -28,17 +29,39 @@ export function createSummaryRangeRows ( tableRows: any[], summary: IBucketSumma
 
 }
 
-export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary, partialFlag: string ) {
+export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary | IBatchData, partialFlag: string ) {
 
   let currentDate = new Date();
   let currentYear = currentDate.getFullYear();
 
-  tableRows.push( <tr><td>{ `${ summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files oldFilesr created before ${ currentYear - 1 }`}</td></tr> );
+  tableRows.push( <tr><td>{ `${ summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files oldFiles created before ${ currentYear - 1 }`}</td></tr> );
 
   let GT100M = getCommaSepLabel(summary.count);
   let GT100SizeLabel = getSizeLabel(summary.size);
 
   tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
+
+  return tableRows;
+
+}
+
+export function createInfoRows( tableRows: any[], batch: IBatchData | IUserSummary, partialFlag: string ){
+
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.duplicateInfo.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.uniqueInfo.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
+
+  return tableRows;
+
+}
+
+export function createOldModifiedRows( tableRows: any[], oldModified: IOldFiles, partialFlag: string ){
+
+  let Age3YrCount = oldModified.Age3Yr.length;
+  Age3YrCount += oldModified.Age4Yr.length;
+  Age3YrCount += oldModified.Age5Yr.length;
+
+  tableRows.push( <tr><td>{ `${ Age3YrCount } ${ partialFlag }`} </td><td>{ `Files last modified more than a couple years ago` }</td></tr> );
 
   return tableRows;
 
@@ -58,5 +81,17 @@ export function createSummaryTopStats( tableRows: any[], summary: IBucketSummary
   }
 
   return tableRows;
+
+}
+
+export function buildSummaryTable( tableRows: any[], ){
+
+  let summaryTable = <table className={ styles.summaryTable }>
+    { tableRows }
+  </table>;
+
+  return <div style={{  }}>
+    { summaryTable }
+  </div>;
 
 }

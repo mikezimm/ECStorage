@@ -13,7 +13,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
 
 
 export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) : React.ReactElement {
@@ -30,12 +30,6 @@ export function createSizeSummary ( large: ILargeFiles, batchData: IBatchData ) 
 
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( large.summary,  '' ) }</td></tr> );
 
-  let summaryTable = <table className={ styles.summaryTable }>
-    { tableRows }
-  </table>;
-
-  return <div style={{ }}>
-    { summaryTable }
-  </div>;
+  return buildSummaryTable( tableRows ) ;
 
 }

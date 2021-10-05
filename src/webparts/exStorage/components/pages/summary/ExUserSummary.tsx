@@ -12,7 +12,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
 
 export function createUserSummary ( userSummary: IUserSummary, batchData: IBatchData ) : React.ReactElement {
   // const summary = userSummary.summary;
@@ -24,30 +24,18 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
 
   tableRows = createSummaryTopStats( tableRows, userSummary.summary, batchData, partialFlag );
 
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.duplicateInfo.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(userSummary.uniqueInfo.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
-  // tableRows.push( <tr><td>{ `${ userSummary.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
+  tableRows = createInfoRows( tableRows, batchData, partialFlag );
 
   tableRows = createSummaryOldRows( tableRows, userSummary.summary, partialFlag );
 
   tableRows = createSummaryRangeRows( tableRows, userSummary.summary );
 
   let userLabel = userSummary.userId === batchData.userInfo.currentUser.userId ? 'your' : 'this user\'s';
+  
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( userSummary.large.summary,  '' )  }</td></tr> );
 
-  let Age3YrCount = userSummary.oldModified.Age3Yr.length;
-  Age3YrCount += userSummary.oldModified.Age4Yr.length;
-  Age3YrCount += userSummary.oldModified.Age5Yr.length;
+  tableRows = createOldModifiedRows( tableRows, userSummary.oldModified, partialFlag );
 
-  tableRows.push( <tr><td>{ `${ Age3YrCount } ${ partialFlag }`} </td><td>{ `Files last modified more than a couple years ago` }</td></tr> );
-
-  let summaryTable = <table className={ styles.summaryTable }>
-    { tableRows }
-  </table>;
-
-  return <div style={{  }}>
-    { summaryTable }
-  </div>;
+  return buildSummaryTable( tableRows ) ;
 
 }

@@ -13,7 +13,7 @@ import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Serv
 
 import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
 
 
 export function createDupSummary ( dups: IDuplicateInfo, batchData: IBatchData ) : React.ReactElement {
@@ -30,12 +30,6 @@ export function createDupSummary ( dups: IDuplicateInfo, batchData: IBatchData )
 
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( dups.summary,  '' ) }</td></tr> );
 
-  let summaryTable = <table className={ styles.summaryTable }>
-    { tableRows }
-  </table>;
-
-  return <div style={{  }}>
-    { summaryTable }
-  </div>;
+  return buildSummaryTable( tableRows ) ;
 
 }
