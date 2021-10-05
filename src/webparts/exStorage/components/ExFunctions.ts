@@ -191,7 +191,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
   }
 
-  export function updateBucketSummaryPercents( summary: IBucketSummary, compare: IBucketSummary | IBatchData ): IBucketSummary {
+  export function updateBucketSummaryPercents( summary: IBucketSummary, compare: IBucketSummary ): IBucketSummary {
     summary.sizeGB = summary.size / 1e9 ;
     summary.sizeP = 100 * summary.size / compare.size ;
     summary.countP = 100 * summary.count / compare.count;
@@ -568,12 +568,9 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
 export function createBatchData ( currentUser: IUser, totalCount: number ):IBatchData {
   return {  
     totalCount: totalCount,
-    count: 0,
+    summary: createBucketSummary('Duplicate file info', 'Batch'),
     significance: 0,
     isSignificant: false,
-    size: 0,
-    sizeGB: 0,
-    sizeLabel: '',
     items: [],
     typesInfo: {
       count: 0,
@@ -861,9 +858,7 @@ function expandArray ( count: number ) : any[] {
       //Get item summary
       let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions, pickedList.LibraryUrl );
 
-      batchData.count ++;
-      batchData.size += detail.size;
-
+      batchData.summary = updateBucketSummary( batchData.summary, detail );
       /***
        *                        d888b  d88888b d888888b       .d8b.  db    db d888888b db   db  .d88b.  d8888b.      d88888b d8888b. d888888b d888888b  .d88b.  d8888b. 
        *           Vb          88' Y8b 88'     `~~88~~'      d8' `8b 88    88 `~~88~~' 88   88 .8P  Y8. 88  `8D      88'     88  `8D   `88'   `~~88~~' .8P  Y8. 88  `8D 
@@ -1222,8 +1217,6 @@ function expandArray ( count: number ) : any[] {
 
 
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
-  batchData.sizeGB += ( batchData.size / 1e9 );
-  batchData.sizeLabel = getSizeLabel( batchData.size );
 
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d888888b db    db d8888b. d88888b d888888b d8b   db d88888b  .d88b.  
@@ -1239,8 +1232,8 @@ function expandArray ( count: number ) : any[] {
   batchData.typesInfo.types.map( docType => {
     docType.sizeGB = docType.size/1e9;
     docType.sizeLabel = getSizeLabel( docType.size );
-    docType.sizeP = docType.size / batchData.size * 100;
-    docType.countP = docType.count / batchData.count * 100;
+    docType.sizeP = docType.size / batchData.summary.size * 100;
+    docType.countP = docType.count / batchData.summary.count * 100;
     docType.avgSize = docType.size/docType.count;
     docType.maxSize = Math.max(...docType.sizes);
     docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
@@ -1309,7 +1302,7 @@ function expandArray ( count: number ) : any[] {
     user.summary.count = user.createCount;
     user.summary.sizeGB = user.summary.size / 1e9;
 
-    user.summary = updateBucketSummaryPercents( user.summary, batchData);
+    user.summary = updateBucketSummaryPercents( user.summary, batchData.summary );
 
     user.large.summary = updateBucketSummaryPercents( user.large.summary, user.summary );
 
@@ -1363,8 +1356,8 @@ function expandArray ( count: number ) : any[] {
    *                                                                                                                                              
    */
 
-  bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData);
-  oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData);
+  bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData.summary);
+  oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData.summary);
 
   batchData.folderInfo.folders.map( folder => {
     folder.sizeMB = folder.size / 1e6;
@@ -1385,8 +1378,8 @@ function expandArray ( count: number ) : any[] {
     if ( dup.summary.count > 1 ) {
       dup.summary.sizeGB = dup.summary.size/1e9;
       dup.summary.sizeLabel = getSizeLabel( dup.summary.size );
-      dup.summary.sizeP = dup.summary.size / batchData.size * 100;
-      dup.summary.countP = dup.summary.count / batchData.count * 100;
+      dup.summary.sizeP = dup.summary.size / batchData.summary.size * 100;
+      dup.summary.countP = dup.summary.count / batchData.summary.count * 100;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
@@ -1439,7 +1432,7 @@ function expandArray ( count: number ) : any[] {
 
   }
 
-  batchData.significance = batchData.count > 0 ? batchData.count / batchData.totalCount : 0 ;
+  batchData.significance = batchData.summary.count > 0 ? batchData.summary.count / batchData.totalCount : 0 ;
   if ( batchData.significance > .95 ) { batchData.isSignificant = true ; }
 
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];

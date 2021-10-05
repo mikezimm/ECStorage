@@ -12,7 +12,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows } from './summaryFunctions';
 
 export function createAgeSummary ( oldFiles: IOldFiles, batchData: IBatchData ) : React.ReactElement {
 

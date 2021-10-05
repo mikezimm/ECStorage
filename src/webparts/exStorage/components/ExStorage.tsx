@@ -597,7 +597,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
-    let gridPivotContent = !this.state.isLoaded || this.state.batchData.count === 0 ? null : 
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? null : 
       <Gridcharts
 
         items = { this.state.batchData.items }
@@ -1023,10 +1023,10 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let zzzRichText2 = null;
     let zzzRichText3 = null;
 
-    let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
+    let filePercent = batchData.totalCount > 0  ? 100 * batchData.summary.count / batchData.totalCount : null;
     let hasSignificantData = batchData.isSignificant;
 
-    if ( batchData.count > 0) {
+    if ( batchData.summary.count > 0) {
       zzzRichText1 = {};
       let saveSummaryObjects = [ 'large','oldCreated','oldModified', 'folderInfo', 'duplicateInfo' ];
       saveSummaryObjects.map( objKey => {
@@ -1048,7 +1048,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
            * Therefore to be safe, the number of item ModifiedMS that could safely be saved would be
            *  ( 800k / 595k ) * 41k items = 
            */
-          if ( batchData.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
+          if ( batchData.summary.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
           if ( skipTypesKeys.indexOf( key ) < 0 ) { smallType[ key ] = type[ key ] ; }
         });
         zzzRichText2[ 'typesInfo' ]['types'].push( smallType );
@@ -1067,8 +1067,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
     if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
 
-    let msPerFetch = batchData.count > 0 ?( batchInfo.fetchMs / batchData.count ) : null;
-    let msPerAnalyze = batchData.count > 0 ?( batchInfo.analyzeMs / batchData.count ) : null;
+    let msPerFetch = batchData.summary.count > 0 ?( batchInfo.fetchMs / batchData.summary.count ) : null;
+    let msPerAnalyze = batchData.summary.count > 0 ?( batchInfo.analyzeMs / batchData.summary.count ) : null;
 
     let saveObject: IZSentAnalytics = {
       loadProperties: this.state.loadProperties,
@@ -1077,7 +1077,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     
       Result: 'Success',  //Success or Error
     
-      zzzText1: `${ batchData.count } of ${ batchData.totalCount } files [ ${ filePercent.toPrecision(2) } % ] = [ ${ getSizeLabel( batchData.size ) } ]`, //Start-Now in some webparts
+      zzzText1: `${ batchData.summary.count } of ${ batchData.totalCount } files [ ${ filePercent.toPrecision(2) } % ] = [ ${ getSizeLabel( batchData.summary.size ) } ]`, //Start-Now in some webparts
       zzzText2: `${ hasSignificantData === true ? 'Significant' : 'Insignificant'}`, //Start-TheTime in some webparts
       zzzText3: ``, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
       zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
@@ -1088,7 +1088,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       zzzNumber1: batchInfo.totalLength,
       zzzNumber2: batchInfo.fetchMs,
       zzzNumber3: batchInfo.analyzeMs,
-      zzzNumber4: batchData.sizeGB,
+      zzzNumber4: batchData.summary.sizeGB,
       zzzNumber5: filePercent,
       zzzNumber6: msPerFetch,
       zzzNumber7: msPerAnalyze,

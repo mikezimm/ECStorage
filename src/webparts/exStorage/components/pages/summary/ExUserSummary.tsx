@@ -12,7 +12,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows } from './summaryFunctions';
 
 export function createUserSummary ( userSummary: IUserSummary, batchData: IBatchData ) : React.ReactElement {
   // const summary = userSummary.summary;
@@ -28,10 +28,12 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
 
   tableRows = createSummaryOldRows( tableRows, userSummary.summary, partialFlag );
 
+  tableRows = createSummaryLargeRows( tableRows, userSummary.summary, partialFlag );
+
   tableRows = createSummaryRangeRows( tableRows, userSummary.summary );
 
   let userLabel = userSummary.userId === batchData.userInfo.currentUser.userId ? 'your' : 'this user\'s';
-  
+
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ createRatioNote( userSummary.large.summary,  '' )  }</td></tr> );
 
   tableRows = createOldModifiedRows( tableRows, userSummary.oldModified, partialFlag );

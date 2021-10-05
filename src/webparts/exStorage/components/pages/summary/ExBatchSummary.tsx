@@ -12,7 +12,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows } from './summaryFunctions';
 
 export function createBatchSummary ( batchData: IBatchData ) : React.ReactElement {
 
@@ -22,11 +22,13 @@ export function createBatchSummary ( batchData: IBatchData ) : React.ReactElemen
 
   tableRows = createSummaryTopStats( tableRows, batchData.oldModified.summary, batchData, partialFlag );
 
-  tableRows = createInfoRows( tableRows, batchData, partialFlag );
-  
   tableRows.push( <tr><td>{ `${ batchData.userInfo.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );
 
-  tableRows = createSummaryOldRows( tableRows, batchData, partialFlag );
+  tableRows = createInfoRows( tableRows, batchData, partialFlag );
+
+  tableRows = createSummaryOldRows( tableRows, batchData.oldCreated.summary, partialFlag );
+  
+  tableRows = createSummaryLargeRows( tableRows, batchData.oldCreated.summary, partialFlag );
 
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ createRatioNote( batchData.large.summary,  '' ) }` }</td></tr> );
 

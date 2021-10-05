@@ -44,7 +44,7 @@ export function createSummaryTopStats( tableRows: any[], summary: IBucketSummary
 
 export function createTotalSize( tableRows: any[], summary: IBucketSummary, batchData: IBatchData, partialFlag: string ) {
 
-  tableRows.push( <tr><td>{ `${ batchData.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files fetched` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files fetched` }</td></tr> );
 
   return tableRows;
 
@@ -61,17 +61,31 @@ export function createInfoRows( tableRows: any[], batch: IBatchData | IUserSumma
 
 }
 
-export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary | IBatchData, partialFlag: string ) {
+export function createSummaryLargeRows( tableRows: any[], summary: IBucketSummary, partialFlag: string ) {
+
+  //If this isn't a large files bucket, return with no  updates
+  if ( summary.bucket !== 'Large Files') { return tableRows; }
+
+  let Count = getCommaSepLabel(summary.count);
+
+  tableRows.push( <tr><td>{ `${ Count } or ${ summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files larger than 100MB` }</td></tr> );
+
+  return tableRows;
+
+}
+
+export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary, partialFlag: string ) {
+
+  //If this isn't a large files bucket, return with no  updates
+  if ( summary.bucket !== 'Old Files') { return tableRows; }
 
   let currentDate = new Date();
   let currentYear = currentDate.getFullYear();
 
-  tableRows.push( <tr><td>{ `${ summary.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files oldFiles created before ${ currentYear - 1 }`}</td></tr> );
+  let Count = getCommaSepLabel(summary.count);
+  let Size = getSizeLabel(summary.size);
 
-  let GT100M = getCommaSepLabel(summary.count);
-  let GT100SizeLabel = getSizeLabel(summary.size);
-
-  tableRows.push( <tr><td>{ `${ GT100M } or ${ GT100SizeLabel } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ Count } or ${ Size } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
 
   return tableRows;
 
@@ -79,9 +93,9 @@ export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary 
 
 export function createSummaryRangeRows ( tableRows: any[], summary: IBucketSummary ) {
 
-  tableRows.push( <tr><td>{ summary.ranges.createRange } </td><td>{ `Old files CREATED during this timeframe` }</td></tr> );
-  tableRows.push( <tr><td>{ summary.ranges.modifyRange } </td><td>{ `Old files MODIFIED during this timeframe` }</td></tr> );
-  tableRows.push( <tr><td>{ summary.ranges.rangeAll } </td><td>{ `Old files were active during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ summary.ranges.createRange } </td><td>{ `CREATED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ summary.ranges.modifyRange } </td><td>{ `MODIFIED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td>{ summary.ranges.rangeAll } </td><td title={'Files were created and modified during this timeframe'}>{ `Active during this timeframe` }</td></tr> );
 
   return tableRows;
 

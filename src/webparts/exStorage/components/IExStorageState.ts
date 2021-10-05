@@ -92,7 +92,7 @@ export interface IFolderDetail extends IItemDetail {
   otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
-export type IBucketType = 'Everything' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' ;
+export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' ;
 
 export interface IBucketSummary {
   title: string;
@@ -298,10 +298,6 @@ export type IAllItemTypes = IFolderDetail | IItemDetail;
 
 export interface IBatchData {
   totalCount: number;
-  count: number;
-  size: number;
-  sizeGB: number;
-  sizeLabel: string;
 
   large: ILargeFiles;
 
@@ -322,6 +318,8 @@ export interface IBatchData {
 
   significance: number; // % of all items returned
   isSignificant: boolean;
+
+  summary: IBucketSummary;
 
 }
 

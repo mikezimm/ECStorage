@@ -13,7 +13,7 @@ import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Serv
 
 import { getStorageItems, batchSize, createBatchData, } from '../../ExFunctions';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows } from './summaryFunctions';
 
 
 export function createDupSummary ( dups: IDuplicateInfo, batchData: IBatchData ) : React.ReactElement {
