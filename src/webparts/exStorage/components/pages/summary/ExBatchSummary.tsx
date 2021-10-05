@@ -18,11 +18,9 @@ import { createRatioNote } from './summaryFunctions';
 export function createBatchSummary ( summary: IBatchData ) : React.ReactElement {
   let fullLoad = summary.count === summary.totalCount ? ' all' : ' ONLY';
 
-  let loadPercentLabel = summary.significance.toFixed(1);
+  let loadPercentLabel = ( summary.significance * 100 ).toFixed(1);
   let partialFlag = summary.isSignificant === true ? '' : '*';
 
-  let mainHeading = `Showing results for${fullLoad} ${ summary.count } of ${ summary.totalCount }`;
-  let secondHeading = `This represents${fullLoad} ${ loadPercentLabel } of the files in this library.`;
   let tableRows = [];
 
   tableRows.push( <tr><td>{ `${ getCommaSepLabel(summary.count) } of ${ getCommaSepLabel(summary.totalCount) }`} </td><td>{ `Showing results for this many files in the library` }</td></tr> );
@@ -54,11 +52,6 @@ export function createBatchSummary ( summary: IBatchData ) : React.ReactElement 
     { tableRows }
   </table>;
 
-  const totalsInfo = <div className={ styles.flexWrapStart }>
-    <div>{ mainHeading }</div>
-    <div>{ secondHeading }</div>
-
-  </div>;
   return <div style={{  }}>
     { summaryTable }
   </div>;
