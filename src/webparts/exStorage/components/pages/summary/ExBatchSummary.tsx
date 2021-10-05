@@ -22,8 +22,6 @@ export function createBatchSummary ( batchData: IBatchData ) : React.ReactElemen
 
   tableRows = createSummaryTopStats( tableRows, batchData.oldModified.summary, batchData, partialFlag );
 
-  tableRows.push( <tr><td>{ `${ batchData.sizeLabel } ${ partialFlag }`} </td><td>{ `Total size of all files fetched` }</td></tr> );
-
   tableRows = createInfoRows( tableRows, batchData, partialFlag );
   
   tableRows.push( <tr><td>{ `${ batchData.userInfo.count } ${ partialFlag }`} </td><td>{ `Users who created/modified files` }</td></tr> );

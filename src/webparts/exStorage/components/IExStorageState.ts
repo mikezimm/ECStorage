@@ -92,6 +92,7 @@ export interface IFolderDetail extends IItemDetail {
   otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
+export type IBucketType = 'Everything' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' ;
 
 export interface IBucketSummary {
   title: string;
@@ -101,6 +102,7 @@ export interface IBucketSummary {
   sizeLabel: string;
   countP: number;
   sizeP: number;
+  bucket: IBucketType;
   ranges: {
     firstCreateMs: any;
     lastCreateMs: any;

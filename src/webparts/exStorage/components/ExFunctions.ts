@@ -41,7 +41,7 @@ import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays
 import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IExStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType } from './IExStorageState';
 
 import { IDataOptions, IUiOptions } from './IExStorageProps';
 
@@ -104,9 +104,10 @@ import { escape } from '@microsoft/sp-lodash-subset';
  *                                                                                                                          
  */
 
-  export function createBucketSummary( title: string ): IBucketSummary {
+  export function createBucketSummary( title: string, bucket: IBucketType ): IBucketSummary {
     let summary: IBucketSummary = {
       title: title,
+      bucket: bucket,
       count: 0,
       size: 0,
       sizeGB: 0,
@@ -218,7 +219,7 @@ export function createLargeFiles() :ILargeFiles {
     GT01G: [],
     GT100M: [],
     GT10M: [],
-    summary: createBucketSummary( `Files BIGGER than 100MB` ),
+    summary: createBucketSummary( `Files BIGGER than 100MB`, 'Large Files' ),
   };
 }
 
@@ -239,7 +240,7 @@ export function createOldFiles () :IOldFiles {
     Age3Yr: [],
     Age2Yr: [],
     Age1Yr: [],
-    summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}` ),
+    summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}`, 'Old Files' ),
   };
 }
 
@@ -285,7 +286,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     large: createLargeFiles(),
 
     items: [],
-    summary: createBucketSummary( `Summary for ${userTitle}` ),
+    summary: createBucketSummary( `Summary for ${userTitle}`, 'User' ),
 
     typesInfo: {
       count: 0,
@@ -301,7 +302,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       duplicates: [],
       countRank: [],
       sizeRank: [],
-      summary: createBucketSummary('Duplicate file info'),
+      summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
     },
 
     folderInfo: {
@@ -407,7 +408,7 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       sizes: [],
       createdMs: [],
       modifiedMs: [],
-      summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`),
+      summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`, 'Duplicate Files'),
       FileLeafRef: detail.FileLeafRef,
     };
 
@@ -588,7 +589,7 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
       duplicates: [],
       countRank: [],
       sizeRank: [],
-      summary: createBucketSummary('Duplicate file info'),
+      summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
     },
 
     folderInfo: {
@@ -662,7 +663,7 @@ function createDupRanks ( count: number ) : IDuplicateInfo {
     duplicateNames: [],
     countRank: [],
     sizeRank: [],
-    summary: createBucketSummary('Duplicate file info'),
+    summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
   };
 
   for (let index = 0; index < count; index++) {
