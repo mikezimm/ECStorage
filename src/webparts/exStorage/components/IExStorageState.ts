@@ -257,6 +257,7 @@ export interface ITypeInfo {
 
 export interface IDuplicateInfo {
   duplicateNames: string[];
+  allNames: string[];
   duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.

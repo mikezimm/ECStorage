@@ -297,6 +297,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     },
     
     duplicateInfo: {
+      allNames: [],
       duplicateNames: [],
       duplicates: [],
       countRank: [],
@@ -570,6 +571,7 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     },
     
     duplicateInfo: {
+      allNames: [],
       duplicateNames: [],
       duplicates: [],
       countRank: [],
@@ -643,6 +645,7 @@ function createTypeRanks ( count: number ) : ITypeInfo {
 
 function createDupRanks ( count: number ) : IDuplicateInfo {
   let theseInfos : IDuplicateInfo = {
+    allNames: [],
     duplicates: [],
     duplicateNames: [],
     countRank: [],
@@ -823,7 +826,8 @@ function expandArray ( count: number ) : any[] {
   let userOldestCreate: IItemDetail = null;
   let userOldestModified: IItemDetail = null;
 
-  let allNameStrings: string[] = [];
+  let allNames: string[] = [];
+  let duplicateNames: string[] = [];
   let allNameItems: IDuplicateFile[] = [];
 
   let allFolderRefs: string [] = [];
@@ -958,14 +962,30 @@ function expandArray ( count: number ) : any[] {
        *                                                                                                                                                         
        */
       //Build up Duplicate list - only for filenames not folder names
+
+      // let allNames: string[] = [];
+      // let duplicateNames: string[] = [];
+
       if ( detail.isFolder !== true ) {
-        let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+        let FileLeafRefLC = detail.FileLeafRef.toLowerCase();
+        let dupIndex = allNames.indexOf( FileLeafRefLC );
+
+        //Filename not encountered, add to All Names and create the Duplicate Item
         if ( dupIndex < 0 ) {
-          allNameStrings.push( detail.FileLeafRef.toLowerCase() );
-          dupIndex = allNameStrings.length - 1;
-          allNameItems.push( createThisDuplicate(detail)  );
-        } else {
+          allNames.push( FileLeafRefLC );
+          dupIndex = allNames.length - 1;
+          allNameItems.push( createThisDuplicate(detail) );
           allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+
+        //Filename was encountered, update the Duplicate Item
+        } else {
+
+          if ( duplicateNames.indexOf( FileLeafRefLC ) < 0 ) {
+            duplicateNames.push( FileLeafRefLC ) ; 
+          }
+
+          allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+          batchData.duplicateInfo.summary = updateBucketSummary( batchData.duplicateInfo.summary, detail, );
         }
 
       }
@@ -1372,10 +1392,6 @@ function expandArray ( count: number ) : any[] {
    */
   allNameItems.map( dup => {
     if ( dup.summary.count > 1 ) {
-      dup.summary.sizeGB = dup.summary.size/1e9;
-      dup.summary.sizeLabel = getSizeLabel( dup.summary.size );
-      dup.summary.sizeP = dup.summary.size / batchData.summary.size * 100;
-      dup.summary.countP = dup.summary.count / batchData.summary.count * 100;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
