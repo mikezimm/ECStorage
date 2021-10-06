@@ -297,7 +297,6 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     },
     
     duplicateInfo: {
-      count: 0,
       duplicateNames: [],
       duplicates: [],
       countRank: [],
@@ -314,8 +313,8 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     },
 
     uniqueInfo: {
-      count: 0,
       uniqueRolls: [],
+      summary: createBucketSummary('Unique Permissions', 'Files with Unique Permissions'),
     },
 
   };
@@ -399,8 +398,6 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       name: detail.FileLeafRef,
       type: detail.docIcon, 
       locations: [],
-      size: 0,
-      count: 0,
       iconName: iconInfo.iconName,
       iconColor: iconInfo.iconColor,
       iconTitle: iconInfo.iconTitle,
@@ -443,8 +440,8 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
   // thisDup.summary.count ++;
   // thisDup.summary.size += detail.size;
 
-  thisDup.count ++;
-  thisDup.size += detail.size;
+  thisDup.summary = updateBucketSummary( thisDup.summary, detail );
+
 
   // thisDup.summary.sizeGB = detail.size / 1e9;
   // thisDup.summary.sizeLabel = getSizeLabel( detail.size );
@@ -508,21 +505,15 @@ export function createThisType ( docIcon: string ) :IFileType {
     iconName: iconInfo.iconName,
     iconColor: iconInfo.iconColor,
     iconTitle: iconInfo.iconTitle,
-    count: 0,
-    size: 0,
-    sizeGB: 0,
-    sizeLabel: '',
     avgSizeLabel: '',
     maxSizeLabel: '',
     avgSize: 0,
     maxSize: 0,
-    sizeP: 0,
-    countP: 0,
-    sizeToCountRatio: 0,
     items: [],
     sizes: [],
     createdMs: [],
     modifiedMs: [],
+    summary: createBucketSummary('File Type info', 'File Type'),
   };
 
   return thisType;
@@ -541,14 +532,12 @@ export function createThisType ( docIcon: string ) :IFileType {
  */
 export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : IFileType {
 
-  thisType.count ++;
-  thisType.size += detail.size;
-
   thisType.items.push( detail );
   thisType.sizes.push(detail.size);
 
   thisType.createdMs.push( detail.createMs ) ;
   thisType.modifiedMs.push( detail.modMs ) ;
+  thisType.summary = updateBucketSummary( thisType.summary, detail );
 
   return thisType;
 
@@ -581,7 +570,6 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     },
     
     duplicateInfo: {
-      count: 0,
       duplicateNames: [],
       duplicates: [],
       countRank: [],
@@ -598,8 +586,8 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     },
 
     uniqueInfo: {
-      count: 0,
       uniqueRolls: [],
+      summary: createBucketSummary('Unique Permissions', 'Files with Unique Permissions'),
     },
 
     large: createLargeFiles(),
@@ -655,7 +643,6 @@ function createTypeRanks ( count: number ) : ITypeInfo {
 
 function createDupRanks ( count: number ) : IDuplicateInfo {
   let theseInfos : IDuplicateInfo = {
-    count: 0,
     duplicates: [],
     duplicateNames: [],
     countRank: [],
@@ -859,6 +846,7 @@ function expandArray ( count: number ) : any[] {
       let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions, pickedList.LibraryUrl );
 
       batchData.summary = updateBucketSummary( batchData.summary, detail );
+
       /***
        *                        d888b  d88888b d888888b       .d8b.  db    db d888888b db   db  .d88b.  d8888b.      d88888b d8888b. d888888b d888888b  .d88b.  d8888b. 
        *           Vb          88' Y8b 88'     `~~88~~'      d8' `8b 88    88 `~~88~~' 88   88 .8P  Y8. 88  `8D      88'     88  `8D   `88'   `~~88~~' .8P  Y8. 88  `8D 
@@ -976,9 +964,10 @@ function expandArray ( count: number ) : any[] {
           allNameStrings.push( detail.FileLeafRef.toLowerCase() );
           dupIndex = allNameStrings.length - 1;
           allNameItems.push( createThisDuplicate(detail)  );
+        } else {
+          allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
         }
-        allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
-        allNameItems[ dupIndex ].summary = updateBucketSummary( allNameItems[ dupIndex ].summary, detail );
+
       }
 
 
@@ -1051,6 +1040,9 @@ function expandArray ( count: number ) : any[] {
       }
 
 
+      /**
+       * User Duplicates
+       */
 
       /***
        *                       db    db .d8888. d88888b d8888b.      d8888b. d88888b d8888b. .88b  d88. .d8888. 
@@ -1065,6 +1057,8 @@ function expandArray ( count: number ) : any[] {
       if ( detail.uniquePerms === true ) { 
         batchData.uniqueInfo.uniqueRolls.push ( detail ) ;
         batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.uniqueRolls.push ( detail ) ;
+        batchData.uniqueInfo.summary = updateBucketSummary (batchData.uniqueInfo.summary , detail );
+        batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.summary = updateBucketSummary (batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.summary , detail );
       }
 
       /***
@@ -1230,15 +1224,11 @@ function expandArray ( count: number ) : any[] {
    */
   //Update batchData typesInfo
   batchData.typesInfo.types.map( docType => {
-    docType.sizeGB = docType.size/1e9;
-    docType.sizeLabel = getSizeLabel( docType.size );
-    docType.sizeP = docType.size / batchData.summary.size * 100;
-    docType.countP = docType.count / batchData.summary.count * 100;
-    docType.avgSize = docType.size/docType.count;
+
+    docType.avgSize = docType.summary.size/docType.summary.count;
     docType.maxSize = Math.max(...docType.sizes);
-    docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
-    docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
-    docType.sizeToCountRatio = docType.sizeP / docType.countP;
+    docType.avgSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+    docType.maxSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.maxSize) : '-';
 
   });
 
@@ -1247,14 +1237,14 @@ function expandArray ( count: number ) : any[] {
   //Modify each user's typesInfo
   batchData.userInfo.allUsers.map( user => {
     user.typesInfo.types.map( docType => {
-      docType.sizeGB = docType.size/1e9;
-      docType.sizeLabel = getSizeLabel( docType.size );
-      docType.sizeP = docType.size / user.createTotalSize * 100;
-      docType.countP = docType.count / user.createCount * 100;
-      docType.avgSize = docType.size/docType.count;
+      docType.summary.sizeGB = docType.summary.size/1e9;
+      docType.summary.sizeLabel = getSizeLabel( docType.summary.size );
+      docType.summary.sizeP = docType.summary.size / user.createTotalSize * 100;
+      docType.summary.countP = docType.summary.count / user.createCount * 100;
+      docType.avgSize = docType.summary.size/docType.summary.count;
       docType.maxSize = Math.max(...docType.sizes);
-      docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
-      docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
+      docType.avgSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+      docType.maxSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.maxSize) : '-';
     });
     user.typesInfo.count = user.typesInfo.typeList.length;
   });
@@ -1310,6 +1300,10 @@ function expandArray ( count: number ) : any[] {
 
     user.oldModified.summary = updateBucketSummaryPercents( user.oldModified.summary, user.summary );
 
+    user.duplicateInfo.summary = updateBucketSummaryPercents( user.duplicateInfo.summary, user.summary );
+
+    user.uniqueInfo.summary = updateBucketSummaryPercents( user.uniqueInfo.summary, user.summary );
+
     allUserCreateSize.push( user.createTotalSize );
     allUserCreateCount.push( user.createCount );
     allUserModifySize.push( user.modifyTotalSize );
@@ -1358,6 +1352,8 @@ function expandArray ( count: number ) : any[] {
 
   bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData.summary);
   oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData.summary);
+  batchData.duplicateInfo.summary = updateBucketSummaryPercents( batchData.duplicateInfo.summary, batchData.summary );
+  batchData.uniqueInfo.summary = updateBucketSummaryPercents( batchData.uniqueInfo.summary, batchData.summary );
 
   batchData.folderInfo.folders.map( folder => {
     folder.sizeMB = folder.size / 1e6;

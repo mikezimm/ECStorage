@@ -14,8 +14,8 @@ export function createRatioNote ( summary: IBucketSummary, userLabel: string ) {
 
 export function createTypeRatioNote ( summary: IFileType, userLabel: string ) {  //sizeToCountRatio
   if ( !userLabel || userLabel.length === 0 ) { userLabel = 'all' ; }
-  let text = `${ summary.type }:  only ${ summary.countP.toPrecision(2) }% of ${ userLabel } files ( ${summary.count} )  account for ${ summary.sizeP.toPrecision(2) }% ( ${summary.sizeLabel} ) of ${ userLabel } space`;
-  let title = `The size ( ${ summary.sizeLabel }) to count ( ${ summary.count }) ratio is ${ summary.sizeToCountRatio.toPrecision(2) }`;
+  let text = `${ summary.type }:  only ${ summary.summary.countP.toPrecision(2) }% of ${ userLabel } files ( ${summary.summary.count} )  account for ${ summary.summary.sizeP.toPrecision(2) }% ( ${summary.summary.sizeLabel} ) of ${ userLabel } space`;
+  let title = `The size ( ${ summary.summary.sizeLabel }) to count ( ${ summary.summary.count }) ratio is ${ summary.summary.sizeToCountRatio.toPrecision(2) }`;
   return  <span title={ title }>{ text }</span>;
 }
 
@@ -54,8 +54,8 @@ export function createTotalSize( tableRows: any[], summary: IBucketSummary, batc
 export function createInfoRows( tableRows: any[], batch: IBatchData | IUserSummary, partialFlag: string ){
 
   tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.duplicateInfo.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.uniqueInfo.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.duplicateInfo.summary.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.uniqueInfo.summary.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
 
   return tableRows;
 

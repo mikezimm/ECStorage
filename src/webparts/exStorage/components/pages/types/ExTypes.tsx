@@ -284,13 +284,13 @@ public componentDidMount() {
 
         switch (sortKey) {
           case 'size':
-            typePercent = ( type.sizeP ).toFixed( 0 );
-            label = `${type.type}  [ ${ type.sizeLabel} / ${ typePercent }% ]` ;
+            typePercent = ( type.summary.sizeP ).toFixed( 0 );
+            label = `${type.type}  [ ${ type.summary.sizeLabel} / ${ typePercent }% ]` ;
             break;
         
           case 'count':
-            typePercent = ( type.countP ).toFixed( 0 );
-            label = `${type.type}  [ ${ type.count} / ${ typePercent }% ]` ;
+            typePercent = ( type.summary.countP ).toFixed( 0 );
+            label = `${type.type}  [ ${ type.summary.count} / ${ typePercent }% ]` ;
             break;
 
           case 'avgSize':

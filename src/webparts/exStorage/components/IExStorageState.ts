@@ -92,7 +92,7 @@ export interface IFolderDetail extends IItemDetail {
   otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
-export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' ;
+export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' | 'File Type' ;
 
 export interface IBucketSummary {
   title: string;
@@ -200,19 +200,6 @@ export interface IDuplicateFile {
   iconColor: string;
   iconTitle: string;
   
-  // These are already in IBucketSummary
-  // title: string;
-  // count: number;
-  // size: number;
-  // sizeGB: number;
-  // sizeLabel: string;
-  // countP: number;
-  // sizeP: number;
-  // sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
-  // userTitles: string[];
-  // userIds: number[];
-  count: number;
-  size: number;
   items: IItemDetail[];
   locations: string[];
   sizes: number[];
@@ -224,25 +211,22 @@ export interface IDuplicateFile {
 }
 
 export interface IFileType {
+
   type: string;
   iconName: string;
   iconColor: string;
   iconTitle: string;
-  count: number;
-  size: number;
-  sizeGB: number;
-  sizeP: number;
-  countP: number;
-  sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
-  sizeLabel: string;
+
   avgSize: number;
   maxSize: number;
   avgSizeLabel: string;
   maxSizeLabel: string;
+
   items: IItemDetail[];
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
+  summary: IBucketSummary;
 
 }
 
@@ -272,7 +256,6 @@ export interface ITypeInfo {
 }
 
 export interface IDuplicateInfo {
-  count: number;
   duplicateNames: string[];
   duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
@@ -289,8 +272,8 @@ export interface IFolderInfo {
 }
 
 export interface IUniqueInfo {
-  count: number;
   uniqueRolls: IItemDetail[];
+  summary: IBucketSummary;
 }
 
 export type IAllItemTypes = IFolderDetail | IItemDetail;
