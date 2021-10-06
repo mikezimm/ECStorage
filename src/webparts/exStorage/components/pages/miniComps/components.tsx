@@ -53,7 +53,7 @@ export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { 
     } else { icons[ idx ].sort1 += item.size ;  icons[ idx ].sort2 ++ ; icons[ idx ].iconTitle = `${ item.iconTitle }: count: ${ getCommaSepLabel( icons[ idx ].sort2 ) }  size: ${ getSizeLabel( icons[ idx ].sort1 ) }` ; }
   });
 
-  icons = sortObjectArrayByChildNumberKey( icons, 'dec', 'sort');
+  icons = sortObjectArrayByChildNumberKey( icons, 'dec', 'sort1');
 
   return icons;
 
