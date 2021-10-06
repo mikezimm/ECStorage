@@ -438,25 +438,36 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let typesPivotContent = <div>
       <ExTypes 
-  
-          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-          WebpartHeight = { this.props.WebpartHeight }
-          WebpartWidth = { this.props.WebpartWidth }
-      
-          pickedWeb  = { this.state.pickedWeb }
-          pickedList = { this.state.pickedList }
-          theSite = {null }
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+    
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
 
-          typesInfo = { batchData.typesInfo }
-          batches = { batches }
-          batchData = { batchData }
-                        
-          heading = { '' }
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
 
-          dataOptions = { this.props.dataOptions }
-          uiOptions = { this.props.uiOptions }
+        typesInfo = { batchData.typesInfo }
+        batches = { batches }
+        batchData = { batchData }
+                      
+        refreshId = { this.state.refreshId }
+
+        heading = { '' }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        columns = { this.state.mainGridColumns }
+        gridStyles = { this.props.gridStyles }
       >
-      </ExTypes></div>;
+    </ExTypes></div>;
 
     let usersPivotContent = null;
     

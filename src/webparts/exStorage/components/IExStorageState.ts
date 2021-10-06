@@ -7,6 +7,17 @@ import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/S
 
 import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
+export type IItemType = 'Items' | 'Duplicates';
+
+export interface IIconArray {
+  iconTitle: string;
+  iconName: string;
+  iconColor: string;
+  other?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+  sort1?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+  sort2?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+}
+
 export interface IEXStorageList extends IPickedList {
 
   Created: string;

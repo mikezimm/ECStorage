@@ -15,15 +15,17 @@ import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSumm
 
 import { IDataOptions, IUiOptions } from '../../IExStorageProps';
 
+import {  IGridStyles , IGridColumns} from '../GridCharts/IGridchartsProps';
+
 export interface IExTypesProps {
 
       // 0 - Context
-      // wpContext: WebPartContext;
-      // pageContext: PageContext;
+      wpContext: WebPartContext;
+      pageContext: PageContext;
 
-      // WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+      WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
-      // tenant: string;
+      tenant: string;
   
       theSite: ISite;
       pickedWeb : IPickedWebBasic;
@@ -43,5 +45,9 @@ export interface IExTypesProps {
 
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
+
+      columns: IGridColumns;
+      gridStyles: IGridStyles;
+      refreshId?: string; //used to trigger redraw of grid
 
 }

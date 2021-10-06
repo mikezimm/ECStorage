@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -60,9 +60,9 @@ import { getSizeLabel, getCountLabel, getCommaSepLabel } from '@mikezimm/npmfunc
 
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';
+import { createItemsHeadingWithTypeIcons } from '../miniComps/components';
 
-type IItemType = 'Items' | 'Duplicates';
+import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';
 
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
@@ -75,12 +75,15 @@ const cellMaxStyle: React.CSSProperties = {
 
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
+  private showHeading: boolean = this.props.showHeading === false ? false : true;
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
 
   private itemsOrDups: IItemType = !this.props.duplicateInfo ? 'Items' : 'Duplicates';
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
+
+  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.items, this.itemsOrDups, this.props.heading, this.props.icons );
 
   private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.items.length) } items, use Search box to find more)`;
   private sliderMax = this.items.length < 400 ? this.items.length : 400;
@@ -106,7 +109,6 @@ public constructor(props:IEsItemsProps){
 
   let currentYear = new Date();
   let currentYearVal = currentYear.getFullYear();
-
   
   let totalSize: number = 0;
   this.props.items.map( item => {
@@ -201,10 +203,6 @@ public componentDidMount() {
     let sliderTypeCount = items.length < 5 ? null : 
       <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
-    let iconArray = this.props.icons.map( icon => {
-      return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
-    });
-
     if ( showEmptyElements ) {
       page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
 
@@ -240,23 +238,25 @@ public componentDidMount() {
     
       } else if ( this.state.showItems.length > 0 ) {
 
-        panelContent = <EsItems 
-          pickedWeb  = { this.props.pickedWeb }
-          pickedList = { this.props.pickedList }
-          theSite = {null }
+        panelContent = <div style={{ marginTop: '1em' }}>
+          <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
-          items = { this.state.showItems }
-          itemsAreDups = { this.props.childrenAreDups ? this.props.childrenAreDups : false }
-          duplicateInfo = { null }
-          heading = { ` Duplicates of ${ this.state.showItems[0].FileLeafRef  }` }
-          // batches = { batches }
-          icons = { [ ]}
-          emptyItemsElements = { emptyItemsElements }
-            
-          dataOptions = { this.props.dataOptions }
-          uiOptions = { this.props.uiOptions }
+            items = { this.state.showItems }
+            itemsAreDups = { this.props.childrenAreDups ? this.props.childrenAreDups : false }
+            duplicateInfo = { null }
+            heading = { ` Duplicates of ${ this.state.showItems[0].FileLeafRef  }` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+              
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
 
-        ></EsItems>;
+          ></EsItems>
+        </div>;
       
       }
 
@@ -274,11 +274,10 @@ public componentDidMount() {
         </Panel></div>;
       }
 
+      let panelStyle = this.showHeading !== true ? { marginTop: '1.4em'} : null;
       let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
-      page = <div>
-        <div className={styles.flexWrapStart}>
-          <h3>{ getCommaSepLabel( items.length ) } { this.itemsOrDups } found { this.props.heading }</h3> < div> { iconArray } </div>
-        </div>
+      page = <div style= { panelStyle }>
+        { this.showHeading !== true ? null : this.itemsHeading }
         <div className={ styles.inflexWrapCenter}>
           <div> { sliderTypeCount } </div>
           <div> { this.buildSearchBox() } </div>

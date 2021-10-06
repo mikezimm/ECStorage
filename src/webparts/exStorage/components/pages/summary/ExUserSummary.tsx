@@ -24,7 +24,7 @@ export function createUserSummary ( userSummary: IUserSummary, batchData: IBatch
 
   tableRows = createSummaryTopStats( tableRows, userSummary.summary, batchData, partialFlag );
 
-  tableRows = createInfoRows( tableRows, batchData, partialFlag );
+  tableRows = createInfoRows( tableRows, userSummary, partialFlag );
 
   tableRows = createSummaryOldRows( tableRows, userSummary.summary, partialFlag );
 

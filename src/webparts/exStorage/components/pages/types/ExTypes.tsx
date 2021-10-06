@@ -5,6 +5,7 @@ import { IExTypesState } from './IExTypesState';
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
+import * as strings from 'ExStorageWebPartStrings';
 
 import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 import { Web, IList, Site } from "@pnp/sp/presets/all";
@@ -57,7 +58,27 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import EsItems from '../items/EsItems';
 
+import Gridcharts from '../GridCharts/Gridcharts';
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
+import { IGridColumns } from '../GridCharts/IGridchartsProps';
+
+import { createTypeSummary } from '../summary/ExTypeSummary';
+
 import { createTypeRatioNote } from '../summary/summaryFunctions';
+
+import { createItemsHeadingWithTypeIcons } from '../miniComps/components';
+
+//copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
+const pivotStyles = {
+  root: {
+    whiteSpace: "normal",
+    // marginTop: '1em',
+  //   textAlign: "center"
+  }};
+
+const pivotHeading1 = 'Type Summary';
+const pivotHeading2 = 'Items';
+const pivotHeading3 = 'Timeline';
 
 export default class ExTypes extends React.Component<IExTypesProps, IExTypesState> {
 
@@ -94,6 +115,8 @@ public constructor(props:IExTypesProps){
         showPane: false,
 
         items: [],
+        selectedType: null,
+
         showItems: false,
 
         minYear: currentYearVal - 5 ,
@@ -177,35 +200,115 @@ public componentDidMount() {
     let userPanel = null;
     
     if ( this.state.showItems === true ) { 
-      let panelContent = <EsItems 
 
-          pickedWeb  = { this.props.pickedWeb }
-          pickedList = { this.props.pickedList }
-          theSite = {null }
+      let componentPivot = 
+      <Pivot
+          styles={ pivotStyles }
+          linkFormat={PivotLinkFormat.links}
+          linkSize={PivotLinkSize.normal}
+          defaultSelectedKey={ pivotHeading2 }
+          // onLinkClick={this._selectedListDefIndex.bind(this)}
+      > 
+        <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+          { createTypeSummary( this.state.selectedType, this.props.batchData ) }
+        </PivotItem>
 
-          items = { this.state.items }
-          itemsAreDups = { false }
-          duplicateInfo = { null }
-          heading = { ` of type: ${this.state.items[0].docIcon} ${this.props.heading}` }
-          // batches = { batches }
-          icons = { [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}]}
+        <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+          <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
-          dataOptions = { this.props.dataOptions }
-          uiOptions = { this.props.uiOptions }
+            items = { this.state.items }
+            itemsAreDups = { false }
+            duplicateInfo = { null }
+            heading = { ` of type: ${this.state.items[0].docIcon} ${this.props.heading}` }
+            // batches = { batches }
+            icons = { [] }
 
-        >
-      </EsItems>;
-  
-      userPanel = <div><Panel
+            showHeading = { false } // false because we are putting a heading above the pivot items
+
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+            >
+          </EsItems>
+        </PivotItem>
+
+        <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+          <Gridcharts
+            items = { this.state.items }
+
+            // 0 - Context
+            pageContext = { this.props.pageContext }
+            wpContext = { this.props.wpContext }
+            tenant = { this.props.tenant }
+            urlVars = { null }
+            today = { makeTheTimeObject('')}
+
+            // 2 - Source and destination list information
+            parentListWeb = { this.props.pickedWeb.url }
+            parentListTitle = { this.props.pickedList.Title }
+            parentListURL = { null}
+
+            esItemsHeading = { ``}
+
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+
+            listName = { null}
+
+            columns = { this.props.columns }
+
+            enableSearch = { true }
+
+            scaleMethod = { 'blink' }
+
+            gridStyles = { this.props.gridStyles }
+
+            //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+            WebpartElement = { this.props.WebpartElement }
+
+            // 9 - Other web part options
+            WebpartHeight = {this.props.WebpartHeight }
+            WebpartWidth = { this.props.WebpartWidth }
+
+            // 1 - Analytics options  
+            useListAnalytics = { false }
+            analyticsWeb = { strings.analyticsWeb }
+            analyticsList = { strings.analyticsList}
+
+            // 9 - Other web part options 
+            webPartScenario = { null } //Choice used to create mutiple versions of the webpart.
+
+            allLoaded = {null}
+
+            performance = { null }
+
+            parentListFieldTitles = {null}
+
+            refreshId = { this.props.refreshId }
+
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+          ></Gridcharts>
+        </PivotItem> 
+      </Pivot>;
+ 
+      let icons = [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}];
+
+      userPanel = <div className={ styles.exStorage }><Panel
         isOpen={ this.state.showItems === true ? true : false }
         // this prop makes the panel non-modal
+        
         isBlocking={true}
         onDismiss={ this._onCloseItems.bind(this) }
         closeButtonAriaLabel="Close"
         type = { PanelType.large }
         isLightDismiss = { true }
         >
-          { panelContent }
+          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', icons )}
+          { componentPivot }
       </Panel></div>;
     }
 
@@ -355,12 +458,17 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let showThisType = event.currentTarget.id;
     let items = [];
+    let selectedType : IFileType = null;
     this.props.typesInfo.types.map( type => {
-      if ( type.type === showThisType ) { items = type.items ; }
+      if ( type.type === showThisType ) { 
+        items = type.items ;
+        selectedType = type;
+      }
     });
     this.setState({
       showItems: true,
       items: items,
+      selectedType: selectedType,
     });
   }
 

@@ -74,6 +74,23 @@ export function createSummaryLargeRows( tableRows: any[], summary: IBucketSummar
 
 }
 
+export function createSummaryTypeRows( tableRows: any[], summary: IFileType, partialFlag: string ) {
+
+  //If this isn't a large files bucket, return with no  updates
+  if ( summary.summary.bucket !== 'File Type') { return tableRows; }
+
+  let currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+
+  let Count = getCommaSepLabel(summary.summary.count);
+  let Size = summary.summary.sizeLabel;
+
+  tableRows.push( <tr><td>{ `${ Count } or ${ Size } ${ partialFlag }`} </td><td>{ `Files of type ${ summary.type } ` }</td></tr> );
+
+  return tableRows;
+
+}
+
 export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary, partialFlag: string ) {
 
   //If this isn't a large files bucket, return with no  updates
@@ -83,7 +100,7 @@ export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary,
   let currentYear = currentDate.getFullYear();
 
   let Count = getCommaSepLabel(summary.count);
-  let Size = getSizeLabel(summary.size);
+  let Size = summary.sizeLabel;
 
   tableRows.push( <tr><td>{ `${ Count } or ${ Size } ${ partialFlag }`} </td><td>{ `Files created before ${ currentYear - 1 } ` }</td></tr> );
 
@@ -113,13 +130,13 @@ export function createOldModifiedRows( tableRows: any[], oldModified: IOldFiles,
 
 }
 
-export function buildSummaryTable( tableRows: any[], ){
+export function buildSummaryTable( tableRows: any[], className: string = null, tableStyle: React.CSSProperties = null ){
 
   let summaryTable = <table className={ styles.summaryTable }>
     { tableRows }
   </table>;
 
-  return <div style={{  }}>
+  return <div className={ className } style={ tableStyle }>
     { summaryTable }
   </div>;
 

@@ -236,6 +236,13 @@ public componentDidMount() {
     let typesPivotContent = <div>
       <ExTypes 
   
+          pageContext = { this.props.pageContext }
+          wpContext = { this.props.wpContext }
+          tenant = { this.props.tenant }
+
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartElement = { this.props.WebpartElement }
+
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
           WebpartHeight = { this.props.WebpartHeight }
           WebpartWidth = { this.props.WebpartWidth }
@@ -251,6 +258,9 @@ public componentDidMount() {
 
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
+
+          columns = { this.props.columns }
+          gridStyles = { this.props.gridStyles }
       >
       </ExTypes>
       <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;

@@ -11,15 +11,10 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, IDuplicateFile, IDuplicateInfo } from '../../IExStorageState';
+import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, IDuplicateFile, IDuplicateInfo, IIconArray } from '../../IExStorageState';
 
 import { IDataOptions, IUiOptions } from '../../IExStorageProps';
 
-export interface IIconArray {
-      iconTitle: string;
-      iconName: string;
-      iconColor: string;
-}
 export interface IEsItemsProps {
 
       // 0 - Context
@@ -51,5 +46,7 @@ export interface IEsItemsProps {
 
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
+
+      showHeading?: boolean;  //defaults to true
 
 }

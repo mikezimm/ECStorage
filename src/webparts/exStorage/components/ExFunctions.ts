@@ -72,7 +72,13 @@ import { escape } from '@microsoft/sp-lodash-subset';
  *                                               
  */
 
+
+
  const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
+
+ //Preservation Hold Library errors out if you try to select the Title.  All other properties work.
+ const presHoldSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
+
  const thisExpand = ['Author','Editor'];
   export const batchSize = 500;
 
@@ -754,7 +760,8 @@ function expandArray ( count: number ) : any[] {
   
         let fetchStart = new Date();
         let startMs = fetchStart.getTime();
-        items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
+        let selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+        items = await thisListObject.items.select(selectThese).expand(thisExpand).top(batchSize).filter('').getPaged(); 
   
         //Put basics into array just to check what order they are returned in.
         items.results.map( item => {
