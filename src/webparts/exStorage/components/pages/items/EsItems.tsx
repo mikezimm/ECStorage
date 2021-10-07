@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -474,6 +474,9 @@ public componentDidMount() {
 
   private createSingleItemRow( key: string, item: IItemDetail ) {
 
+    let itemFolder : any = this.props.itemsAreFolders === true ? item : null;
+    let folder: IFolderDetail = itemFolder;
+
     let created = new Date( item.created );
     let modified = new Date( item.modified );
 
@@ -485,6 +488,7 @@ public componentDidMount() {
 
     let userStyle: any =  { width: '150px' } ;
     let userTitle = null;
+
     if ( item.authorTitle !== item.editorTitle ) { 
       userStyle.color = 'red';
       userStyle.fontWeight = 600;
@@ -492,7 +496,15 @@ public componentDidMount() {
     }
 
     cells.push( detailItemIcon );
-    cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
+    if ( this.props.itemsAreFolders === true ) {
+      cells.push( <td style={{width: '80px'}} >{ getCountLabel( folder.directCount, 0 ) }</td> );
+      console.log('getting sizeLabel: ', folder );
+      cells.push( <td style={{width: '80px'}} >{ getSizeLabel( folder.directSize ) }</td> );
+
+    } else {
+      cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
+    }
+
     cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
     let dateStyle : React.CSSProperties = {width: '160px'};
     let dateTitle : string = '';
@@ -509,9 +521,12 @@ public componentDidMount() {
     }
 
     cells.push( <td style={dateStyle} title={ dateTitle }>{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
-    cells.push( this.buildFolderIcon( item ) );
+
     // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
-    cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
+    if ( this.props.itemsAreFolders === false ) {
+      cells.push( this.buildFolderIcon( item ) );
+      cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
+    }
 
     const iconStyles: any = { root: {
       fontSize: 'larger',

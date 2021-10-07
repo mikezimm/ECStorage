@@ -12,6 +12,8 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
+
 import { IItemDetail, IDuplicateFile } from '../../IExStorageState';
 import { getFocusableByIndexPath } from 'office-ui-fabric-react';
   
@@ -40,6 +42,12 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
   ['bucket','ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl','MediaLengthInSeconds', 'isFolder'].map( thisKey => {
     rows.push( createRowFromItem( item, thisKey ) );
   });
+
+  if ( item.isFolder === true ) {
+    ['directCount','directSize','totalCount','totalSize' ].map( thisKey => {
+      rows.push( createRowFromItem( item, thisKey ) );
+    });
+  }
 
   let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
     window.origin + item.FileRef + "&width=500&height=400";
@@ -139,7 +147,17 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
       break;
 
     default:
-      textValue = item[ key ] === true ? 'true' : item[ key ] === false ? 'false' : item[ key ];
+
+      if ( key.toLowerCase().indexOf('size') > - 1 && typeof item[ key ] === 'number' ) {
+        textValue = getSizeLabel( item[ key ] );
+
+      } else if ( key.toLowerCase().indexOf('count') > - 1 && typeof item[ key ] === 'number' ) {
+        textValue = getCountLabel( item[ key ] );
+
+      } else {
+        textValue = item[ key ] === true ? 'true' : item[ key ] === false ? 'false' : item[ key ];
+      }
+
       break;
   }
 
