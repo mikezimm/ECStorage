@@ -83,6 +83,13 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
 
+  private getRelativePath = this.itemsOrDups === 'Items' && this.items.length > 0 ? true : false;
+  private commonFolders: string[] = this.getRelativePath === true ? this.getCommonFolders( this.items ) : [];
+  private commonRelativePath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonFolders.join('/') : '';
+
+  private commonPath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonRelativePath.replace( this.props.pickedList.LibraryUrl , '') + '/' : '';
+  private commonParent: string = this.getRelativePath === true && this.commonFolders.length > 0 && this.commonRelativePath !== this.props.pickedList.LibraryUrl ? this.commonFolders[ this.commonFolders.length - 1 ] : '';
+
   private itemsHeading: any = createItemsHeadingWithTypeIcons( this.items, this.itemsOrDups, this.props.heading, this.props.icons );
 
   private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.items.length) } items, use Search box to find more)`;
@@ -90,6 +97,29 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
 
+  private getCommonFolders( itemsIn: IItemDetail[] | IDuplicateFile[] ) {
+    let items: any[] = itemsIn;
+
+    if ( itemsIn.length === 0 ) { return []; }
+
+    let commonFolders: string[] = items[0].parentFolder.split('/');
+    let startTime = new Date();
+
+    items.map( item => {
+      let itemFolders: string[] = item.parentFolder.split('/');
+      let newCommonFolders : string[] = [];
+      commonFolders.map( ( folder, index ) => {
+        //If current folder of item is the same as the path of the commonFolders, then push it
+        if ( folder === itemFolders [ index ]  ) { newCommonFolders.push( folder ) ; } 
+      });
+      commonFolders = newCommonFolders;
+    } );
+    let endTime = new Date();
+    let processTime = endTime.getTime() - startTime.getTime();
+    console.log('processTime(s), commonFolders: ', processTime / 1000, commonFolders );
+
+    return commonFolders;
+  }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -241,6 +271,7 @@ public componentDidMount() {
 
             items = { this.state.showItems }
             itemsAreDups = { this.props.childrenAreDups ? this.props.childrenAreDups : false }
+            itemsAreFolders = { false }
             duplicateInfo = { null }
             heading = { ` Duplicates of ${ this.state.showItems[0].FileLeafRef  }` }
             // batches = { batches }
@@ -271,6 +302,7 @@ public componentDidMount() {
 
       let panelStyle = this.showHeading !== true ? { marginTop: '1.4em'} : null;
       let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
+      let styleCommonPathDisplay = this.commonPath === '' ? 'none' : null ;
       page = <div style= { panelStyle }>
         { this.showHeading !== true ? null : this.itemsHeading }
         <div className={ styles.inflexWrapCenter}>
@@ -278,7 +310,10 @@ public componentDidMount() {
           <div> { this.buildSearchBox() } </div>
         </div>
         <div>
-          { `Search will search Created Name and Date, filenames/types ${ searchMedia }` }
+          <div>{ `Search will search Created Name and Date, filenames/types ${ searchMedia }` }</div>
+          <div style={{ padding: '10px 0px 5px 0px', display: styleCommonPathDisplay }}>
+            { `All items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }` }
+            <span style={{ fontWeight: 600 }}>{ this.commonPath }</span></div>
         </div>
         { component }
       </div>;
@@ -484,7 +519,12 @@ public componentDidMount() {
       padding: '0px 4px 0px 10px',
     }};
 
-    let cellText = this.props.itemsAreDups === true ? item.localFolder : item.FileLeafRef;
+    let cellText: any = item.FileLeafRef;
+    //For duplicate files, this will show the relative path.
+    //BUT to help when there are deep folders, it will show based on the common parent folder, not full folder url because it can be to long
+    if ( this.props.itemsAreDups === true ) {
+      cellText = <span><span style={{ fontWeight: 600 }}>{'../' + this.commonParent }</span><span>{ item.parentFolder.replace( this.commonRelativePath, '' ) } </span></span> ; //commonParent
+    } 
     cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText ) );
   
     let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
@@ -553,7 +593,7 @@ public componentDidMount() {
     }
   }
   
-  private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: string ) {
+  private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: any ) {
     let cell = <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
     id={ itemId } 
     title={ `Item ID: ${ itemId }`}
@@ -648,7 +688,7 @@ public componentDidMount() {
       });
 
     } else {
-      console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654')
+      console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
     }
 
   }

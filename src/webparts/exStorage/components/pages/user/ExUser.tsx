@@ -311,11 +311,25 @@ public componentDidMount() {
         </ExAge></div>;
 
 
-    let permsPivotContent = <div><div>
-      <h3>Summary of files with broken permissions</h3>
-      </div>
-        <ReactJson src={ userSummary.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let permsPivotContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.uniqueInfo.uniqueRolls }
+      itemsAreDups = { false }
+      itemsAreFolders = { false }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+
+      >
+    </EsItems>;
 
 
     let dupsPivotContent = <div>
@@ -340,11 +354,25 @@ public componentDidMount() {
       >
       </ExDups></div>;
 
-    let folderPivotContent = <div><div>
-      <h3>Summary of Folders</h3>
-      </div>
-        <ReactJson src={ userSummary.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let folderPivotContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.folderInfo.folders }
+      itemsAreDups = { false }
+      itemsAreFolders = { true }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+
+      >
+    </EsItems>;
 
     let itemsContent = <EsItems 
 
@@ -354,6 +382,7 @@ public componentDidMount() {
 
       items = { this.props.userSummary.items }
       itemsAreDups = { false }
+      itemsAreFolders = { false }
       duplicateInfo = { null }
       heading = { `From user: ${ this.props.userSummary.userTitle }` }
       // batches = { batches }

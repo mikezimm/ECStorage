@@ -184,6 +184,7 @@ public componentDidMount() {
 
             items = { [] }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             childrenAreDups = { true }
             duplicateInfo = { this.props.duplicateInfo }
             heading = { `` }

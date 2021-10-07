@@ -33,6 +33,7 @@ export interface IEsItemsProps {
   
       items: IItemDetail[];
       itemsAreDups: boolean; //Set true if these items are "duplicates".  This will change the filename text to folder name because the filenames are all the same when it's a dup.
+      itemsAreFolders: boolean; 
       childrenAreDups?: boolean; //Set true if these items are "duplicates".  This will change the filename text to folder name because the filenames are all the same when it's a dup.
         
       duplicateInfo?: IDuplicateInfo;

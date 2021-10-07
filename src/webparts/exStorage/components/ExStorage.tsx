@@ -70,6 +70,8 @@ import ExTypes from './pages/types/ExTypes';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
+import EsItems from './pages/items/EsItems';
+
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
@@ -573,12 +575,6 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         </ExUser>
       </div>;
 
-    let permsPivotContent = <div><div>
-      <h3>Summary of files with broken permissions</h3>
-      </div>
-        <ReactJson src={ batchData.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
-
     let dupsPivotContent = <div>
       <ExDups
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -601,11 +597,47 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
       </ExDups></div>;
 
-    let folderPivotContent = <div><div>
-      <h3>Summary of Folders</h3>
-      </div>
-        <ReactJson src={ batchData.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? null : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { batchData.uniqueInfo.uniqueRolls }
+        itemsAreDups = { false }
+        itemsAreFolders = { false }
+        duplicateInfo = { null }
+        heading = { ` with unique permissions` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        >
+      </EsItems>;
+
+    let folderPivotContent = batchData.folderInfo.count === 0 ? null : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { batchData.folderInfo.folders }
+        itemsAreDups = { false }
+        itemsAreFolders = { true }
+        duplicateInfo = { null }
+        heading = { ` with unique permissions` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        >
+      </EsItems>;
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 

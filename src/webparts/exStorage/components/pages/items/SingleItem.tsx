@@ -139,7 +139,7 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
       break;
 
     default:
-      textValue = item[ key ];
+      textValue = item[ key ] === true ? 'true' : item[ key ] === false ? 'false' : item[ key ];
       break;
   }
 
