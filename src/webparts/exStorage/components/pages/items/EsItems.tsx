@@ -62,7 +62,7 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemsHeadingWithTypeIcons } from '../miniComps/components';
 
-import { createItemDetail, createDuplicateDetail, getItemSearchString } from './SingleItem';
+import { createItemDetail, getItemSearchString } from './SingleItem';
 
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
@@ -147,7 +147,6 @@ public constructor(props:IEsItemsProps){
         showItem: false,
         showPreview: false,
         selectedItem: null,
-        selectedDup: null,
 
         hasMedia: false,
   
@@ -231,10 +230,6 @@ public componentDidMount() {
       } else if ( this.state.selectedItem ) { 
 
         panelContent = createItemDetail( this.state.selectedItem, this.props.itemsAreDups, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
-
-      } else if ( this.state.selectedDup ) { 
-
-        panelContent = createDuplicateDetail( this.state.selectedDup, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
     
       } else if ( this.state.showItems.length > 0 ) {
 
@@ -424,11 +419,6 @@ public componentDidMount() {
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ key }</td> );
-    
-    let id = item.FileLeafRef ;
-    let detailItemIcon = this.buildDetailIcon( item, id );
-
-    cells.push( detailItemIcon );
 
     cells.push( <td style={{width: '50px', textAlign: 'center' }} >{ item.summary.count }</td> );
     cells.push( <td style={{width: '100px', textAlign: 'center' }} >{ item.summary.sizeLabel }</td> );
@@ -540,7 +530,6 @@ public componentDidMount() {
   
       this.setState({ 
         selectedItem: selectedItem,
-        selectedDup: null,
         showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
         showItems: [],  //Clear any duplicate items
       });
@@ -557,7 +546,6 @@ public componentDidMount() {
 
       this.setState({ 
         selectedItem: null,
-        selectedDup: null,
         showPreview: null,
         showItems: showItems,
       });
@@ -589,7 +577,7 @@ public componentDidMount() {
 
   }
 
-  private buildDetailIcon ( item: IItemDetail | IDuplicateFile, id: string ) {
+  private buildDetailIcon ( item: IItemDetail, id: string ) {
     
     let detailIcon = 'DocumentSearch';
     let detailIconStyle = 'black';
@@ -656,21 +644,11 @@ public componentDidMount() {
         showItem: true,
         showPreview: false,
         selectedItem: selectedItem,
-        selectedDup: null,
         showItems: [],
       });
 
-    } else if ( this.itemsOrDups === 'Duplicates' ) {
-      this.props.duplicateInfo.duplicates.map( item => {
-        if ( item.FileLeafRef === showThisType ) { selectedItem = item ; }
-      });
-      this.setState({
-        showItem: true,
-        showPreview: false,
-        selectedItem: null,
-        selectedDup: selectedItem,
-        showItems: [],
-      });
+    } else {
+      console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654')
     }
 
   }
@@ -680,7 +658,6 @@ public componentDidMount() {
       showItem: false,
       showPreview: false,
       selectedItem: null,
-      selectedDup: null,
       showItems: [],
     });
   }
@@ -690,7 +667,6 @@ public componentDidMount() {
       showItem: false,
       showPreview: false,
       selectedItem: null,
-      selectedDup: null,
       showItems: [],
     });
   }

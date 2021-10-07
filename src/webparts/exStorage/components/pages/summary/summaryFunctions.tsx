@@ -7,6 +7,8 @@ import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSumm
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+const padTop = {paddingTop: '25px'};
+
 export function createRatioNote ( summary: IBucketSummary, userLabel: string ) {
   if ( !userLabel || userLabel.length === 0 ) { userLabel = 'all' ; }
   return  `only ${ summary.countP.toPrecision(2) }% of ${ userLabel } files ( ${summary.count} ) account for ${ summary.sizeP.toPrecision(2) }%  ( ${summary.sizeLabel} ) of ${ userLabel } space`;
@@ -55,7 +57,7 @@ export function createTotalSize( tableRows: any[], summary: IBucketSummary, batc
 
 export function createInfoRows( tableRows: any[], batch: IBatchData | IUserSummary, partialFlag: string ){
 
-  tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.typesInfo.count) } ${ partialFlag }`} </td><td>{ `File types found` }</td></tr> );
+  tableRows.push( <tr><td style={padTop}>{ `${ getCommaSepLabel(batch.typesInfo.count) } ${ partialFlag }`} </td><td style={padTop}>{ `File types found` }</td></tr> );
   tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.duplicateInfo.summary.count) } ${ partialFlag }`} </td><td>{ `Files that have more than one copy in the library` }</td></tr> );
   tableRows.push( <tr><td>{ `${ getCommaSepLabel(batch.uniqueInfo.summary.count) } ${ partialFlag }`} </td><td>{ `Folders/files with Unique Permissions` }</td></tr> );
 
@@ -112,7 +114,7 @@ export function createSummaryOldRows( tableRows: any[], summary: IBucketSummary,
 
 export function createSummaryRangeRows ( tableRows: any[], summary: IBucketSummary ) {
 
-  tableRows.push( <tr><td>{ summary.ranges.createRange } </td><td>{ `CREATED during this timeframe` }</td></tr> );
+  tableRows.push( <tr><td style={padTop}>{ summary.ranges.createRange } </td><td style={padTop}>{ `CREATED during this timeframe` }</td></tr> );
   tableRows.push( <tr><td>{ summary.ranges.modifyRange } </td><td>{ `MODIFIED during this timeframe` }</td></tr> );
   tableRows.push( <tr><td>{ summary.ranges.rangeAll } </td><td title={'Files were created and modified during this timeframe'}>{ `Active during this timeframe` }</td></tr> );
 
@@ -132,6 +134,18 @@ export function createOldModifiedRows( tableRows: any[], oldModified: IOldFiles,
 
 }
 
+export function createAnalyticsStats( tableRows: any[], batchData: IBatchData, ) {
+
+  tableRows.push( <tr><td style={padTop}>{ `${ batchData.analytics.fetchDuration }`} </td><td style={padTop}>{ `Minutes to fetch all the data` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.analyzeDuration }`} </td><td>{ `Seconds to process all the data` }</td></tr> );
+
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerFetch }`} </td><td>{ `Avg ms to fetch one item` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerAnalyze }`} </td><td>{ `Avg ms to analyze one item` }</td></tr> );
+
+  return tableRows;
+
+}
+
 export function buildSummaryTable( tableRows: any[], className: string = null, tableStyle: React.CSSProperties = null ){
 
   let summaryTable = <table className={ styles.summaryTable }>
@@ -141,18 +155,5 @@ export function buildSummaryTable( tableRows: any[], className: string = null, t
   return <div className={ className } style={ tableStyle }>
     { summaryTable }
   </div>;
-
-}
-
-export function createAnalyticsStats( tableRows: any[], batchData: IBatchData, ) {
-  let padTop = {paddingTop: '25px'};
-
-  tableRows.push( <tr><td style={padTop}>{ `${ batchData.analytics.fetchDuration }`} </td><td style={padTop}>{ `Minutes to fetch all the data` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ batchData.analytics.analyzeDuration }`} </td><td>{ `Seconds to process all the data` }</td></tr> );
-
-  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerFetch }`} </td><td>{ `Avg ms to fetch one item` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerAnalyze }`} </td><td>{ `Avg ms to analyze one item` }</td></tr> );
-
-  return tableRows;
 
 }

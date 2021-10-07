@@ -294,8 +294,6 @@ public componentDidMount() {
           ></Gridcharts>
         </PivotItem> 
       </Pivot>;
- 
-      let icons = [{ iconTitle: this.state.items[0].docIcon, iconName: this.state.items[0].iconName, iconColor: this.state.items[0].iconColor}];
 
       userPanel = <div className={ styles.exStorage }><Panel
         isOpen={ this.state.showItems === true ? true : false }
@@ -307,7 +305,7 @@ public componentDidMount() {
         type = { PanelType.large }
         isLightDismiss = { true }
         >
-          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', icons )}
+          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', [] )}
           { componentPivot }
       </Panel></div>;
     }

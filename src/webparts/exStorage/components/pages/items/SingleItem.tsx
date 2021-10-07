@@ -78,46 +78,6 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
 
 }
 
-export function createDuplicateDetail( item: IDuplicateFile, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
-
-  let rows = [];
-  
-  [ 'sizeLabel','created','author','modified','editor','uniquePerms'].map( thisKey => {
-    rows.push( createRowFromDup( item, thisKey ) );
-  });
-  
-  ['ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl', 'isFolder'].map( thisKey => {
-    rows.push( createRowFromDup( item, thisKey ) );
-  });
-
-  let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
-      <h2 style={{  }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
-        { item.FileLeafRef }</h2>
-
-    <table style={{ tableLayout:"fixed" }} id="Select-b">
-      { rows }
-    </table>
-
-    <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
-      {
-        !textSearch || textSearch.length === 0 ? null :
-        <div style = {{ paddingLeft: '50px', }}>
-          <div style={{ fontSize: 'larger', fontWeight: 600  }}>Found by Searching for:</div>
-          <p> { textSearch } </p>
-
-          <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
-          <div>
-            <p>{ getHighlightedText( item.FileLeafRef , textSearch ) }</p>
-          </div>
-        </div>
-      }
-    </div>
-
-  </div>;
-  return table;
-
-}
-
 /**
  * Super cool solution based on:  https://stackoverflow.com/a/43235785
  * @param text 

@@ -49,7 +49,8 @@ export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { 
     let idx = iconNames.indexOf( thisIcon);
     if ( idx < 0 ) {
       iconNames.push( thisIcon );
-      icons.push( { iconColor: item.iconColor, iconName: item.iconName, iconTitle: item.iconTitle, sort1: item.size, sort2: 1 });
+      let iconTitle = `${ item.iconTitle }: count: ${ 1 }  size: ${ getSizeLabel(item.size ) }`;
+      icons.push( { iconColor: item.iconColor, iconName: item.iconName, iconTitle: iconTitle, sort1: item.size, sort2: 1 });
     } else { icons[ idx ].sort1 += item.size ;  icons[ idx ].sort2 ++ ; icons[ idx ].iconTitle = `${ item.iconTitle }: count: ${ getCommaSepLabel( icons[ idx ].sort2 ) }  size: ${ getSizeLabel( icons[ idx ].sort1 ) }` ; }
   });
 
