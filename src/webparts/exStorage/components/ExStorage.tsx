@@ -44,6 +44,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { getCurrentUser } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
@@ -328,7 +329,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   // let theList: IEXStorageList = await listObject.select( listSelect ).get();
   // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
 
-  let currentUser = this.props.currentUser === null ? await this.getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
+  let currentUser = this.props.currentUser === null ? await getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
 
   //Automatically kick off if it's under 5k items
   if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
@@ -1078,9 +1079,6 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
     if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
 
-    let msPerFetch = batchData.summary.count > 0 ?( batchInfo.fetchMs / batchData.summary.count ) : null;
-    let msPerAnalyze = batchData.summary.count > 0 ?( batchInfo.analyzeMs / batchData.summary.count ) : null;
-
     let saveObject: IZSentAnalytics = {
       loadProperties: this.state.loadProperties,
 
@@ -1097,12 +1095,12 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       zzzText7: `zzzRichText1: ${zzzRichText1 ? zzzRichText1.length : 'na'} zzzRichText2: ${zzzRichText2 ? zzzRichText2.length : 'na'} zzzRichText3: ${zzzRichText3 ? zzzRichText3.length : 'na'}`,
     
       zzzNumber1: batchInfo.totalLength,
-      zzzNumber2: batchInfo.fetchMs,
-      zzzNumber3: batchInfo.analyzeMs,
+      zzzNumber2: batchData.analytics.fetchMs,
+      zzzNumber3: batchData.analytics.analyzeMs,
       zzzNumber4: batchData.summary.sizeGB,
       zzzNumber5: filePercent,
-      zzzNumber6: msPerFetch,
-      zzzNumber7: msPerAnalyze,
+      zzzNumber6: batchData.analytics.msPerFetch,
+      zzzNumber7: batchData.analytics.msPerAnalyze,
     
       zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
       zzzRichText2: zzzRichText2,
@@ -1128,31 +1126,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   }
 
-
-  public async getCurrentUser( webURL: string): Promise<IUser> {
-    let currentUser : IUser =  null;
-    let thisWebInstance = Web(webURL);
-    await thisWebInstance.currentUser.get().then((r) => {
-      currentUser = {
-        title: r['Title'] , //
-        Title: r['Title'] , //
-        initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
-        email: r['Email'] , //Single person column
-        id: r['Id'] , //
-        Id: r['Id'] , //
-        ID: r['Id'] , //
-        remoteID: null,
-        isSiteAdmin: r['IsSiteAdmin'],
-        LoginName: r['LoginName'],
-        Name: r['LoginName'],
-      };
-      // this.setState({ currentUser: currentUser });
-      
-    });
-    return currentUser;
-  }
-
-  
+ 
 // let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
 // this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
 

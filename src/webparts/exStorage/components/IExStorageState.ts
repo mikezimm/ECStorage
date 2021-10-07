@@ -128,6 +128,7 @@ export interface IBucketSummary {
   sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
   userTitles: string[];
   userIds: number[];
+
 }
 
 export interface ILargeFiles {
@@ -315,6 +316,18 @@ export interface IBatchData {
   isSignificant: boolean;
 
   summary: IBucketSummary;
+
+  analytics: {
+    fetchMs: number,
+    analyzeMs: number,
+    fetchTime: any,
+    fetchDuration: string,
+    analyzeDuration: string,
+    count: number,
+    msPerFetch: number,
+    msPerAnalyze: number,
+
+  };
 
 }
 

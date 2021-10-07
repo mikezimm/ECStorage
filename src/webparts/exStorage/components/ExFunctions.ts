@@ -25,6 +25,7 @@ import { Search, Suggest } from "@pnp/sp/search";
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { sortNumberArray, sortObjectArrayByChildNumberKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { expandArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 
@@ -38,7 +39,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/constants';
 
 import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
     IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType } from './IExStorageState';
@@ -619,6 +620,17 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
       modifyCountRank: [],
     },
 
+    analytics: {
+      fetchMs: 0,
+      analyzeMs: 0,
+      fetchTime: null,
+      fetchDuration: '',
+      analyzeDuration: '',
+      count: 0,
+      msPerAnalyze: 0,
+      msPerFetch: 0,
+    }
+
   };
 }
 
@@ -681,25 +693,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     theseInfos.sizeRank.push( null );
   }
 
-  return theseInfos;
-}
-
-/***
- *    d88888b db    db d8888b.  .d8b.  d8b   db d8888b.       .d8b.  d8888b. d8888b.  .d8b.  db    db 
- *    88'     `8b  d8' 88  `8D d8' `8b 888o  88 88  `8D      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
- *    88ooooo  `8bd8'  88oodD' 88ooo88 88V8o 88 88   88      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
- *    88~~~~~  .dPYb.  88~~~   88~~~88 88 V8o88 88   88      88~~~88 88`8b   88`8b   88~~~88    88    
- *    88.     .8P  Y8. 88      88   88 88  V888 88  .8D      88   88 88 `88. 88 `88. 88   88    88    
- *    Y88888P YP    YP 88      YP   YP VP   V8P Y8888D'      YP   YP 88   YD 88   YD YP   YP    YP    
- *                                                                                                    
- *       import { expandArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';                                                                                             
- */
-
-function expandArray ( count: number ) : any[] {
-  let theseInfos: any[] = [];
-  for (let index = 0; index < count; index++) {
-    theseInfos.push( null );
-  }
   return theseInfos;
 }
 
@@ -1457,11 +1450,22 @@ function expandArray ( count: number ) : any[] {
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
   batchData.items = cleanedItems;
 
+  let fetchTime = new Date();
+
+  batchData.analytics = {
+    fetchMs: fetchMs,
+    analyzeMs: analyzeMs,
+    fetchTime: fetchTime.toLocaleString(),
+    fetchDuration: getCountLabel( fetchMs / ( 1000 * 60 ), 2 ) + ' minutes',
+    analyzeDuration: ( analyzeMs / 1000 ).toFixed(4) + ' seconds',
+    count: batchData.summary.count,
+    msPerAnalyze: batchData.summary.count > 0 ?( analyzeMs / batchData.summary.count ) : null,
+    msPerFetch: batchData.summary.count > 0 ?( fetchMs / batchData.summary.count ) : null,
+  };
+
   let batchInfo = {
     batches: batches,
     batchData: batchData,
-    fetchMs: fetchMs,
-    analyzeMs: analyzeMs,
     totalLength: totalLength,
     userInfo: userInfo,
   };

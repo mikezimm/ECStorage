@@ -12,7 +12,7 @@ import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmf
 
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
 
-import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows } from './summaryFunctions';
+import { createRatioNote, createSummaryRangeRows, createSummaryOldRows, createSummaryTopStats, createOldModifiedRows, buildSummaryTable, createInfoRows, createSummaryLargeRows, createAnalyticsStats } from './summaryFunctions';
 
 export function createBatchSummary ( batchData: IBatchData ) : React.ReactElement {
 
@@ -33,6 +33,8 @@ export function createBatchSummary ( batchData: IBatchData ) : React.ReactElemen
   tableRows.push( <tr><td>{ `<< Breaking News !! >>`} </td><td>{ `only ${ createRatioNote( batchData.large.summary,  '' ) }` }</td></tr> );
 
   tableRows = createOldModifiedRows( tableRows, batchData.oldModified, partialFlag );
+  
+  tableRows = createAnalyticsStats( tableRows, batchData );
 
   return buildSummaryTable( tableRows ) ;
 

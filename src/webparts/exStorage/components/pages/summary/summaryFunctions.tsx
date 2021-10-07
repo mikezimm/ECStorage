@@ -30,6 +30,8 @@ export function createSummaryTopStats( tableRows: any[], summary: IBucketSummary
 
   let loadPercentLabel = ( summary.count * 100 / batchData.totalCount ).toFixed(1);
 
+  tableRows.push( <tr><td>{ `${ batchData.analytics.fetchTime }`} </td><td>{ `When we finished fetching info` }</td></tr> );
+
   tableRows.push( <tr><td>{ `${ getCommaSepLabel( summary.count) } of ${ getCommaSepLabel(batchData.totalCount) }`} </td><td>{ `${totalMessage}` }</td></tr> );
   tableRows.push( <tr><td>{ `or ${ loadPercentLabel }%`} </td><td title={'% is based on count of all files in this library.'}>{ `% of all the files available` }</td></tr> );
   if ( batchData.significance !== 1 ) {
@@ -139,5 +141,18 @@ export function buildSummaryTable( tableRows: any[], className: string = null, t
   return <div className={ className } style={ tableStyle }>
     { summaryTable }
   </div>;
+
+}
+
+export function createAnalyticsStats( tableRows: any[], batchData: IBatchData, ) {
+  let padTop = {paddingTop: '25px'};
+
+  tableRows.push( <tr><td style={padTop}>{ `${ batchData.analytics.fetchDuration }`} </td><td style={padTop}>{ `Minutes to fetch all the data` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.analyzeDuration }`} </td><td>{ `Seconds to process all the data` }</td></tr> );
+
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerFetch }`} </td><td>{ `Avg ms to fetch one item` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerAnalyze }`} </td><td>{ `Avg ms to analyze one item` }</td></tr> );
+
+  return tableRows;
 
 }
