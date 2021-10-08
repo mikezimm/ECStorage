@@ -66,6 +66,8 @@ export interface IExStorageWebPartProps {
   uniqueId: string;
 
   useMediaTags: boolean;
+  getSharedDetails: boolean;
+
   quickCloseItem: boolean;
   maxVisibleItems: number;
 
@@ -193,6 +195,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
 
     let dataOptions: IDataOptions = {
       useMediaTags: this.properties.useMediaTags,
+      getSharedDetails: this.properties.getSharedDetails ? this.properties.getSharedDetails : true,
     };
 
     let uiOptions: IUiOptions = {

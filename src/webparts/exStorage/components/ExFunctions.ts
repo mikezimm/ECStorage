@@ -73,12 +73,14 @@ import { escape } from '@microsoft/sp-lodash-subset';
  *                                               
  */
 
-
+import { sharedWithSelect, sharedWithExpand, processSharedItems } from './Sharing/SharingFunctions2';
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
 
  const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
 
  //Preservation Hold Library errors out if you try to select the Title.  All other properties work.
  const presHoldSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
+
 
  const thisExpand = ['Author','Editor'];
   export const batchSize = 500;
@@ -129,11 +131,11 @@ import { escape } from '@microsoft/sp-lodash-subset';
         lastCreateMs:  0,
         firstModifiedMs:  1e20,
         lastModifiedMs:  0,
-        createRange: "",
-        modifyRange: "",
+        createRange: ``,
+        modifyRange: ``,
         firstAllMs: 0,
         lastAllMs: 0,
-        rangeAll: "",
+        rangeAll: ``,
       }
     };
     return summary;
@@ -732,7 +734,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   
       // This testing did not return anything I can understand that looks like a result.
       // this can accept any of the query types (text, ISearchQuery, or SearchQueryBuilder)
-      // const results = await searcher("Frauenhofer");
+      // const results = await searcher(`Frauenhofer`);
       // console.log('Test searcher results', results);
   
       /***
@@ -754,7 +756,30 @@ function createFolderRanks ( count: number ) : IFolderInfo {
         let fetchStart = new Date();
         let startMs = fetchStart.getTime();
         let selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
-        items = await thisListObject.items.select(selectThese).expand(thisExpand).top(batchSize).filter('').getPaged(); 
+        let expandThese = thisExpand;
+
+        if ( dataOptions.getSharedDetails === true ) {
+          selectThese =  [...selectThese, ...sharedWithSelect,  ];
+          expandThese =  [...expandThese, ...sharedWithExpand,  ];
+                  /**
+           * This try just tries to get one item wtih the shared with details and if not, reverts back to baseline columns
+           */
+          try {
+            items = await thisListObject.items.select(selectThese).expand(expandThese).top(1).filter('').getPaged();
+
+          } catch (e){
+            let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, false, true, [ 'BaseErrorTrace' , 'Failed', 'GetStorage ~ 59', helpfulErrorEnd ].join('|') );
+            if ( errMessage.indexOf('SharedWithUsers') > -1 ) {
+              //This library doesn't have SharedWithUsers.  Use Normal fetch
+              selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+              expandThese = thisExpand;
+            }
+            errMessage = '';
+          }
+        }
+
+        items = await thisListObject.items.select(selectThese).expand(expandThese).top(batchSize).filter('').getPaged(); 
   
         //Put basics into array just to check what order they are returned in.
         items.results.map( item => {
@@ -844,7 +869,10 @@ function createFolderRanks ( count: number ) : IFolderInfo {
  */
 
   batches.map( batch=> {
-    batch.items.map( ( item, itemIndex )=> {
+
+    let batchItems = dataOptions.getSharedDetails === true ? processSharedItems( batch.items ) : batch.items ;
+
+    batchItems.map( ( item, itemIndex )=> {
 
       //Get item summary
       let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions, pickedList.LibraryUrl );
@@ -1555,10 +1583,20 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     isMedia: false,
   };
 
-
   if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
   if ( item.HasUniqueRoleAssignments ) { itemDetail.uniquePerms = item.HasUniqueRoleAssignments; }
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
+
+  if ( item.SharedWithDetails || item.SharedWithUsers || item.sharedEvents ) {
+    itemDetail.itemSharingInfo = {
+      sharedEvents: item.sharedEvents ? item.sharedEvents : [],
+      SharedWithUsers: item.SharedWithUsers ? item.SharedWithUsers : [],
+      FileRef: item.FileRef ,
+      FileLeafRef: item.FileLeafRef ,
+      FileSystemObjectType: item.FileSystemObjectType ,
+      // SharedWithDetails: null,
+    };
+  }
 
   if ( dataOptions.useMediaTags === true ) {
     // itemDetail.MediaServiceAutoTags = item.MediaServiceAutoTags;
@@ -1594,6 +1632,8 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   return itemDetail;
 
  }
+
+
 
  /***
  *     d888b  d88888b d888888b      d888888b  .o88b.  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  

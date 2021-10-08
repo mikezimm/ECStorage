@@ -7,6 +7,8 @@ import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/S
 
 import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
+
 export type IItemType = 'Items' | 'Duplicates';
 
 export interface IIconArray {
@@ -90,6 +92,8 @@ export interface IItemDetail {
   isMedia: boolean;
   whichWasFirst: 'created' | 'modfied';
   whichWasFirstDays: string;
+
+  itemSharingInfo?: IItemSharingInfo;
 
 }
 

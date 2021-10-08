@@ -1,5 +1,7 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
+import itemStyles from './Items.module.scss';
+
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail } from '../../IExStorageState';
@@ -54,7 +56,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
-import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardExStorage';
 
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
@@ -430,6 +432,9 @@ public componentDidMount() {
       } else if ( item.isFolder === true && textSearch.toUpperCase() === 'ISFOLDER' ) {
         visible = true;
 
+      } else if ( item.itemSharingInfo && textSearch.toUpperCase() === 'SHARED' ) {
+        visible = true;
+
       } else if ( item.uniquePerms === true ) {
         if ( textSearch.toUpperCase() === 'UNIQUE' || textSearch.toUpperCase() === 'PERMS'  ) {
           visible = true;
@@ -504,7 +509,6 @@ public componentDidMount() {
       userTitle = `Edited by ${ item.editorTitle }`;
     }
 
-    cells.push( <td style={{ width: '25px' }} title={ item.uniquePerms === true ? 'Unique Perms' : null }>{ item.uniquePerms === true ? fpsAppIcons.UniquePerms : null }</td> );
     cells.push( detailItemIcon );
 
     if ( this.props.itemsAreFolders === true ) {
@@ -627,11 +631,12 @@ public componentDidMount() {
 
   private buildFolderIcon ( item: IItemDetail ) {
 
-    let iconCell = <td style={{width: '50px', cursor: 'pointer' }} 
+    let iconCell = <td className = { itemStyles.folderIcons } 
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`}
       >
-      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> }
+      {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
+      { fpsAppIcons.GoToFolder }
     </td>;
     return iconCell;
 
@@ -639,21 +644,18 @@ public componentDidMount() {
 
   private buildDetailIcon ( item: IItemDetail, id: string ) {
     
-    let detailIcon = 'DocumentSearch';
-    let detailIconStyle = 'black';
-    let MediaIcons: any[] = [];
+    let MediaIcons: any[] = item.isMedia ? this.buildMediaIcons( item ) : [];
 
-    if ( item.isMedia ) {
-      MediaIcons = this.buildMediaIcons( item );
-      detailIcon = 'ImageSearch';
-      detailIconStyle = 'red';
-    }
+    let detailIcon = item.isMedia === true ? fpsAppIcons.ImageSearchRed : fpsAppIcons.DocumentSearch;
 
-    let iconCell = <td style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
+    if ( item.itemSharingInfo ) { detailIcon = fpsAppIcons.SharedItem; }
+    else if ( item.uniquePerms === true ) { detailIcon = fpsAppIcons.UniquePerms; }
+
+    let iconCell = <td className = { itemStyles.tableIcons } style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
       onClick={ this._onClickItemDetail.bind(this)} id={ id }
       title={ `See all Item Details.` }
       >
-      { <Icon iconName= { detailIcon } style={{ padding: '4px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
+      { detailIcon }
       <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
     </td>;
 
@@ -683,6 +685,7 @@ public componentDidMount() {
     return MediaIcons;
 
   }
+  
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,

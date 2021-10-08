@@ -1,0 +1,18 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.tableIcons {
+  i {
+    padding: 4px 4px !important;
+    font-size: 'large';
+  }
+}
+
+.folderIcons {
+  i {
+    padding: 0px 4px !important;
+    font-size: 'large';
+  };
+
+  width: 40px;
+  cursor: 'pointer';
+}

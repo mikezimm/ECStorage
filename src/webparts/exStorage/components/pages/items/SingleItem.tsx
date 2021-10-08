@@ -15,6 +15,8 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IItemDetail, IDuplicateFile } from '../../IExStorageState';
+
+import { createDetailsShareTable } from '../../Sharing/SharingElements2';
 import { getFocusableByIndexPath } from 'office-ui-fabric-react';
   
 const cellMaxStyle: React.CSSProperties = {
@@ -49,6 +51,8 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
     });
   }
 
+  let sharingTable = createDetailsShareTable( item, true, true, 'pad30' );
+
   let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
     window.origin + item.FileRef + "&width=500&height=400";
 
@@ -60,7 +64,9 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
     <table style={{ tableLayout:"fixed" }} id="Select-b">
       { rows }
     </table>
-      
+    <div style={{ display: sharingTable === null ? 'none' : null }}>
+      { sharingTable }
+    </div>
     <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
       <div>
         <div style={{ fontSize: 'larger', fontWeight: 600, paddingBottom: '20px'  }}>Preview (if available)"</div>

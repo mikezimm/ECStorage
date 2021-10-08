@@ -20,6 +20,8 @@ export function createTypeSummary ( fileType: IFileType, batchData: IBatchData )
 
   let tableRows = [];
 
+  tableRows = createSummaryTopStats( tableRows, fileType.summary, batchData, partialFlag );
+
   tableRows = createSummaryTypeRows( tableRows, fileType, partialFlag );
 
   tableRows = createSummaryRangeRows( tableRows, fileType.summary );
