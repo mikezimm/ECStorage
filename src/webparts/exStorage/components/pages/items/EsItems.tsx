@@ -54,6 +54,8 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
+
 import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilder';
 
 import { getSizeLabel, getCountLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations';
@@ -365,6 +367,7 @@ public componentDidMount() {
     let rows = [];
     let tableTitle = data;
     let itemsSorted: any[] = [];
+
     if ( objectType === 'Items' ) {
       itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
 
@@ -373,7 +376,6 @@ public componentDidMount() {
 
     }
     
-
     itemsSorted.map( ( item, index ) => {
       if ( rows.length < countToShow ) {
         if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
@@ -425,6 +427,13 @@ public componentDidMount() {
       } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
         visible = true;
 
+      } else if ( item.isFolder === true && textSearch.toUpperCase() === 'ISFOLDER' ) {
+        visible = true;
+
+      } else if ( item.uniquePerms === true ) {
+        if ( textSearch.toUpperCase() === 'UNIQUE' || textSearch.toUpperCase() === 'PERMS'  ) {
+          visible = true;
+        }
       } else if ( textSearch.toUpperCase() === 'USER<>' ) {
         if ( item.authorTitle !== item.editorTitle ) {
           visible = true;
@@ -495,7 +504,9 @@ public componentDidMount() {
       userTitle = `Edited by ${ item.editorTitle }`;
     }
 
+    cells.push( <td style={{ width: '25px' }}>{ item.uniquePerms === true ? fpsAppIcons.UniquePerms : null }</td> );
     cells.push( detailItemIcon );
+
     if ( this.props.itemsAreFolders === true ) {
       cells.push( <td style={{width: '80px'}} >{ getCountLabel( folder.directCount, 0 ) }</td> );
       console.log('getting sizeLabel: ', folder );
@@ -527,12 +538,6 @@ public componentDidMount() {
       cells.push( this.buildFolderIcon( item ) );
       cells.push( <td style={{width: '60px'}} >{ item.versionlabel }</td> );
     }
-
-    const iconStyles: any = { root: {
-      fontSize: 'larger',
-      color: item.iconColor,
-      padding: '0px 4px 0px 10px',
-    }};
 
     let cellText: any = item.FileLeafRef;
     //For duplicate files, this will show the relative path.
@@ -626,7 +631,7 @@ public componentDidMount() {
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`}
       >
-      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '0px 4px', fontSize: 'large' }}></Icon> }
+      { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> }
     </td>;
     return iconCell;
 
@@ -648,7 +653,7 @@ public componentDidMount() {
       onClick={ this._onClickItemDetail.bind(this)} id={ id }
       title={ `See all Item Details.` }
       >
-      { <Icon iconName= { detailIcon } style={{ padding: '0px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
+      { <Icon iconName= { detailIcon } style={{ padding: '4px 4px', fontSize: 'large', color: detailIconStyle }}></Icon> }
       <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
     </td>;
 
