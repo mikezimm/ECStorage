@@ -1,6 +1,8 @@
 
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './ISharingInterface';
 
+import { sortNumberArray, sortObjectArrayByChildNumberKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+
 export const sharedWithSelect = [`SharedWithUsers/Title`,`SharedWithUsers/Name`,`SharedWithUsers/Id`,`SharedWithDetails`];
 export const sharedWithExpand = ['SharedWithUsers'];
 
@@ -50,6 +52,9 @@ export const sharedWithExpand = ['SharedWithUsers'];
 
         };
       });
+
+      item.sharedEvents = sortObjectArrayByChildNumberKey( item.sharedEvents, 'asc', 'TimeMS' );
+
     }
   });
 
