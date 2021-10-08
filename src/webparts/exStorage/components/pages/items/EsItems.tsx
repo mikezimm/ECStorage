@@ -504,7 +504,7 @@ public componentDidMount() {
       userTitle = `Edited by ${ item.editorTitle }`;
     }
 
-    cells.push( <td style={{ width: '25px' }}>{ item.uniquePerms === true ? fpsAppIcons.UniquePerms : null }</td> );
+    cells.push( <td style={{ width: '25px' }} title={ item.uniquePerms === true ? 'Unique Perms' : null }>{ item.uniquePerms === true ? fpsAppIcons.UniquePerms : null }</td> );
     cells.push( detailItemIcon );
 
     if ( this.props.itemsAreFolders === true ) {
