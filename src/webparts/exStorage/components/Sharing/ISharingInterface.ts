@@ -26,6 +26,10 @@ export interface ISharingEvent {
   FileLeafRef: string;
   FileSystemObjectType: number;
 
+
+  ServerRedirectedEmbedUrl?: string;  //Only added after it's needed due to length
+  parentFolder: string;  //Only added after it's needed due to length 
+
   //Copying these down from item just for easier use.
   // GUID: string;
   // odataEditLink: string;

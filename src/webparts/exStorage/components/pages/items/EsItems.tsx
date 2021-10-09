@@ -66,7 +66,9 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemsHeadingWithTypeIcons } from '../miniComps/components';
 
-import { createItemDetail, getItemSearchString } from './SingleItem';
+import { createItemDetail, getItemSearchString, getEventSearchString } from './SingleItem';
+
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/ISharingInterface';
 
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
@@ -214,7 +216,10 @@ public componentDidMount() {
     console.log('EsItems.tsx1');
     // debugger;
     const items : IItemDetail[] | IDuplicateFile []= this.items;
-    const itemsTable = this.buildItemsTable( items , this.props.itemsAreDups, this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+    let itemsTable = null;
+
+    itemsTable = this.buildItemsTable( items , this.props.itemsAreDups, this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+    itemsTable = this.buildSharedEventsTable( items , '', this.state.rankSlider, this.state.textSearch, 'size' );
 
     let page = null;
     let userPanel = null;
@@ -364,6 +369,49 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
+  private buildSharedEventsTable( itemsIn: any[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+
+    let items : IItemDetail[] = itemsIn;
+    let rows = [];
+    let tableTitle = data;
+    let sharedEvents: ISharingEvent[];
+
+    //Get all events
+    items.map( item => {
+
+      if ( item.itemSharingInfo && item.itemSharingInfo.sharedEvents ) {
+        item.itemSharingInfo.sharedEvents.map( event => {
+          event.ServerRedirectedEmbedUrl = item.ServerRedirectedEmbedUrl;
+          event.parentFolder = item.parentFolder;
+          sharedEvents.push( event );
+        });
+      }
+    });
+
+    //Sort by Shared Time
+    sharedEvents = sortObjectArrayByChildNumberKey( sharedEvents, 'asc', 'TimeMS' );
+    
+    //Get event rows (if visible )
+    sharedEvents.map( ( event, index ) => {
+      if ( rows.length < countToShow ) {
+        if ( this.isEventVisible( textSearch, event ) === true ) {
+          let priorEvent = index === 0 ? null : sharedEvents[ index - 1 ] ;
+          rows.push( this.createSingleEventRow( index.toFixed(0), event , priorEvent ) );
+        }
+      }
+    });
+
+    let table = <div style={{marginRight: '10px'}}>
+      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
+      {/* <table style={{padding: '0 20px'}}> */}
+      <table style={{ tableLayout:"fixed", width:"95%" }} id="Select-b">
+        { rows }
+      </table>
+    </div>;
+    return table;
+
+  }
+
   private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean, objectType: IItemType , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
     let rows = [];
@@ -401,6 +449,24 @@ public componentDidMount() {
       </table>
     </div>;
     return table;
+
+  }
+
+  
+  private isEventVisible ( textSearch: string, event: ISharingEvent ) {
+
+    let visible = true;
+
+    if ( textSearch.length > 0 ) {
+
+      visible = false;
+      let searchThis = getEventSearchString( event );
+      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+        visible = true;
+      }
+    }
+
+    return visible;
 
   }
 
@@ -550,6 +616,31 @@ public componentDidMount() {
       cellText = <span><span style={{ fontWeight: 600 }}>{'../' + this.commonParent }</span><span>{ item.parentFolder.replace( this.commonRelativePath, '' ) } </span></span> ; //commonParent
     } 
     cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText ) );
+  
+    let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
+
+    return cellRow;
+  
+  }
+
+  private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISharingEvent ) {
+
+    let cells : any[] = [];
+    cells.push( <td style={{width: '50px'}} >{ key }</td> );
+
+    // let detailItemIcon = this.buildDetailIcon( item, id );
+    // cells.push( detailItemIcon );
+
+
+    let dateStyle : React.CSSProperties = {width: '160px'};
+    let dateTitle : string = '';
+
+    cells.push( <td style={ dateStyle } title={ dateTitle }>{ event.SharedTime.toLocaleString() }</td> );
+    cells.push( <td style={ null } title={ null }>{ event.sharedBy }</td> );
+    cells.push( <td style={ null } title={ null }>{ event.sharedWith }</td> );
+    cells.push( <td style={ null } title={  null  }>{ event.FileLeafRef }</td> );
+
+    let cellText: any = event.FileLeafRef;
   
     let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
 

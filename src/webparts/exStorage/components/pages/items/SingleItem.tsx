@@ -18,7 +18,9 @@ import { IItemDetail, IDuplicateFile } from '../../IExStorageState';
 
 import { createDetailsShareTable } from '../../Sharing/SharingElements2';
 import { getFocusableByIndexPath } from 'office-ui-fabric-react';
-  
+
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/ISharingInterface';
+
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   height: '15px',
@@ -105,6 +107,17 @@ export function getHighlightedText(text, highlight) {
           { part }
       </span>)
   } </span>;
+}
+
+export function getEventSearchString ( event: ISharingEvent ) {
+
+  let searchThis = '';
+  searchThis = [event.FileLeafRef, event.sharedBy, event.sharedWith, event.SharedTime.toLocaleDateString() ].join('|');
+
+  if ( event.FileSystemObjectType === 1 ) { searchThis += `|folder` ; } //MSAT:
+
+  return searchThis;
+
 }
 
 export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean ) {
