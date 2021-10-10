@@ -376,7 +376,7 @@ public componentDidMount() {
     let items : IItemDetail[] = itemsIn;
     let rows = [];
     let tableTitle = data;
-    let sharedEvents: ISharingEvent[];
+    let sharedEvents: ISharingEvent[] = [];
 
     //Get all events
     items.map( item => {
