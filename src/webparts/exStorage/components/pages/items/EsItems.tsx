@@ -85,7 +85,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
 
-  private itemsOrDups: IItemType = !this.props.duplicateInfo ? 'Items' : 'Duplicates';
+  private itemsOrDups: IItemType = !this.props.duplicateInfo ? 'Items' : 'Duplicates' ;
 
   private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
 
@@ -289,6 +289,8 @@ public componentDidMount() {
               
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
 
           ></EsItems>
         </div>;

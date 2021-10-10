@@ -84,8 +84,9 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
-const pivotHeading10 = 'All Files';
-const pivotHeading11 = 'Timeline';
+const pivotHeading10 = 'Sharing';
+const pivotHeading11 = 'All Files';
+const pivotHeading12 = 'Timeline';
 
 
 
@@ -327,10 +328,31 @@ public componentDidMount() {
 
       dataOptions = { this.props.dataOptions }
       uiOptions = { this.props.uiOptions }
+      sharedItems = { [] }
 
       >
     </EsItems>;
 
+    let sharingPivotContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.uniqueInfo.uniqueRolls }
+      itemsAreDups = { false }
+      itemsAreFolders = { false }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+      sharedItems = { this.props.userSummary.sharingInfo.sharedItems }
+
+      >
+    </EsItems>;
 
     let dupsPivotContent = <div>
       <ExDups
@@ -370,6 +392,8 @@ public componentDidMount() {
 
       dataOptions = { this.props.dataOptions }
       uiOptions = { this.props.uiOptions }
+      
+      sharedItems = { [] }
 
       >
     </EsItems>;
@@ -390,6 +414,8 @@ public componentDidMount() {
 
       dataOptions = { this.props.dataOptions }
       uiOptions = { this.props.uiOptions }
+      
+      sharedItems = { [] }
 
       >
     </EsItems>;
@@ -494,6 +520,10 @@ public componentDidMount() {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { sharingPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading12 } ariaLabel={pivotHeading12} title={pivotHeading12} itemKey={ pivotHeading12 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { gridPivotContent }
       </PivotItem>
     </Pivot>;

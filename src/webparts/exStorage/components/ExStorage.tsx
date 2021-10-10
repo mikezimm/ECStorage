@@ -97,7 +97,8 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
-const pivotHeading10 = 'Timeline';
+const pivotHeading10 = 'Sharing';
+const pivotHeading11 = 'Timeline';
 
 const mainGridColumns: IGridColumns = {
   dateColumn: 'Modified',
@@ -615,6 +616,34 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
+
+        sharedItems = { [] }
+
+        >
+      </EsItems>;
+
+    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? null : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { [] }
+        itemsAreDups = { false }
+        itemsAreFolders = { false }
+        duplicateInfo = { null }
+
+        heading = { ` Sharing Events` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        
+        sharedItems = { batchData.sharingInfo.sharedItems }
+
         >
       </EsItems>;
 
@@ -636,6 +665,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
+        
+        sharedItems = { [] }
+
         >
       </EsItems>;
 
@@ -745,6 +777,10 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { sharingPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { gridPivotContent }
       </PivotItem>
 

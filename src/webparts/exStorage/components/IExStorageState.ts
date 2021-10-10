@@ -107,7 +107,7 @@ export interface IFolderDetail extends IItemDetail {
   otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
-export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' | 'File Type' ;
+export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' | 'File Type' | 'Shared Files' ;
 
 export interface IBucketSummary {
   title: string;
@@ -205,6 +205,8 @@ export interface IUserSummary {
   typesInfo: ITypeInfo;
 
   duplicateInfo: IDuplicateInfo;
+  
+  sharingInfo: ISharingInfo;
 
 }
 
@@ -242,6 +244,13 @@ export interface IFileType {
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
+  summary: IBucketSummary;
+
+}
+
+export interface ISharingInfo {
+
+  sharedItems: IItemDetail[];
   summary: IBucketSummary;
 
 }
@@ -320,6 +329,8 @@ export interface IBatchData {
   isSignificant: boolean;
 
   summary: IBucketSummary;
+
+  sharingInfo: ISharingInfo;
 
   analytics: {
     fetchMs: number,

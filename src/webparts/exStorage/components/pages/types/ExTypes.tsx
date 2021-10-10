@@ -231,6 +231,7 @@ public componentDidMount() {
 
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+            sharedItems = { [] }
             >
           </EsItems>
         </PivotItem>
