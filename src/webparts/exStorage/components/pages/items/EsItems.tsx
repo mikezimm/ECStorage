@@ -158,10 +158,10 @@ public constructor(props:IEsItemsProps){
 
   
   if ( this.props.itemType === 'Duplicates' ) {
-    this.searchNote = `Search will search Created Name and Date, foldername/types ${ this.searchMedia }`;
+    this.searchNote = `Search will search Created Name and Date, foldername/types`;
 
   } else if ( this.props.itemType === 'Shared' ) {
-    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filename ${ this.searchMedia }`;
+    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filenames}`;
   }
 
   this.state = {

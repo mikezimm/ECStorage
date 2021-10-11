@@ -76,6 +76,9 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { sharedWithSelect, sharedWithExpand, processSharedItems } from './Sharing/SharingFunctions2';
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
 
+
+const domainEmail = window.location.hostname.replace('.sharepoint','');
+
  const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
 
  //Preservation Hold Library errors out if you try to select the Title.  All other properties work.
@@ -264,11 +267,15 @@ export function createOldFiles () :IOldFiles {
  *                                                                                           
  */
 
-export function createThisUser( detail : IItemDetail, userId: number, userTitle: string ) :IUserSummary {
+export function createThisUser( detail : IItemDetail, userId: number, userTitle: string, userName: string ) :IUserSummary {
+  
+  let sharedNameSplit = userName ? userName.split('|') : [];
+  let sharedName = sharedNameSplit.length > 1 ? sharedNameSplit[ 2 ].replace( domainEmail, '' ) : userName;
 
   let userSummary: IUserSummary = {
     userId: userId,
     userTitle: userTitle,
+    sharedName: sharedName,
     userFirst: null,
     userLast: null,
 
@@ -331,7 +338,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       sharedItems: [],
       summary: createBucketSummary('Sharing Info', 'Shared Files'),
     },
-    
+
   };
 
   return userSummary;
@@ -570,6 +577,10 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
  */
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export function createBatchData ( currentUser: IUser, totalCount: number ):IBatchData {
+  let currentUserId = currentUser ? currentUser.Id : 'TBD-Id';
+  let currentUserTitle = currentUser ? currentUser.Title : 'TBD-Title';
+  let currentUserName = !currentUser  ? 'TBD-Name' : currentUser.Name ? currentUser.Name  : currentUser.LoginName ;
+
   return {  
     totalCount: totalCount,
     summary: createBucketSummary('Duplicate file info', 'Batch'),
@@ -614,7 +625,7 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
 
       count: 0,
 
-      currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
+      currentUser: createThisUser( null, currentUserId, currentUserTitle, currentUserName ),
 
       creatorIds: [],
       editorIds: [],
@@ -917,7 +928,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       let createUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.authorId );
       if ( createUserAllIndex === -1 ) { 
         batchData.userInfo.allUsersIds.push( detail.authorId  );
-        batchData.userInfo.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle )  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle, detail.authorShared )  );
         createUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
@@ -925,7 +936,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       let editUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.editorId  );
       if ( editUserAllIndex === -1 ) { 
         batchData.userInfo.allUsersIds.push( detail.editorId  );
-        batchData.userInfo.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle )  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle, detail.editorShared )  );
         editUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
@@ -1476,7 +1487,11 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
   if ( currentUserAllIndex < 0 ) {
     //User was not created based on content... create a user profile in memory:
-    let currentUserObj = createThisUser( null, currentUser.Id, currentUser.Title ) ;
+    let currentUserId = currentUser ? currentUser.Id : 'TBD-Id';
+    let currentUserTitle = currentUser ? currentUser.Title : 'TBD-Title';
+    let currentUserName = !currentUser  ? 'TBD-Name' : currentUser.Name ? currentUser.Name  : currentUser.LoginName ;
+
+    let currentUserObj = createThisUser( null, currentUserId, currentUserTitle, currentUserName ) ;
     batchData.userInfo.count ++;
 
     currentUserObj.createSizeRank = batchData.userInfo.count - 1;
@@ -1565,6 +1580,12 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
   let localFolder = `/${ parentFolder.replace( LibraryUrl, '' )}`;
 
+  let authorSharedSplit = item.Author && item.Author.Name ? item.Author.Name.split('|') : [];
+  let editorSharedSplit = item.Editor && item.Editor.Name ? item.Editor.Name.split('|') : [];
+
+  let authorShared = authorSharedSplit.length > 0 ? authorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
+  let editorShared = editorSharedSplit.length > 0 ? editorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
+
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
     index: itemIndex, //index of item in state.batches[batch].items
@@ -1578,6 +1599,8 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     authorTitle: item.Author.Title,
     editorTitle: item.Editor.Title,
     authorName: item.Author.Name,
+    authorShared: authorShared,
+    editorShared: editorShared,
     editorName: item.Editor.Name,
     parentFolder: parentFolder,
     localFolder: localFolder,

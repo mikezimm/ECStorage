@@ -51,7 +51,9 @@ export interface IItemDetail {
   authorTitle: string;
   editorTitle: string;
   authorName: string;
+  authorShared: string;
   editorName: string;
+  editorShared: string;
   parentFolder: string;
 
   localFolder: string;  //localFolder is the folder Url with the site and library removed... just showing \foldername\subfoldername\
@@ -171,6 +173,7 @@ export interface IUserSummary {
   userTitle: string;
   userFirst: any;
   userLast: any;
+  sharedName: string;
 
   folderCreateCount: number;
 
