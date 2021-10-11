@@ -195,6 +195,8 @@ public componentDidMount() {
             uiOptions = { this.props.uiOptions }
 
             sharedItems = { [] }
+            
+            itemType = { 'Items' }
 
           ></EsItems>
       </PivotItem>
@@ -220,6 +222,8 @@ public componentDidMount() {
 
             sharedItems = { [] }
 
+            itemType = { 'Items' }
+
           ></EsItems>
       </PivotItem> 
 
@@ -244,6 +248,8 @@ public componentDidMount() {
 
             sharedItems = { [] }
 
+            itemType = { 'Items' }
+
           ></EsItems>
       </PivotItem> 
       
@@ -267,6 +273,8 @@ public componentDidMount() {
             uiOptions = { this.props.uiOptions }
 
             sharedItems = { [] }
+            
+            itemType = { 'Items' }
 
           ></EsItems>
       </PivotItem>
@@ -291,6 +299,8 @@ public componentDidMount() {
             uiOptions = { this.props.uiOptions }
 
             sharedItems = { [] }
+
+            itemType = { 'Items' }
             
           ></EsItems>
       </PivotItem>

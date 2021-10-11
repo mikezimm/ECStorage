@@ -9,7 +9,7 @@ import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
 
-export type IItemType = 'Items' | 'Duplicates';
+export type IItemType = 'Items' | 'Duplicates' | 'Shared';
 
 export interface IIconArray {
   iconTitle: string;

@@ -619,6 +619,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         sharedItems = { [] }
 
+        itemType = { 'Items' }
+
         >
       </EsItems>;
 
@@ -642,6 +644,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
         
+        itemType = { 'Shared' }
+
         sharedItems = { batchData.sharingInfo.sharedItems }
 
         >
@@ -665,6 +669,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         dataOptions = { this.props.dataOptions }
         uiOptions = { this.props.uiOptions }
+        
+        itemType = { 'Items' }
         
         sharedItems = { [] }
 

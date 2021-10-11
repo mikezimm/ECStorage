@@ -11,7 +11,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, IDuplicateFile, IDuplicateInfo, IIconArray } from '../../IExStorageState';
+import { IExStorageState, IItemDetail, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, IDuplicateFile, IDuplicateInfo, IIconArray, IItemType } from '../../IExStorageState';
 
 import { IDataOptions, IUiOptions } from '../../IExStorageProps';
 
@@ -31,6 +31,7 @@ export interface IEsItemsProps {
   
       // currentUser: IUser;
   
+      itemType: IItemType;
       items: IItemDetail[];
       sharedItems: IItemDetail[];
       itemsAreDups: boolean; //Set true if these items are "duplicates".  This will change the filename text to folder name because the filenames are all the same when it's a dup.

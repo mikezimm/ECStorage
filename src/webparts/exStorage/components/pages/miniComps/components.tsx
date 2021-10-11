@@ -24,7 +24,7 @@ const flexWrapStart: React.CSSProperties = {
   alignItems: 'center',
 };
 
-export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemsOrDups: IItemType, heading: any, icons: IIconArray[] ) {
+export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemType: IItemType, heading: any, icons: IIconArray[] ) {
   if ( !icons || icons.length === 0 ) {
     icons = createIconsArray( items );
   }
@@ -32,7 +32,7 @@ export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplic
   let element = 
     // <div className={styles.flexWrapStart}> //For some reason this did not work even though it was buried under the correct classname
     <div style={ flexWrapStart }>
-      <h3>{ getCommaSepLabel( items.length ) } { itemsOrDups } found { heading }</h3> < div> { iconArray } </div>
+      <h3>{ getCommaSepLabel( items.length ) } { itemType } found { heading }</h3> < div> { iconArray } </div>
     </div>;
 
   return element;

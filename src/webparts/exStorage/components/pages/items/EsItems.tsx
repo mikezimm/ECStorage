@@ -32,7 +32,7 @@ import {
 } from "office-ui-fabric-react";
 
 import { DefaultButton, PrimaryButton, CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { SearchBox, ISearchBoxProps } from 'office-ui-fabric-react/lib/SearchBox';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
@@ -66,7 +66,7 @@ import { getSearchedFiles } from '../../ExSearch';
 
 import { createItemsHeadingWithTypeIcons } from '../miniComps/components';
 
-import { createItemDetail, getItemSearchString, getEventSearchString } from './SingleItem';
+import { createItemDetail, getItemSearchString, getEventSearchString, getHighlightedText } from './SingleItem';
 
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/ISharingInterface';
 
@@ -85,23 +85,28 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
 
-  private itemsOrDups: IItemType = !this.props.duplicateInfo ? 'Items' : 'Duplicates' ;
+  private itemsAny: any[] = this.props.itemType === 'Items' ? this.props.items : this.props.itemType === 'Shared' ? this.props.sharedItems: this.props.duplicateInfo.duplicates;
 
-  private items: IItemDetail[] | IDuplicateFile[] = this.itemsOrDups === 'Items' ? this.props.items : this.props.duplicateInfo.duplicates;
+  private sharedEvents: ISharingEvent[] = this.props.itemType === 'Shared' ? this.buildAllSharedEventsItems( this.props.sharedItems ): [];
 
-  private getRelativePath = this.itemsOrDups === 'Items' && this.items.length > 0 ? true : false;
-  private commonFolders: string[] = this.getRelativePath === true ? this.getCommonFolders( this.items ) : [];
+  private itemsLength = this.props.itemType === 'Shared' ? this.sharedEvents.length : this.itemsAny.length;
+
+  private getRelativePath = this.props.itemType === 'Items' && this.itemsLength > 0 ? true : false;
+  private commonFolders: string[] = this.getRelativePath === true ? this.getCommonFolders( this.itemsAny ) : [];
   private commonRelativePath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonFolders.join('/') : '';
 
   private commonPath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonRelativePath.replace( this.props.pickedList.LibraryUrl , '') + '/' : '';
   private commonParent: string = this.getRelativePath === true && this.commonFolders.length > 0 && this.commonRelativePath !== this.props.pickedList.LibraryUrl ? this.commonFolders[ this.commonFolders.length - 1 ] : '';
 
-  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.items, this.itemsOrDups, this.props.heading, this.props.icons );
+  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.itemsAny, this.props.itemType, this.props.heading, this.props.icons );
 
-  private sliderTitle = this.items.length < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.items.length) } items, use Search box to find more)`;
-  private sliderMax = this.items.length < 400 ? this.items.length : 400;
-  private sliderInc = this.items.length < 50 ? 1 : this.items.length < 100 ? 10 : 25;
+  private sliderTitle = this.itemsLength < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.itemsLength) } items, use Search box to find more)`;
+  private sliderMax = this.itemsLength < 400 ? this.itemsLength : 400;
+  private sliderInc = this.itemsLength < 50 ? 1 : this.itemsLength < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
+
+  private searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
+  private searchNote = `Search will search Created Name and Date, filenames/types ${ this.searchMedia }`;
 
   private getCommonFolders( itemsIn: IItemDetail[] | IDuplicateFile[] ) {
     let items: any[] = itemsIn;
@@ -151,6 +156,14 @@ public constructor(props:IEsItemsProps){
     totalSize += item.size;
   });
 
+  
+  if ( this.props.itemType === 'Duplicates' ) {
+    this.searchNote = `Search will search Created Name and Date, foldername/types ${ this.searchMedia }`;
+
+  } else if ( this.props.itemType === 'Shared' ) {
+    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filename ${ this.searchMedia }`;
+  }
+
   this.state = {
 
         isLoaded: true,
@@ -165,7 +178,7 @@ public constructor(props:IEsItemsProps){
         totalSize: totalSize,
         
         showItems: [],
-        dups: this.itemsOrDups === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
+        dups: this.props.itemType === 'Duplicates' ? this.props.duplicateInfo.duplicates : [],
 
         minYear: currentYearVal - 5 ,
         maxYear: currentYearVal + 1 ,
@@ -215,11 +228,20 @@ public componentDidMount() {
 
     console.log('EsItems.tsx1');
     // debugger;
-    const items : IItemDetail[] | IDuplicateFile []= this.items;
+    // const items : IItemDetail[] | IDuplicateFile []= this.itemsAny;
     let itemsTable = null;
+    if ( this.props.itemType === 'Shared' ) {
+      itemsTable = this.buildSharedEventsTable( this.sharedEvents , '', this.state.rankSlider, this.state.textSearch );
 
-    itemsTable = this.buildItemsTable( items , this.props.itemsAreDups, this.itemsOrDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
-    itemsTable = this.buildSharedEventsTable( items , '', this.state.rankSlider, this.state.textSearch, 'size' );
+    } else if ( this.props.itemType === 'Items' ) {
+      itemsTable = this.buildItemsTable( this.props.items , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+
+    } else if ( this.props.itemType === 'Duplicates' ) {
+        itemsTable = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+
+    }
+
+
 
     let page = null;
     let userPanel = null;
@@ -227,18 +249,22 @@ public componentDidMount() {
     const emptyItemsElements = this.props.emptyItemsElements;
 
     let showEmptyElements = false;
-    if ( this.itemsOrDups === 'Items' ) {
-      showEmptyElements = items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+    if ( this.props.itemType === 'Items' ) {
+      showEmptyElements = this.props.items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
 
-    } else if ( this.itemsOrDups === 'Duplicates') {
-      showEmptyElements = items.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+    } else if ( this.props.itemType === 'Duplicates') {
+      showEmptyElements = this.props.duplicateInfo.duplicates.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+
+    } else if ( this.props.itemType === 'Shared') {
+      showEmptyElements = this.props.sharedItems.length === 0 && emptyItemsElements && emptyItemsElements.length > 0 ? true : false;
+      
     }
 
     let component = <div className={ styles.inflexWrapCenter}>
       { itemsTable }
     </div>;
 
-    let sliderTypeCount = items.length < 5 ? null : 
+    let sliderTypeCount = this.itemsLength < 5 ? null : 
       <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
 
     if ( showEmptyElements ) {
@@ -292,6 +318,8 @@ public componentDidMount() {
 
             sharedItems = { [] }
 
+            itemType = { 'Items' }
+
           ></EsItems>
         </div>;
       
@@ -312,16 +340,17 @@ public componentDidMount() {
       }
 
       let panelStyle = this.showHeading !== true ? { marginTop: '1.4em'} : null;
-      let searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
+
       let styleCommonPathDisplay = this.commonPath === '' ? 'none' : null ;
+
       page = <div style= { panelStyle }>
         { this.showHeading !== true ? null : this.itemsHeading }
         <div className={ styles.inflexWrapCenter}>
           <div> { sliderTypeCount } </div>
-          <div> { this.buildSearchBox() } </div>
+          <div> { this.buildSearchBox( this.state.textSearch) } </div>
         </div>
         <div>
-          <div>{ `Search will search Created Name and Date, filenames/types ${ searchMedia }` }</div>
+          <div>{ this.searchNote }</div>
           <div style={{ padding: '10px 0px 5px 0px', display: styleCommonPathDisplay }}>
             { `All items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }` }
             <span style={{ fontWeight: 600 }}>{ this.commonPath }</span></div>
@@ -338,7 +367,7 @@ public componentDidMount() {
     );
   }
 
-  private buildSearchBox() {
+  private buildSearchBox( testSearch: string ) {
     /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
     let searchBox =  
     <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
@@ -350,6 +379,8 @@ public componentDidMount() {
         onFocus={ () => console.log('this.state',  this.state) }
         onBlur={ () => console.log('onBlur called') }
         onChange={ this._searchForItems.bind(this) }
+        value={ testSearch }
+
       />
       <div className={styles.searchStatus}>
         { `Search all ${ getCommaSepLabel( this.props.items.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
@@ -371,11 +402,21 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildSharedEventsTable( itemsIn: any[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildTableFromRows( rows, tableTitle, tableClassName ) {
+    
+    let table = <div style={{marginRight: '10px'}} className = { tableClassName }>
+      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
+      {/* <table style={{padding: '0 20px'}}> */}
+      <table style={{  }} id="Select-b">
+        { rows }
+      </table>
+    </div>;
+    return table;
 
-    let items : IItemDetail[] = itemsIn;
-    let rows = [];
-    let tableTitle = data;
+  }
+
+  private buildAllSharedEventsItems( items: IItemDetail[] ) {
+
     let sharedEvents: ISharingEvent[] = [];
 
     //Get all events
@@ -392,68 +433,82 @@ public componentDidMount() {
 
     //Sort by Shared Time
     sharedEvents = sortObjectArrayByChildNumberKey( sharedEvents, 'asc', 'TimeMS' );
-    
+
+    return sharedEvents;
+
+  }
+
+  private buildSharedEventsTable( sharedEvents: ISharingEvent[] , data: string, countToShow: number, textSearch: string, ): any {
+
+    // let items : IItemDetail[] = itemsIn;
+    let rows = [];
+    let tableTitle = data;
+
+    let priorEvent =  null;
     //Get event rows (if visible )
     sharedEvents.map( ( event, index ) => {
       if ( rows.length < countToShow ) {
         if ( this.isEventVisible( textSearch, event ) === true ) {
-          let priorEvent = index === 0 ? null : sharedEvents[ index - 1 ] ;
-          rows.push( this.createSingleEventRow( index.toFixed(0), event , priorEvent ) );
+          rows.push( this.createSingleEventRow( index.toFixed(0), event , priorEvent, textSearch ) );
+          priorEvent = event ;
         }
       }
     });
 
-    let table = <div style={{marginRight: '10px'}}>
-      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
-      {/* <table style={{padding: '0 20px'}}> */}
-      <table style={{ tableLayout:"fixed", width:"95%" }} id="Select-b">
-        { rows }
-      </table>
-    </div>;
-    return table;
+    return this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable );
 
   }
 
-  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean, objectType: IItemType , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
     let rows = [];
     let tableTitle = data;
     let itemsSorted: any[] = [];
 
-    if ( objectType === 'Items' ) {
-      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
-
-    } else if ( objectType === 'Duplicates' ){
-      itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
-
-    }
+    itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
     itemsSorted.map( ( item, index ) => {
       if ( rows.length < countToShow ) {
         if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
-
-          if ( objectType === 'Items' ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
-          } else if ( objectType === 'Duplicates' ) {
-            rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
-          }
 
         }
       }
     });
 
-    let table = <div style={{marginRight: '10px'}}>
-      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
-      {/* <table style={{padding: '0 20px'}}> */}
-      <table style={{ tableLayout:"fixed", width:"95%" }} id="Select-b">
-        { rows }
-      </table>
-    </div>;
-    return table;
+    return this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable );
 
   }
 
+  /**
+   * Same as buildItemsTable but only for when  } objectType === 'Duplicates'
+   * @param items
+   * @param itemsAreDups 
+   * @param objectType 
+   * @param data 
+   * @param countToShow 
+   * @param textSearch 
+   * @param sortKey 
+   */
+  private buildDupsTable( items: IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+
+    let rows = [];
+    let tableTitle = data;
+    let itemsSorted: any[] = [];
+
+    itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
+    
+    itemsSorted.map( ( item, index ) => {
+      if ( rows.length < countToShow ) {
+        if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
+            rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
+        }
+      }
+    });
+
+    return this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable );
+
+  }
   
   private isEventVisible ( textSearch: string, event: ISharingEvent ) {
 
@@ -625,22 +680,41 @@ public componentDidMount() {
   
   }
 
-  private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISharingEvent ) {
+  private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISharingEvent, highlight: string ) {
 
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
 
-    // let detailItemIcon = this.buildDetailIcon( item, id );
-    // cells.push( detailItemIcon );
-
-
     let dateStyle : React.CSSProperties = {width: '160px'};
-    let dateTitle : string = '';
 
-    cells.push( <td style={ dateStyle } title={ dateTitle }>{ event.SharedTime.toLocaleString() }</td> );
-    cells.push( <td style={ null } title={ null }>{ event.sharedBy }</td> );
-    cells.push( <td style={ null } title={ null }>{ event.sharedWith }</td> );
-    cells.push( <td style={ null } title={  null  }>{ event.FileLeafRef }</td> );
+    let eventTime: any = event.SharedTime.toLocaleString();
+    let eventTimeTitle = event.SharedTime.toLocaleString();
+
+    let sharedBy: any = event.sharedBy;
+    let sharedWith: any = event.sharedWith;
+    let FileLeafRef: any = event.FileLeafRef;
+    let dateSearch = event.SharedTime.toLocaleDateString();
+
+    let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
+
+    if ( isSameEvent === true ) {
+      eventTime = '...' ;
+      sharedBy = eventTime = '...' ;
+      FileLeafRef = eventTime = '...' ;
+
+      //If there is highlight (search string), then highlight any text.
+    } else if ( highlight && highlight.length > 0 ) {
+      eventTime = getHighlightedText( eventTime, highlight ) ;
+      sharedBy = getHighlightedText( sharedBy, highlight ) ;
+      sharedWith = getHighlightedText( sharedWith, highlight ) ;
+      FileLeafRef = getHighlightedText( FileLeafRef, highlight ) ;
+
+    }
+
+    cells.push( <td style={ dateStyle } title={ eventTimeTitle } onClick = { () => this._onCTRLClickSearch(dateSearch) }>{ eventTime }</td> );
+    cells.push( <td style={ null } title={ event.sharedBy } onClick = { () => this._onCTRLClickSearch(event.sharedBy) } >{ sharedBy } </td> );
+    cells.push( <td style={ null } title={ null } onClick = { () => this._onCTRLClickSearch(event.sharedWith) } >{ sharedWith } </td> );
+    cells.push( <td style={ null } title={  event.FileLeafRef  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
 
     let cellText: any = event.FileLeafRef;
   
@@ -648,6 +722,13 @@ public componentDidMount() {
 
     return cellRow;
   
+  }
+
+  private _onCTRLClickSearch( searchThis: string ) : void {
+    //This is a quick "clear search" feature
+    if ( searchThis === this.state.textSearch ) { searchThis = ''; }
+    this._searchForItems ( searchThis );
+
   }
 
   private _onClickFolder( event ) {
@@ -666,7 +747,7 @@ public componentDidMount() {
     // console.log( event );
     console.log( event.currentTarget.id );
 
-    if ( this.itemsOrDups === 'Items' ) {
+    if ( this.props.itemType === 'Items' ) {
       let clickThisItem = parseInt(event.currentTarget.id) ;
       let items: IItemDetail[] = this.props.items;
       let selectedItem = null;
@@ -691,7 +772,7 @@ public componentDidMount() {
         showItems: [],  //Clear any duplicate items
       });
 
-    } else if ( this.itemsOrDups === 'Duplicates' ) {
+    } else if ( this.props.itemType === 'Duplicates' ) {
       let clickThisItem = event.currentTarget.id ; //For some reason this has the DupName but then is set to undefined after the next line.
       let duplicates: IDuplicateFile[] = this.props.duplicateInfo.duplicates ;
       let showItems : IItemDetail[] = [];
@@ -707,7 +788,7 @@ public componentDidMount() {
         showItems: showItems,
       });
 
-    }
+    } else { alert('Ooops!  We haven\`t made it so you can click on an event yet :( ') ; }
   }
   
   private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: any ) {
@@ -791,7 +872,7 @@ public componentDidMount() {
     let showThisType = event.currentTarget.id;
     let selectedItem = null;
 
-    if ( this.itemsOrDups === 'Items' ) {
+    if ( this.props.itemType === 'Items' ) {
       this.props.items.map( item => {
         let checkThis = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
         if ( checkThis === showThisType ) { selectedItem = item ; }

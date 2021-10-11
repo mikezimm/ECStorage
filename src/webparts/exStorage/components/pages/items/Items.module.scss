@@ -16,3 +16,31 @@
   width: 40px;
   cursor: 'pointer';
 }
+
+.eventsTable {
+  table {
+    width: 95%;
+    table-layout: null;
+  }
+
+  td {
+    white-space: nowrap;
+    padding-right: 20px;
+    overflow: 'hidden';
+    text-overflow: 'ellipsis';
+  };
+}
+
+.itemsTable {
+  table {
+    width: 95%;
+    table-layout: 'fixed';
+  };
+  
+  td {
+    white-space: nowrap;
+    padding-right: 20px;
+    overflow: 'hidden';
+    text-overflow: 'ellipsis';
+  };
+}

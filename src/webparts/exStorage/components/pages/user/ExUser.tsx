@@ -330,6 +330,8 @@ public componentDidMount() {
       uiOptions = { this.props.uiOptions }
       sharedItems = { [] }
 
+      itemType = { 'Items' }
+
       >
     </EsItems>;
 
@@ -350,6 +352,8 @@ public componentDidMount() {
       dataOptions = { this.props.dataOptions }
       uiOptions = { this.props.uiOptions }
       sharedItems = { this.props.userSummary.sharingInfo.sharedItems }
+
+      itemType = { 'Shared' }
 
       >
     </EsItems>;
@@ -395,6 +399,8 @@ public componentDidMount() {
       
       sharedItems = { [] }
 
+      itemType = { 'Items' }
+
       >
     </EsItems>;
 
@@ -416,6 +422,8 @@ public componentDidMount() {
       uiOptions = { this.props.uiOptions }
       
       sharedItems = { [] }
+
+      itemType = { 'Items' }
 
       >
     </EsItems>;
@@ -516,11 +524,11 @@ public componentDidMount() {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { itemsContent }
+        { sharingPivotContent }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { sharingPivotContent }
+        { itemsContent }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading12 } ariaLabel={pivotHeading12} title={pivotHeading12} itemKey={ pivotHeading12 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>

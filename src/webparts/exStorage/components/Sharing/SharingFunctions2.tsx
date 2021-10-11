@@ -8,6 +8,8 @@ export const sharedWithExpand = ['SharedWithUsers'];
 
  export function processSharedItems( items: any[] ) {
 
+  let domainEmail = window.location.hostname.replace('.sharepoint','');
+
   items.map( item => {
 
     if ( item.SharedWithDetails ) {
@@ -27,8 +29,8 @@ export const sharedWithExpand = ['SharedWithUsers'];
         return {
           key: shareKey,
           keys: keys,
-          sharedWith: keys[2],
-          sharedBy: detail.LoginName,
+          sharedWith: keys[2] ? keys[2].replace( domainEmail, '') : 'Unknown',
+          sharedBy: detail.LoginName  ? detail.LoginName.replace( domainEmail, '') : 'Unknown',
           DateTime: detail.DateTime,
           LoginName: detail.LoginName,
           TimeMS: SharedTime.getTime(),

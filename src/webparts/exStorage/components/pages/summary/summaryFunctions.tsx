@@ -139,8 +139,8 @@ export function createAnalyticsStats( tableRows: any[], batchData: IBatchData, )
   tableRows.push( <tr><td style={padTop}>{ `${ batchData.analytics.fetchDuration }`} </td><td style={padTop}>{ `Minutes to fetch all the data` }</td></tr> );
   tableRows.push( <tr><td>{ `${ batchData.analytics.analyzeDuration }`} </td><td>{ `Seconds to process all the data` }</td></tr> );
 
-  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerFetch }`} </td><td>{ `Avg ms to fetch one item` }</td></tr> );
-  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerAnalyze }`} </td><td>{ `Avg ms to analyze one item` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerFetch.toFixed( 3 ) }`} </td><td>{ `Avg ms to fetch one item` }</td></tr> );
+  tableRows.push( <tr><td>{ `${ batchData.analytics.msPerAnalyze.toFixed( 4 ) }`} </td><td>{ `Avg ms to analyze one item` }</td></tr> );
 
   return tableRows;
 

@@ -196,6 +196,8 @@ public componentDidMount() {
 
             sharedItems = { [] }
 
+            itemType = { 'Duplicates' }
+
           ></EsItems>
       </PivotItem>
 

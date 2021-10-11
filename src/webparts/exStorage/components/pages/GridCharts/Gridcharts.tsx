@@ -881,6 +881,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
 
             sharedItems = { [] }
             
+            itemType = { 'Items' }
+            
           ></EsItems>
       </Panel></div>;
   
