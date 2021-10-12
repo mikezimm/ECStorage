@@ -107,6 +107,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
 
   private searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
   private searchNote = `Search will search Created Name and Date, filenames/types ${ this.searchMedia }`;
+  private visibleNote = `You will find an item under a User if the User created the item.`;
 
   private getCommonFolders( itemsIn: IItemDetail[] | IDuplicateFile[] ) {
     let items: any[] = itemsIn;
@@ -159,9 +160,12 @@ public constructor(props:IEsItemsProps){
   
   if ( this.props.itemType === 'Duplicates' ) {
     this.searchNote = `Search will search Created Name and Date, foldername/types`;
+    this.visibleNote = `Folder names start at the lowest common branch (folder)`;
 
   } else if ( this.props.itemType === 'Shared' ) {
-    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filenames}`;
+    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filenames`;
+    this.visibleNote = `Shared items under a user include any files they created, modified, shared or were shared with.`;
+
   }
 
   this.state = {
@@ -351,6 +355,7 @@ public componentDidMount() {
         </div>
         <div>
           <div>{ this.searchNote }</div>
+          <div>{ this.visibleNote }</div>
           <div style={{ padding: '10px 0px 5px 0px', display: styleCommonPathDisplay }}>
             { `All items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }` }
             <span style={{ fontWeight: 600 }}>{ this.commonPath }</span></div>

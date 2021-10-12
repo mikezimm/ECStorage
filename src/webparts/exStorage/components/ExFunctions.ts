@@ -128,6 +128,7 @@ const domainEmail = window.location.hostname.replace('.sharepoint','');
       countP: 0,
       sizeP: 0,
       userIds: [],
+      itemIds: [],
       userTitles: [],
       ranges: {
         firstCreateMs: 1e20,
@@ -165,6 +166,7 @@ const domainEmail = window.location.hostname.replace('.sharepoint','');
     if ( summary.userIds.indexOf( detail.editorId ) < 0 ) { summary.userIds.push( detail.editorId ) ; }
     if ( summary.userTitles.indexOf( detail.authorTitle ) < 0 ) { summary.userTitles.push( detail.authorTitle ) ; }
     if ( summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { summary.userTitles.push( detail.editorTitle ) ; }
+    if ( summary.itemIds.indexOf( detail.id ) < 0 ) { summary.itemIds.push( detail.id ) ; }
 
     let rangeChanged = false;
     // debugger;
@@ -1370,6 +1372,96 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   // batchData.folderRanks = createFolderRanks( batchData.folderInfo.count );
   // let folderRanks = batchData.folderRanks;
 
+
+  
+
+  /***
+   *    d88888b d888888b d8b   db d888888b .d8888. db   db      .d8888. db   db  .d8b.  d8888b. d88888b d8888b. 
+   *    88'       `88'   888o  88   `88'   88'  YP 88   88      88'  YP 88   88 d8' `8b 88  `8D 88'     88  `8D 
+   *    88ooo      88    88V8o 88    88    `8bo.   88ooo88      `8bo.   88ooo88 88ooo88 88oobY' 88ooooo 88   88 
+   *    88~~~      88    88 V8o88    88      `Y8b. 88~~~88        `Y8b. 88~~~88 88~~~88 88`8b   88~~~~~ 88   88 
+   *    88        .88.   88  V888   .88.   db   8D 88   88      db   8D 88   88 88   88 88 `88. 88.     88  .8D 
+   *    YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP      `8888Y' YP   YP YP   YP 88   YD Y88888P Y8888D' 
+   *                                                                                                            
+  * This section adds all shared items to the user' sharingInfo.items array
+  * It will also create a new profile if the sharing info is not part of the allUsers array already (not likely)                                                                                                     
+   */
+
+  let sharedNames = batchData.userInfo.allUsers.map( user => {
+    return user.sharedName;
+  });
+
+  cleanedItems.map( item => {
+
+    if ( item.FileLeafRef === 'E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm' ) {
+      /**
+       * Why is this item coming up under Naga's name?
+       * Because it was created by A Kalo and Edited by Naga.
+       * It currently only shows up A Kalo's items because All Items currently show files they created.
+       * 
+      11	12/5/2019, 10:04:53 AM	andre.alou@	rcin.rydze@	E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm
+      12	...	...	kami.sobc@	...
+      13	...	...	toma.szczepan@	...
+      14	1/17/2020, 4:25:10 AM	rico.muell@	ndrea.simon-hol@	E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm
+
+       */
+      debugger;
+    }
+    //Add check author
+
+    if ( item.itemSharingInfo && item.itemSharingInfo.sharedEvents ) {
+
+      //get list of all sharedNames related to this item:
+      let itemSharedNames: string[] = [ item.authorShared ];
+      if ( item.authorShared !== item.editorShared ) { itemSharedNames.push( item.editorShared ) ; }
+      item.itemSharingInfo.sharedEvents.map( event => {
+        if ( itemSharedNames.indexOf( event.sharedBy ) < 0 ) { itemSharedNames.push( event.sharedBy ) ; }
+        if ( itemSharedNames.indexOf( event.sharedWith ) < 0 ) { itemSharedNames.push( event.sharedWith ) ; }
+      });
+
+      //Loop through all itemSharedNames and add this item to each user's shared Items, update summary
+
+      itemSharedNames.map( itemSharedName => {
+        let nameIndex = sharedNames.indexOf( itemSharedName );
+        if ( nameIndex < 0 ) {
+          batchData.userInfo.allUsers.push( createThisUser( item, -79, itemSharedName + '-???', itemSharedName )  );
+          nameIndex = sharedNames.length;
+          sharedNames.push( itemSharedName );
+        }
+        let sharedProfile = batchData.userInfo.allUsers[ nameIndex ];
+        sharedProfile.sharingInfo.sharedItems.push( item );
+        sharedProfile.sharingInfo.summary = updateBucketSummary (sharedProfile.sharingInfo.summary , item );
+      });
+    }
+
+    // let authorIndex = sharedNames.indexOf(item.authorShared);
+    // if ( authorIndex < 0 ) {
+    //   batchData.userInfo.allUsers.push( createThisUser( item, -79, item.authorShared + '-???', item.authorShared )  );
+    //   authorIndex = sharedNames.length;
+    //   sharedNames.push( item.authorShared );
+    // }
+    // let authorProfile = batchData.userInfo.allUsers[ authorIndex ];
+    // authorProfile.sharingInfo.sharedItems.push( item );
+    // authorProfile.sharingInfo.summary = updateBucketSummary (authorProfile.sharingInfo.summary , item );
+
+    // //Add check editor
+    // let editorIndex = sharedNames.indexOf(item.editorShared);
+    
+    // if ( editorIndex < 0 ) {
+    //   batchData.userInfo.allUsers.push( createThisUser( item, -79, item.editorShared + '-???', item.editorShared )  );
+    //   editorIndex = sharedNames.length;
+    //   sharedNames.push( item.editorShared );
+    // }
+
+    // //Only add this item to a user once, not twice if they were both author and editor
+    // if ( authorIndex !== editorIndex ) {
+    //   let editorProfile = batchData.userInfo.allUsers[ editorIndex ];
+    //   editorProfile.sharingInfo.sharedItems.push( item );
+    //   editorProfile.sharingInfo.summary = updateBucketSummary (editorProfile.sharingInfo.summary , item );
+    // }
+
+  });
+
   batchData.userInfo.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
@@ -1463,26 +1555,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     }
   });
 
-/***
- *                       d8888b. d88888b d888888b db    db d8888b. d8b   db      d888888b d8b   db d88888b  .d88b.  
- *           Vb          88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88        `88'   888o  88 88'     .8P  Y8. 
- *            `Vb        88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88         88    88V8o 88 88ooo   88    88 
- *    C8888D    `V.      88`8b   88~~~~~    88    88    88 88`8b   88 V8o88         88    88 V8o88 88~~~   88    88 
- *              .d'      88 `88. 88.        88    88b  d88 88 `88. 88  V888        .88.   88  V888 88      `8b  d8' 
- *            .dP        88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P      Y888888P VP   V8P YP       `Y88P'  
- *           dP                                                                                                     
- *                                                                                                                  
- */
-  let analyzeEnd = new Date();
-  let endMs2 = analyzeEnd.getTime();
-  let analyzeMs = endMs2 - startMs2;
-
-  let fetchMs = 0;
-  let totalLength = 0;
-  batches.map ( batch => { 
-    fetchMs += batch.duration;
-    totalLength += batch.items.length;
-  });
 
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
   if ( currentUserAllIndex < 0 ) {
@@ -1521,6 +1593,28 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   batchData.items = cleanedItems;
 
   let fetchTime = new Date();
+
+  
+  /***
+   *                       d8888b. d88888b d888888b db    db d8888b. d8b   db      d888888b d8b   db d88888b  .d88b.  
+   *           Vb          88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88        `88'   888o  88 88'     .8P  Y8. 
+   *            `Vb        88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88         88    88V8o 88 88ooo   88    88 
+   *    C8888D    `V.      88`8b   88~~~~~    88    88    88 88`8b   88 V8o88         88    88 V8o88 88~~~   88    88 
+   *              .d'      88 `88. 88.        88    88b  d88 88 `88. 88  V888        .88.   88  V888 88      `8b  d8' 
+   *            .dP        88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+   *           dP                                                                                                     
+   *                                                                                                                  
+   */
+  let analyzeEnd = new Date();
+  let endMs2 = analyzeEnd.getTime();
+  let analyzeMs = endMs2 - startMs2;
+
+  let fetchMs = 0;
+  let totalLength = 0;
+  batches.map ( batch => { 
+    fetchMs += batch.duration;
+    totalLength += batch.items.length;
+  });
 
   batchData.analytics = {
     fetchMs: fetchMs,
