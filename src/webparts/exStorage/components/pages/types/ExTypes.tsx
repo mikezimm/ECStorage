@@ -309,7 +309,7 @@ public componentDidMount() {
         type = { PanelType.large }
         isLightDismiss = { true }
         >
-          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', [] )}
+          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', [], null )}
           { componentPivot }
       </Panel></div>;
     }

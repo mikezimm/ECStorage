@@ -24,11 +24,11 @@ const flexWrapStart: React.CSSProperties = {
   alignItems: 'center',
 };
 
-export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemType: IItemType, heading: any, icons: IIconArray[] ) {
+export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemType: IItemType, heading: any, icons: IIconArray[], onClickIcon: any ) {
   if ( !icons || icons.length === 0 ) {
     icons = createIconsArray( items );
   }
-  let iconArray = createIconElementArray( icons );
+  let iconArray = createIconElementArray( icons, onClickIcon );
   let element = 
     // <div className={styles.flexWrapStart}> //For some reason this did not work even though it was buried under the correct classname
     <div style={ flexWrapStart }>
@@ -38,6 +38,11 @@ export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplic
   return element;
 }
 
+/**
+ * createIconsArray creates an array of icon objects that can be passed to createIconElementArray to create elements.
+ * However, it also gets some extra data like an on-hover title showing file type stats.
+ * @param itemsIn 
+ */
 export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { // 
   let items: any[] = itemsIn;
 
@@ -50,7 +55,7 @@ export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { 
     if ( idx < 0 ) {
       iconNames.push( thisIcon );
       let iconTitle = `${ item.iconTitle }: count: ${ 1 }  size: ${ getSizeLabel(item.size ) }`;
-      icons.push( { iconColor: item.iconColor, iconName: item.iconName, iconTitle: iconTitle, sort1: item.size, sort2: 1 });
+      icons.push( { iconColor: item.iconColor, iconName: item.iconName, iconTitle: iconTitle, iconSearch: item.iconSearch, sort1: item.size, sort2: 1 });
     } else { icons[ idx ].sort1 += item.size ;  icons[ idx ].sort2 ++ ; icons[ idx ].iconTitle = `${ item.iconTitle }: count: ${ getCommaSepLabel( icons[ idx ].sort2 ) }  size: ${ getSizeLabel( icons[ idx ].sort1 ) }` ; }
   });
 
@@ -60,10 +65,10 @@ export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { 
 
 }
 
-export function createIconElementArray( icons: IIconArray[] ) {
+export function createIconElementArray( icons: IIconArray[], onClickIcon: any ) {
 
   let iconArray = icons.map( icon => {
-    return ( <Icon iconName= { icon.iconName } title={ icon.iconTitle } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
+    return ( <Icon iconName= { icon.iconName } id={ icon.iconSearch } title={ icon.iconTitle } onClick= { onClickIcon } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
   });
 
   return iconArray;

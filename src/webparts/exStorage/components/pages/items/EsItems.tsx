@@ -98,7 +98,7 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private commonPath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonRelativePath.replace( this.props.pickedList.LibraryUrl , '') + '/' : '';
   private commonParent: string = this.getRelativePath === true && this.commonFolders.length > 0 && this.commonRelativePath !== this.props.pickedList.LibraryUrl ? this.commonFolders[ this.commonFolders.length - 1 ] : '';
 
-  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.itemsAny, this.props.itemType, this.props.heading, this.props.icons );
+  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.itemsAny, this.props.itemType, this.props.heading, this.props.icons, this._onClickType.bind(this) );
 
   private sliderTitle = this.itemsLength < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.itemsLength) } items, use Search box to find more)`;
   private sliderMax = this.itemsLength < 400 ? this.itemsLength : 400;
@@ -729,6 +729,26 @@ public componentDidMount() {
   
   }
 
+  /**
+   * This is the same as _onCTRLClickSearch except it was clicked via the file type icon at the top.
+   * @param event 
+   */
+  private _onClickType( event ) {
+    console.log( '_onClickType:',  event );
+    let iconSearch = event.currentTarget.id;
+    //This is a quick "clear search" feature
+    if ( iconSearch === this.state.textSearch ) { iconSearch = ''; }
+    this._searchForItems ( iconSearch );
+
+  }
+
+  /**
+   * This is used for sharingEvents originally when clicking on an item.
+   * Originally no CTRL press is required but called it that in case I use it elsewhere on normal items where 
+   *    CTRL press might be required to distinguish a normal existing click
+   * 
+   * @param searchThis 
+   */
   private _onCTRLClickSearch( searchThis: string ) : void {
     //This is a quick "clear search" feature
     if ( searchThis === this.state.textSearch ) { searchThis = ''; }
@@ -870,6 +890,7 @@ public componentDidMount() {
       rankSlider: newValue,
     });
   }
+
 
   private _onClickItemDetail( event ){
     console.log( event );

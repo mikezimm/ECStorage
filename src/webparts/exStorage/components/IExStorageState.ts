@@ -15,6 +15,7 @@ export interface IIconArray {
   iconTitle: string;
   iconName: string;
   iconColor: string;
+  iconSearch: string;
   other?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
   sort1?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
   sort2?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
