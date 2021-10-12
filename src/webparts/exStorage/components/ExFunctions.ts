@@ -873,6 +873,8 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let userLargest: IItemDetail = null;
   let userOldestCreate: IItemDetail = null;
   let userOldestModified: IItemDetail = null;
+  let missedParentFileLeafs: string[] = [];
+  let foundParentFileLeafs: string[] = [];
 
   let allNames: string[] = [];
   let duplicateNames: string[] = [];
@@ -1089,6 +1091,11 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       let parentFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
       let userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folderRefs.indexOf( detail.parentFolder );
 
+      if ( detail.isFolder && detail.FileLeafRef === 'SO-21010166 - BR297 centred cushion' ) {
+        //This item a folder,
+        debugger;
+      }
+
       if ( detail.isFolder === true ) { 
         //Create new IFolderDetail in all folders.
         allFolderRefs.push( detail.FileRef );
@@ -1112,15 +1119,17 @@ function createFolderRanks ( count: number ) : IFolderInfo {
         batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( folderDetail ) ;
         userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.length - 1;
 
+        if ( foundParentFileLeafs.indexOf( detail.FileRef ) < 0 ) { foundParentFileLeafs.push( detail.FileRef ); }
+
       } else { //This is not a folder but an item... update sizes
-        if ( parentFolderIndex < 0 ) {
-          console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
-        }
+
       }
 
       let thisDetailsParentFolder: IFolderDetail = batchData.folderInfo.folders[ parentFolderIndex ];
       if ( parentFolderIndex < 0 ) {
-        console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+        // console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+        if ( missedParentFileLeafs.indexOf( detail.parentFolder ) < 0 ) { missedParentFileLeafs.push( detail.parentFolder ); }
+
       } else {
 
         // thisDetailsParentFolder.totalCount ++;
@@ -1393,21 +1402,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
   cleanedItems.map( item => {
 
-    if ( item.FileLeafRef === 'E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm' ) {
-      /**
-       * Why is this item coming up under Naga's name?
-       * Because it was created by A Kalo and Edited by Naga.
-       * It currently only shows up A Kalo's items because All Items currently show files they created.
-       * 
-      11	12/5/2019, 10:04:53 AM	andre.alou@	rcin.rydze@	E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm
-      12	...	...	kami.sobc@	...
-      13	...	...	toma.szczepan@	...
-      14	1/17/2020, 4:25:10 AM	rico.muell@	ndrea.simon-hol@	E3228011_DAI MSLV5 MRD Tracking V3.02.xlsm
-
-       */
-      debugger;
-    }
-    //Add check author
+    // return ;
 
     if ( item.itemSharingInfo && item.itemSharingInfo.sharedEvents ) {
 
@@ -1433,32 +1428,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
         sharedProfile.sharingInfo.summary = updateBucketSummary (sharedProfile.sharingInfo.summary , item );
       });
     }
-
-    // let authorIndex = sharedNames.indexOf(item.authorShared);
-    // if ( authorIndex < 0 ) {
-    //   batchData.userInfo.allUsers.push( createThisUser( item, -79, item.authorShared + '-???', item.authorShared )  );
-    //   authorIndex = sharedNames.length;
-    //   sharedNames.push( item.authorShared );
-    // }
-    // let authorProfile = batchData.userInfo.allUsers[ authorIndex ];
-    // authorProfile.sharingInfo.sharedItems.push( item );
-    // authorProfile.sharingInfo.summary = updateBucketSummary (authorProfile.sharingInfo.summary , item );
-
-    // //Add check editor
-    // let editorIndex = sharedNames.indexOf(item.editorShared);
-    
-    // if ( editorIndex < 0 ) {
-    //   batchData.userInfo.allUsers.push( createThisUser( item, -79, item.editorShared + '-???', item.editorShared )  );
-    //   editorIndex = sharedNames.length;
-    //   sharedNames.push( item.editorShared );
-    // }
-
-    // //Only add this item to a user once, not twice if they were both author and editor
-    // if ( authorIndex !== editorIndex ) {
-    //   let editorProfile = batchData.userInfo.allUsers[ editorIndex ];
-    //   editorProfile.sharingInfo.sharedItems.push( item );
-    //   editorProfile.sharingInfo.summary = updateBucketSummary (editorProfile.sharingInfo.summary , item );
-    // }
 
   });
 
@@ -1516,6 +1485,21 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     user.modifyTotalSizeLabel = getSizeLabel( user.modifyTotalSize );
 
   });
+
+  let foundParentsAfter: string[] = [];
+  let missedParentsAfter: string[] = [];
+  missedParentFileLeafs.map( ( ref , index )=> {
+    if ( foundParentFileLeafs.indexOf( ref ) < 0 ) {
+      missedParentsAfter.push( `${index}: ${ref}` );
+    } else  {
+      foundParentsAfter.push( `${index}: ${ref}` );
+    }
+  });
+  console.log( 'missedParentFileLeafs:', missedParentFileLeafs );
+  console.log( 'foundParentFileLeafs:', foundParentFileLeafs );
+  console.log( 'foundParentsAfter:', foundParentsAfter );
+  console.log( 'missedParentsAfter:', missedParentsAfter );
+
 
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d8888b. d888888b  d888b       d8888b.  .d8b.  d888888b  .d8b.  
