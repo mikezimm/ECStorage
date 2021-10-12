@@ -52,4 +52,6 @@ export interface IEsItemsProps {
 
       showHeading?: boolean;  //defaults to true
 
+      parentSearch?: string;
+
 }

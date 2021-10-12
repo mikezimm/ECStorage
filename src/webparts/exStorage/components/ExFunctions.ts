@@ -1706,6 +1706,8 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     iconColor: '',
     iconName: '',
     iconTitle: '',
+    iconSearch: '',
+    meta: [],
     version: item['OData__UIVersion'],
     versionlabel: item['OData__UIVersionString'],
     isMedia: false,
@@ -1748,6 +1750,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     itemDetail.iconName = iconInfo.iconName; 
     itemDetail.iconColor = iconInfo.iconColor;   
     itemDetail.iconTitle = iconInfo.iconTitle;   
+    itemDetail.iconSearch = iconInfo.iconSearch; 
 
   } else if ( itemDetail.isFolder === true ) {
 
@@ -1755,6 +1758,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     itemDetail.iconName = 'OpenFolderHorizontal'; 
     itemDetail.iconColor = 'black';  
     itemDetail.iconTitle = 'Folder'; 
+    itemDetail.iconSearch = 'Type:Folder'; 
   }
 
   return itemDetail;
@@ -1777,7 +1781,8 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
   let iconColor = 'black';
   let iconName = ext;
-  let iconTitle =  ext;
+  let iconTitle = ext;
+  let iconSearch = ext;
   switch (ext) {
     case 'xls':
     case 'xlsm':
@@ -1785,12 +1790,14 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'xlsx':
       iconColor = 'darkgreen';
       iconName = 'ExcelDocument';
+      iconSearch = 'Type:Excel';
       break;
 
     case 'doc':
     case 'docx':
       iconColor = 'darkblue';
       iconName = 'WordDocument';
+      iconSearch = 'Type:Word';
       break;
 
     case 'ppt':
@@ -1798,16 +1805,19 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'pptm':
       iconColor = 'firebrick';
       iconName = 'PowerPointDocument';
+      iconSearch = 'Type:PowerPoint';
       break;
 
     case 'pdf':
       iconColor = 'red';
+      iconSearch = 'Type:pdf';
       break;
 
     case 'one':
     case 'onepkg':
       iconColor = 'purple';
       iconName = 'OneNoteLogo';
+      iconSearch = 'Type:OneNote';
       break;
 
     case 'msg':
@@ -1819,6 +1829,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'zip':
       iconColor = 'blue';
       iconName = 'ZipFolder';
+      iconSearch = 'Type:Zipped';
       break;
 
     case 'avi':
@@ -1828,11 +1839,13 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'wmv':
       iconColor = 'dimgray';
       iconName = 'MSNVideosSolid';
+      iconSearch = 'Type:Movie';
       break;
 
     case 'msg':
       iconColor = 'blue';
       iconName = 'Microphone';
+      iconSearch = 'Type:Outlook';
       break;
 
     case 'png':
@@ -1841,23 +1854,27 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'jpeg':
       iconColor = 'blue';
       iconName = 'Photo2';
+      iconSearch = 'Type:Image';
       break;
 
     case 'txt':
     case 'csv':
       iconName = 'TextDocument';
+      iconSearch = 'Type:Text';
       break;
 
     case 'dwg':
       iconName = 'PenWorkspace';
+      iconSearch = 'Type:Dwg';
       break;
 
     default:
       iconName = 'FileTemplate';
+      iconSearch = 'Type:File';
       break;
   }
 
-  return { iconName: iconName, iconColor: iconColor, iconTitle: iconTitle };
+  return { iconName: iconName, iconColor: iconColor, iconTitle: iconTitle, iconSearch: iconSearch };
 
  }
 

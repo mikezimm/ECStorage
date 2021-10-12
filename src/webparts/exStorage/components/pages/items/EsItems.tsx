@@ -799,7 +799,7 @@ public componentDidMount() {
   private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: any ) {
     let cell = <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
     id={ itemId } 
-    title={ `Item ID: ${ itemId }`}
+    title={ `Item ID: ${ itemId } Item Name: ${ text }` }
   >
     { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
     { text }</td>;

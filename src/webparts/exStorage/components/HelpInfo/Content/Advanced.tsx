@@ -7,10 +7,24 @@ import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mike
 
 export function advancedContent() {
 
-    return null;
 
     let html1 = <div>
-        <h2>Nothing advanced about this webpart yet :)</h2>
+        <h3>Sharing and Permission Test notes</h3>
+        <ul>
+            <li>If you share something, then remove sharing, the SharedWith info still remains</li>
+            <li>If you copy an item that was shared, the copy is not shared, but the SharedWith properties still show on those items.</li>
+
+            <li>If you Share, the item permission are automatically broken.</li>
+            <li>However, if you find the 'Stop Sharing' button in Manage access, it removes the specific link permissions but the item still has broken permissions.</li>
+
+
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
     </div>;
 
     return { html1: html1 };

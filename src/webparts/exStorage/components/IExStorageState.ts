@@ -65,6 +65,10 @@ export interface IItemDetail {
   iconName: string;
   iconColor: string;
   iconTitle: string;
+  iconSearch: string;
+
+  meta: string[];
+
   uniquePerms?: boolean;
   
   currentUser: boolean;
@@ -135,7 +139,7 @@ export interface IBucketSummary {
   userTitles: string[];
   userIds: number[];
   itemIds: number[];
-  
+
 }
 
 export interface ILargeFiles {
