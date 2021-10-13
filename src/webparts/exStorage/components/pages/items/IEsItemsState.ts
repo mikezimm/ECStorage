@@ -18,6 +18,8 @@ export interface IEsItemsState {
 
   dups: IDuplicateFile[];
   showItems: IItemDetail[];
+
+  filteredCount: number;
   
   totalSize: number;
 

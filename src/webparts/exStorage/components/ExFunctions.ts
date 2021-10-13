@@ -1096,7 +1096,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
       if ( detail.isFolder && detail.FileLeafRef === 'SO-21010166 - BR297 centred cushion' ) {
         //This item a folder,
-        debugger;
+        // debugger;
       }
 
       if ( detail.isFolder === true ) { 
@@ -1686,7 +1686,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   if ( item['OData__UIVersion'] === 512 ) { meta.push( 'SingleVerion' ) ; }
 
   if ( authorShared.indexOf('naga') > -1 ) {
-    debugger;
+    // debugger;
   }
 
   let itemDetail: IItemDetail = {

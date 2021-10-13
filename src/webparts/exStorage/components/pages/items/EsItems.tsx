@@ -197,6 +197,8 @@ public constructor(props:IEsItemsProps){
         fetchPerComp: 100,
         fetchLabel: '',
 
+        filteredCount: this.itemsLength,
+
         showItem: false,
         showPreview: false,
         selectedItem: null,
@@ -234,15 +236,23 @@ public componentDidMount() {
     // debugger;
     // const items : IItemDetail[] | IDuplicateFile []= this.itemsAny;
     let itemsTable = null;
+    let filteredCount = null;
+
     if ( this.props.itemType === 'Shared' ) {
-      itemsTable = this.buildSharedEventsTable( this.sharedEvents , '', this.state.rankSlider, this.state.textSearch );
+      let tableResults = this.buildSharedEventsTable( this.sharedEvents , '', this.state.rankSlider, this.state.textSearch );
+      itemsTable = tableResults.table;
+      filteredCount = tableResults.filteredCount;
 
     } else if ( this.props.itemType === 'Items' ) {
-      itemsTable = this.buildItemsTable( this.props.items , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+      let tableResults = this.buildItemsTable( this.props.items , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+      itemsTable = tableResults.table;
+      filteredCount = tableResults.filteredCount;
 
     } else if ( this.props.itemType === 'Duplicates' ) {
-        itemsTable = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
-
+      let tableResults = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+      itemsTable = tableResults.table;
+      filteredCount = tableResults.filteredCount;
+      
     }
 
 
@@ -450,17 +460,20 @@ public componentDidMount() {
     let tableTitle = data;
 
     let priorEvent =  null;
+    let filteredCount = 0;
+
     //Get event rows (if visible )
     sharedEvents.map( ( event, index ) => {
       if ( rows.length < countToShow ) {
         if ( this.isEventVisible( textSearch, event ) === true ) {
           rows.push( this.createSingleEventRow( index.toFixed(0), event , priorEvent, textSearch ) );
           priorEvent = event ;
+          filteredCount ++;
         }
       }
     });
 
-    return this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable );
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable ) } ;
 
   }
 
@@ -469,6 +482,7 @@ public componentDidMount() {
     let rows = [];
     let tableTitle = data;
     let itemsSorted: any[] = [];
+    let filteredCount = 0;
 
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
@@ -476,12 +490,12 @@ public componentDidMount() {
       if ( rows.length < countToShow ) {
         if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
             rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-
+            filteredCount ++;
         }
       }
     });
 
-    return this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable );
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
 
   }
 
@@ -500,6 +514,7 @@ public componentDidMount() {
     let rows = [];
     let tableTitle = data;
     let itemsSorted: any[] = [];
+    let filteredCount = 0;
 
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
@@ -507,11 +522,12 @@ public componentDidMount() {
       if ( rows.length < countToShow ) {
         if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
             rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
+            filteredCount ++;
         }
       }
     });
 
-    return this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable );
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
 
   }
   
@@ -615,7 +631,7 @@ public componentDidMount() {
 
     if ( this.props.itemsAreFolders === true ) {
       cells.push( <td style={{width: '80px'}} >{ getCountLabel( folder.directCount, 0 ) }</td> );
-      console.log('getting sizeLabel: ', folder );
+      // console.log('getting sizeLabel: ', folder );
       cells.push( <td style={{width: '80px'}} >{ getSizeLabel( folder.directSize ) }</td> );
 
     } else {
@@ -808,8 +824,7 @@ public componentDidMount() {
 
     let iconCell = <td className = { itemStyles.folderIcons } 
       onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
-      title={ `Go to parent folder: ${ item.parentFolder }`}
-      >
+      title={ `Go to parent folder: ${ item.parentFolder }`} >
       {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
       { fpsAppIcons.GoToFolder }
     </td>;
