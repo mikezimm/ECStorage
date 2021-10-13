@@ -1685,6 +1685,10 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
   if ( item['OData__UIVersion'] === 512 ) { meta.push( 'SingleVerion' ) ; }
 
+  if ( authorShared.indexOf('naga') > -1 ) {
+    debugger;
+  }
+
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
     index: itemIndex, //index of item in state.batches[batch].items

@@ -7,6 +7,21 @@
   }
 }
 
+.tableMediaIcons {
+  width: '50px' ;
+  position: 'relative';
+  i {
+    padding: 4px 4px !important;
+    font-size: 'large';
+  }
+}
+
+.cellHidden {
+  width: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
 .folderIcons {
   i {
     padding: 0px 4px !important;
@@ -34,12 +49,12 @@
 .itemsTable {
   table {
     width: 95%;
-    table-layout: 'fixed';
+    // table-layout: 'fixed';
   };
   
   td {
     white-space: nowrap;
-    padding-right: 20px;
+    // padding-right: 20px;
     overflow: 'hidden';
     text-overflow: 'ellipsis';
   };

@@ -599,7 +599,8 @@ public componentDidMount() {
 
     let id = this.props.itemsAreDups === true ? item.id.toString() : item.id.toString()  ;
     let detailItemIcon = this.buildDetailIcon( item, id );
-
+    let detailMediaIcon = this.buildMediaIconCell( item, id );
+    
     let userStyle: any =  { width: '150px' } ;
     let userTitle = null;
 
@@ -609,6 +610,7 @@ public componentDidMount() {
       userTitle = `Edited by ${ item.editorTitle }`;
     }
 
+    cells.push( detailMediaIcon );
     cells.push( detailItemIcon );
 
     if ( this.props.itemsAreFolders === true ) {
@@ -816,8 +818,6 @@ public componentDidMount() {
   }
 
   private buildDetailIcon ( item: IItemDetail, id: string ) {
-    
-    let MediaIcons: any[] = item.isMedia ? this.buildMediaIcons( item ) : [];
 
     let iconSearch : IKnownMeta = item.iconSearch;
 
@@ -833,12 +833,22 @@ public componentDidMount() {
 
     }
 
-    let iconCell = <td className = { itemStyles.tableIcons } style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
+    let iconCell = <td className = { itemStyles.tableIcons } style={{width: '50px', cursor: 'pointer', position: 'relative' }} 
       onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }
-      title={ `See all Item Details.` }
-      >
-      { detailIcon }
-      <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px' }}> { MediaIcons } </div>
+      title={ `See all Item Details.` }>
+      <div style={{ position: 'relative' }} onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }>{ detailIcon }</div>
+    </td>;
+
+    return iconCell;
+
+  }
+
+  private buildMediaIconCell ( item: IItemDetail, id: string ) {
+    
+    let MediaIcons: any[] = item.isMedia ? this.buildMediaIcons( item ) : [];
+
+    let iconCell = <td className = { itemStyles.tableIcons } style={{width: MediaIcons.length > 0 ? '50px' : '0px', position: 'relative' }}>
+      <div style={{ display: 'inline-block', position: 'absolute', marginLeft: '3px', top: '0px' }}> { MediaIcons } </div>
     </td>;
 
     return iconCell;
@@ -850,16 +860,20 @@ public componentDidMount() {
     if ( item.isMedia ) {
 
       if ( item.MediaServiceOCR ) {
-        MediaIcons.push(  <Icon iconName= { 'CircleShapeSolid' } style={{ top: '2px', left: '2px', fontSize: '6px', position: 'absolute', color: 'dimgray' }} title="MediaServiceOCR"></Icon> );
+        MediaIcons.push(  <Icon iconName= { 'CircleShapeSolid' } style={{ top: '2px', left: '2px', fontSize: '6px', position: 'absolute', color: 'dimgray', cursor: 'mouse' }} 
+          onClick={ this._onClickItemDetail.bind(this)} id={ 'MediaServiceOCR' } data-search = { 'MediaServiceOCR' } title='MediaServiceOCR'></Icon> );
       }
       if ( item.MediaServiceAutoTags ) {
-        MediaIcons.push(  <Icon iconName= { 'TagSolid' } style={{ top: '1px', left: '12px', fontSize: '9px', position: 'absolute', color: 'dimgray' }} title="MediaServiceAutoTags"></Icon> );
+        MediaIcons.push(  <Icon iconName= { 'TagSolid' } style={{ top: '1px', left: '12px', fontSize: '9px', position: 'absolute', color: 'dimgray', cursor: 'mouse' }} 
+          onClick={ this._onClickItemDetail.bind(this)} id={ 'MediaServiceAutoTags' } data-search = { 'MediaServiceAutoTags' } title='MediaServiceAutoTags'></Icon> );
       }
       if ( item.MediaServiceKeyPoints ) {
-        MediaIcons.push(  <Icon iconName= { 'Location' } style={{ top: '10px', left: '2px', fontSize: '5px', position: 'absolute', color: 'dimgray' }} title="MediaServiceKeyPoints"></Icon> );
+        MediaIcons.push(  <Icon iconName= { 'Location' } style={{ top: '10px', left: '2px', fontSize: '5px', position: 'absolute', color: 'dimgray', cursor: 'mouse' }} 
+          onClick={ this._onClickItemDetail.bind(this)} id={ 'MediaServiceKeyPoints' } data-search = { 'MediaServiceKeyPoints' } title='MediaServiceKeyPoints'></Icon> );
       }
       if ( item.MediaServiceLocation ) {
-        MediaIcons.push(  <Icon iconName= { 'POISolid' } style={{ top: '11px', left: '12px', fontSize: '8px', position: 'absolute', color: 'dimgray' }} title="MediaServiceLocation"></Icon> );
+        MediaIcons.push(  <Icon iconName= { 'POISolid' } style={{ top: '11px', left: '12px', fontSize: '8px', position: 'absolute', color: 'dimgray', cursor: 'mouse' }} 
+          onClick={ this._onClickItemDetail.bind(this)} id={ 'MediaServiceLocation' } data-search = { 'MediaServiceLocation' } title='MediaServiceLocation'></Icon> );
       }
 
     }
@@ -905,9 +919,6 @@ public componentDidMount() {
         console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
       }
     }
-
-
-
   }
 
   private _onDialogDismiss( event ) {
