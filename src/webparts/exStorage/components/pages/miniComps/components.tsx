@@ -68,7 +68,7 @@ export function createIconsArray( itemsIn: IItemDetail[] | IDuplicateFile[] ) { 
 export function createIconElementArray( icons: IIconArray[], onClickIcon: any ) {
 
   let iconArray = icons.map( icon => {
-    return ( <Icon iconName= { icon.iconName } id={ icon.iconSearch } title={ icon.iconTitle } onClick= { onClickIcon } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
+    return ( <Icon iconName= { icon.iconName } id={ icon.iconSearch } data-search={ icon.iconSearch } title={ icon.iconTitle } onClick= { onClickIcon } style={ { fontSize: '24px', color: icon.iconColor, padding: '0px 0px 0px 15px', } }></Icon> );
   });
 
   return iconArray;

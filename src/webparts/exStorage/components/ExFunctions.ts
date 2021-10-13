@@ -42,7 +42,7 @@ import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays
 import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType } from './IExStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType, IKnownMeta } from './IExStorageState';
 
 import { IDataOptions, IUiOptions } from './IExStorageProps';
 
@@ -417,6 +417,7 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
 export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
 
   let iconInfo = getFileTypeIconInfo( detail.docIcon );
+  let anyFileLeafRef: any = detail.FileLeafRef; //Needed to pass value into meta: IKnownTypes
 
   let thisDup: IDuplicateFile = {
       name: detail.FileLeafRef,
@@ -425,6 +426,8 @@ export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
       iconName: iconInfo.iconName,
       iconColor: iconInfo.iconColor,
       iconTitle: iconInfo.iconTitle,
+      iconSearch: iconInfo.iconSearch,
+      meta: [ anyFileLeafRef, iconInfo.iconSearch, detail.docIcon ],
       items: [],
       sizes: [],
       createdMs: [],
@@ -1651,6 +1654,9 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let createYr = created.getFullYear();
   let modYr = modified.getFullYear();
 
+  let createMs = created.getTime();
+  let modMs = modified.getTime();
+
   let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
   isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
   let size = item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0;
@@ -1663,6 +1669,21 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
   let authorShared = authorSharedSplit.length > 0 ? authorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
   let editorShared = editorSharedSplit.length > 0 ? editorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
+
+  let createdDateString: any = created.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
+  let modifiedDateString: any = modified.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
+
+  let meta : IKnownMeta[] = [ item.Author.Title, item.Editor.Title, createdDateString ];
+
+  if ( authorShared !== '' && meta.indexOf( authorShared ) < 0 ) { meta.push( authorShared ) ; }
+  if ( editorShared !== '' && meta.indexOf( editorShared ) < 0 ) { meta.push( editorShared ) ; }
+
+  if ( createMs !== modMs ) { meta.push( modifiedDateString ) ; }
+  if ( item['OData__UIVersionString'].lastIndexOf('.0') === item['OData__UIVersionString'].length -2 ) {
+    meta.push( 'IsMajor' ) ;
+  } else { meta.push( 'IsDraft' ) ; }
+
+  if ( item['OData__UIVersion'] === 512 ) { meta.push( 'SingleVerion' ) ; }
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -1694,11 +1715,11 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     createYr: createYr,
     modYr: modYr,
     bucket: `${createYr}-${modYr}`,
-    createMs: created.getTime(),
-    modMs: modified.getTime(),
+    createMs: createMs,
+    modMs: modMs,
 
-    whichWasFirst: created.getTime() > modified.getTime() ? 'modfied' : 'created',
-    whichWasFirstDays: ( ( modified.getTime() - created.getTime() ) / msPerDay ).toPrecision(4),
+    whichWasFirst: createMs > modMs ? 'modfied' : 'created',
+    whichWasFirstDays: ( ( modMs - createMs ) / msPerDay ).toPrecision(4),
 
     ContentTypeId: item.ContentTypeId,
     ContentTypeName: '',
@@ -1707,14 +1728,20 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     iconName: '',
     iconTitle: '',
     iconSearch: '',
-    meta: [],
+    meta: meta,
     version: item['OData__UIVersion'],
     versionlabel: item['OData__UIVersionString'],
     isMedia: false,
   };
 
+  if ( item.FileLeafRef === 'Unshared file in SubFolder shared with Pablo.pptx' ) {
+    debugger;
+  }
   if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
-  if ( item.HasUniqueRoleAssignments ) { itemDetail.uniquePerms = item.HasUniqueRoleAssignments; }
+  if ( item.HasUniqueRoleAssignments === true ) { 
+    itemDetail.uniquePerms = item.HasUniqueRoleAssignments;
+    if ( itemDetail.uniquePerms === true ) { meta.push( 'UniquePermissions') ; }
+   }
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
 
   if ( item.SharedWithDetails || item.SharedWithUsers || item.sharedEvents ) {
@@ -1726,19 +1753,17 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       FileSystemObjectType: item.FileSystemObjectType ,
       // SharedWithDetails: null,
     };
+    meta.push( 'WasShared' ) ;
   }
 
   if ( dataOptions.useMediaTags === true ) {
-    // itemDetail.MediaServiceAutoTags = item.MediaServiceAutoTags;
-    // itemDetail.MediaServiceLocation = item.MediaServiceLocation;
-    // itemDetail.MediaServiceOCR = item.MediaServiceOCR;
-    // itemDetail.MediaServiceKeyPoints = item.MediaServiceKeyPoints;
-    // itemDetail.MediaLengthInSeconds = item.MediaLengthInSeconds;
-    ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'].map( key => {
+    let mediaTabs: IKnownMeta[] = ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'];
+    mediaTabs.map( key => {
       let keyProp = item[ key ];
       if ( keyProp && keyProp.length > 0 ) {  //Removed !== null because on WebPartDev Teams drag and drop it errored out.
         itemDetail[ key ] = keyProp;
         itemDetail.isMedia = true ;
+        itemDetail.meta.push( key );
       } else { itemDetail[ key ] = null ; }
     });
   }
@@ -1750,16 +1775,20 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     itemDetail.iconName = iconInfo.iconName; 
     itemDetail.iconColor = iconInfo.iconColor;   
     itemDetail.iconTitle = iconInfo.iconTitle;   
-    itemDetail.iconSearch = iconInfo.iconSearch; 
+    itemDetail.iconSearch = iconInfo.iconSearch;
+    itemDetail.meta.push( iconInfo.iconSearch );
 
   } else if ( itemDetail.isFolder === true ) {
 
-    itemDetail.docIcon = 'folder'; 
+    itemDetail.docIcon = 'Type:Folder'; 
     itemDetail.iconName = 'OpenFolderHorizontal'; 
     itemDetail.iconColor = 'black';  
     itemDetail.iconTitle = 'Folder'; 
     itemDetail.iconSearch = 'Type:Folder'; 
+    itemDetail.meta.push( 'Type:Folder' );
   }
+
+  itemDetail.meta.push( item.DocIcon );
 
   return itemDetail;
 
@@ -1779,10 +1808,12 @@ function createFolderRanks ( count: number ) : IFolderInfo {
  */
  function getFileTypeIconInfo( ext: string) {
 
+  let anyExt : any = ext;
   let iconColor = 'black';
   let iconName = ext;
   let iconTitle = ext;
-  let iconSearch = ext;
+  let iconSearch: IKnownMeta = anyExt;
+
   switch (ext) {
     case 'xls':
     case 'xlsm':
@@ -1823,6 +1854,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     case 'msg':
       iconColor = 'blue';
       iconName = 'OutlookLogo';
+      iconSearch = 'Type:Outlook';
       break;
 
     case '7z':
@@ -1840,12 +1872,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       iconColor = 'dimgray';
       iconName = 'MSNVideosSolid';
       iconSearch = 'Type:Movie';
-      break;
-
-    case 'msg':
-      iconColor = 'blue';
-      iconName = 'Microphone';
-      iconSearch = 'Type:Outlook';
       break;
 
     case 'png':

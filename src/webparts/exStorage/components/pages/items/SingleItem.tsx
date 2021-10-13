@@ -53,6 +53,10 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
     });
   }
 
+  if ( item.meta.length > 0 ) {
+      rows.push( createRowFromItem( item, 'meta' ) );
+  }
+
   let sharingTable = createDetailsShareTable( item, true, true, 'pad30' );
 
   let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
@@ -83,7 +87,7 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
 
           <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
           <div>
-            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups ), textSearch ) }</p>
+            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups, true ), textSearch ) }</p>
           </div>
         </div>
       }
@@ -120,7 +124,7 @@ export function getEventSearchString ( event: ISharingEvent ) {
 
 }
 
-export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean ) {
+export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean, includeMeta: boolean ) {
 
   let createdDate = new Date( item.created );
   let searchThis = '';
@@ -133,10 +137,8 @@ export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean )
 
   }
 
-  if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
-  if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:
-  if ( item.MediaServiceLocation ) { searchThis += `|:${item.MediaServiceLocation}` ; } //MSL:
-  if ( item.MediaServiceOCR ) { searchThis += `|:${item.MediaServiceOCR}` ; } //MSOCR:
+  
+  if ( includeMeta === true && item.meta.length > -1 ) { searchThis += 'meta:' + item.meta.join('|') ; }
 
   return searchThis;
 
@@ -163,6 +165,10 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
     
     case 'id':
       textValue = `Id: ${ item.id } Batch Details: ${ item.batch } ${ item.index }`;
+      break;
+    
+    case 'meta':
+      textValue = item.meta ? item.meta.join(' | ') : '';
       break;
 
     default:

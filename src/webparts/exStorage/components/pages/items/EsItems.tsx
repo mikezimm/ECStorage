@@ -4,7 +4,7 @@ import itemStyles from './Items.module.scss';
 
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail, IKnownMeta } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -522,6 +522,7 @@ public componentDidMount() {
     if ( textSearch.length > 0 ) {
 
       visible = false;
+
       let searchThis = getEventSearchString( event );
       if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
         visible = true;
@@ -534,53 +535,24 @@ public componentDidMount() {
 
   private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boolean ) {
 
-    let visible = true;
+    let visible : boolean = true;
+    let anyTextSearch : any = textSearch;
 
     if ( textSearch.length > 0 ) {
-
       visible = false;
 
-      let searchThis = getItemSearchString( item, itemsAreDups );
-
-      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
-        visible = true;
-
-      } else if ( item.MediaServiceAutoTags && textSearch.toUpperCase() === 'MSAT' ) {
-        visible = true;
-
-      } else if ( item.MediaServiceKeyPoints && textSearch.toUpperCase() === 'MSKP' ) {
-        visible = true;
-
-      } else if ( item.MediaServiceLocation && textSearch.toUpperCase() === 'MSL' ) {
-        visible = true;
-
-      } else if ( item.MediaServiceOCR && textSearch.toUpperCase() === 'MSOCR' ) {
-        visible = true;
-
-      } else if ( item.isFolder === true && textSearch.toUpperCase() === 'ISFOLDER' ) {
-        visible = true;
-
-      } else if ( item.itemSharingInfo && textSearch.toUpperCase() === 'SHARED' ) {
-        visible = true;
-
-      } else if ( item.uniquePerms === true ) {
-        if ( textSearch.toUpperCase() === 'UNIQUE' || textSearch.toUpperCase() === 'PERMS'  ) {
+      if ( item.meta.length > 0 ) {
+        if ( item.meta.indexOf( anyTextSearch ) > -1 ) {
           visible = true;
         }
-      } else if ( textSearch.toUpperCase() === 'USER<>' ) {
-        if ( item.authorTitle !== item.editorTitle ) {
-          visible = true;
-        }
- 
-      } else if ( textSearch.toUpperCase() === 'USER=' ) {
-        if ( item.authorTitle === item.editorTitle ) {
-          visible = true;
-        }
-
-      } else {
-
       }
 
+      if ( visible === false ) {
+        let searchThis = getItemSearchString( item, itemsAreDups, false );
+        if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+          visible = true;
+        }
+      }
     }
 
     return visible;
@@ -625,7 +597,7 @@ public componentDidMount() {
     let cells : any[] = [];
     cells.push( <td style={{width: '50px'}} >{ key }</td> );
 
-    let id = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
+    let id = this.props.itemsAreDups === true ? item.id.toString() : item.id.toString()  ;
     let detailItemIcon = this.buildDetailIcon( item, id );
 
     let userStyle: any =  { width: '150px' } ;
@@ -736,6 +708,7 @@ public componentDidMount() {
   private _onClickType( event ) {
     console.log( '_onClickType:',  event );
     let iconSearch = event.currentTarget.id;
+    let fileType = event.currentTarget.dataset.search;
     //This is a quick "clear search" feature
     if ( iconSearch === this.state.textSearch ) { iconSearch = ''; }
     this._searchForItems ( iconSearch );
@@ -751,6 +724,7 @@ public componentDidMount() {
    */
   private _onCTRLClickSearch( searchThis: string ) : void {
     //This is a quick "clear search" feature
+
     if ( searchThis === this.state.textSearch ) { searchThis = ''; }
     this._searchForItems ( searchThis );
 
@@ -821,7 +795,7 @@ public componentDidMount() {
     id={ itemId } 
     title={ `Item ID: ${ itemId } Item Name: ${ text }` }
   >
-    { <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
+    { <Icon iconName= { item.iconName } data-search={ item.iconSearch } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
     { text }</td>;
 
 
@@ -845,13 +819,22 @@ public componentDidMount() {
     
     let MediaIcons: any[] = item.isMedia ? this.buildMediaIcons( item ) : [];
 
+    let iconSearch : IKnownMeta = item.iconSearch;
+
     let detailIcon = item.isMedia === true ? fpsAppIcons.ImageSearchRed : fpsAppIcons.DocumentSearch;
 
-    if ( item.itemSharingInfo ) { detailIcon = fpsAppIcons.SharedItem; }
-    else if ( item.uniquePerms === true ) { detailIcon = fpsAppIcons.UniquePerms; }
+    if ( item.itemSharingInfo ) { 
+      detailIcon = fpsAppIcons.SharedItem;
+      iconSearch = 'WasShared';
+
+    } else if ( item.uniquePerms === true ) { 
+      detailIcon = fpsAppIcons.UniquePerms;
+      iconSearch = 'UniquePermissions';
+
+    }
 
     let iconCell = <td className = { itemStyles.tableIcons } style={{width: '70px', cursor: 'pointer', position: 'relative' }} 
-      onClick={ this._onClickItemDetail.bind(this)} id={ id }
+      onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }
       title={ `See all Item Details.` }
       >
       { detailIcon }
@@ -896,23 +879,34 @@ public componentDidMount() {
     console.log( event );
     console.log( event.currentTarget.id );
     let showThisType = event.currentTarget.id;
+
     let selectedItem = null;
 
-    if ( this.props.itemType === 'Items' ) {
-      this.props.items.map( item => {
-        let checkThis = this.props.itemsAreDups === true ? item.parentFolder : item.FileLeafRef  ;
-        if ( checkThis === showThisType ) { selectedItem = item ; }
-      });
-      this.setState({
-        showItem: true,
-        showPreview: false,
-        selectedItem: selectedItem,
-        showItems: [],
-      });
+    if ( event.ctrlKey === true ) {
+      let fileType = event.currentTarget.dataset.search;
+      //Apply file type filter only on CTRL-Click, else other filter
+      if ( fileType === this.state.textSearch ) { fileType = ''; }
+      this._searchForItems ( fileType );
 
     } else {
-      console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
+      if ( this.props.itemType === 'Items' ) {
+        this.props.items.map( item => {
+          let checkThis = this.props.itemsAreDups === true ? item.id : item.id  ;
+          if ( checkThis == showThisType ) { selectedItem = item ; }
+        });
+        this.setState({
+          showItem: true,
+          showPreview: false,
+          selectedItem: selectedItem,
+          showItems: [],
+        });
+  
+      } else {
+        console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
+      }
     }
+
+
 
   }
 

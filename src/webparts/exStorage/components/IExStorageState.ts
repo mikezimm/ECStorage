@@ -38,6 +38,9 @@ export interface IEXStorageList extends IPickedList {
 
 }
 
+//'MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'
+export type IKnownMeta = 'WasShared' |  'UniquePermissions' | 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | ''  ;
+
 export interface IItemDetail {
   batch: number; //index of the batch in state.batches
   index: number; //index of item in state.batches[batch].items
@@ -62,13 +65,14 @@ export interface IItemDetail {
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
-  docIcon?: string;  
+  docIcon?: IKnownMeta;  
   iconName: string;
   iconColor: string;
   iconTitle: string;
-  iconSearch: string;
 
-  meta: string[];
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+
+  meta: IKnownMeta[];
 
   uniquePerms?: boolean;
   
@@ -226,6 +230,9 @@ export interface IDuplicateFile {
   iconName: string;
   iconColor: string;
   iconTitle: string;
+
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+  meta: IKnownMeta[];
   
   items: IItemDetail[];
   locations: string[];
