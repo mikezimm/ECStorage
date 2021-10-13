@@ -252,7 +252,7 @@ public componentDidMount() {
       let tableResults = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
       itemsTable = tableResults.table;
       filteredCount = tableResults.filteredCount;
-      
+
     }
 
 
@@ -357,6 +357,9 @@ public componentDidMount() {
 
       let styleCommonPathDisplay = this.commonPath === '' ? 'none' : null ;
 
+      let foundMessage = this.state.textSearch === '' ? 
+        `All ${ this.itemsLength } items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }`: 
+        `Found ${ filteredCount } items below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }`
       page = <div style= { panelStyle }>
         { this.showHeading !== true ? null : this.itemsHeading }
         <div className={ styles.inflexWrapCenter}>
@@ -367,7 +370,7 @@ public componentDidMount() {
           <div>{ this.searchNote }</div>
           <div>{ this.visibleNote }</div>
           <div style={{ padding: '10px 0px 5px 0px', display: styleCommonPathDisplay }}>
-            { `All items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }` }
+            { foundMessage }
             <span style={{ fontWeight: 600 }}>{ this.commonPath }</span></div>
         </div>
         { component }
@@ -464,13 +467,12 @@ public componentDidMount() {
 
     //Get event rows (if visible )
     sharedEvents.map( ( event, index ) => {
-      if ( rows.length < countToShow ) {
-        if ( this.isEventVisible( textSearch, event ) === true ) {
+      let isVisible = this.isEventVisible( textSearch, event ) === true;
+      if ( rows.length < countToShow && isVisible === true ) {
           rows.push( this.createSingleEventRow( index.toFixed(0), event , priorEvent, textSearch ) );
           priorEvent = event ;
           filteredCount ++;
-        }
-      }
+      } else if ( isVisible === true ) { filteredCount ++; }
     });
 
     return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable ) } ;
@@ -487,12 +489,11 @@ public componentDidMount() {
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
     itemsSorted.map( ( item, index ) => {
-      if ( rows.length < countToShow ) {
-        if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
-            rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
-            filteredCount ++;
-        }
-      }
+      let isVisible = this.isVisibleItem( textSearch, item, itemsAreDups ) === true;
+      if ( rows.length < countToShow && isVisible === true ) {
+        rows.push( this.createSingleItemRow( index.toFixed(0), item ) );
+        filteredCount ++;
+      } else if ( isVisible === true ) { filteredCount ++; }
     });
 
     return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
@@ -519,12 +520,11 @@ public componentDidMount() {
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
     itemsSorted.map( ( item, index ) => {
-      if ( rows.length < countToShow ) {
-        if ( this.isVisibleItem( textSearch, item, itemsAreDups ) === true ) {
-            rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
-            filteredCount ++;
-        }
-      }
+      let isVisible = this.isVisibleItem( textSearch, item, itemsAreDups ) === true;
+      if ( rows.length < countToShow && isVisible === true ) {
+        rows.push( this.createSingleDupRow( index.toFixed(0), item ) );
+        filteredCount ++;
+      } else if ( isVisible === true ) { filteredCount ++; }
     });
 
     return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
