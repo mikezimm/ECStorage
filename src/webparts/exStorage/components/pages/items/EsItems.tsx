@@ -359,7 +359,8 @@ public componentDidMount() {
 
       let foundMessage = this.state.textSearch === '' ? 
         `All ${ this.itemsLength } items are below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }`: 
-        `Found ${ filteredCount } items below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }`
+        `Found ${ filteredCount } items below this folder: ${ this.props.pickedList.LibraryUrl.replace( this.props.pickedWeb.ServerRelativeUrl, '') }`;
+        
       page = <div style= { panelStyle }>
         { this.showHeading !== true ? null : this.itemsHeading }
         <div className={ styles.inflexWrapCenter}>
