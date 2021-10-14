@@ -202,7 +202,8 @@ export async function getAllItems( fetchList: IGridList, addTheseItemsToState: a
 //     
 
 function buildMetaFromItem( theItem: IGridItemInfo, fetchList: IGridList, ) {
-    let meta: string[] = ['All'];
+    let meta: string[] = theItem.meta ? theItem.meta : [];
+    meta.push( 'All' );
 
     fetchList.metaColumns.map( c=> {
         if ( c.indexOf('/') > -1 ) { 
