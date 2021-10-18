@@ -1855,9 +1855,10 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     itemDetail.itemSharingInfo = {
       sharedEvents: item.sharedEvents ? item.sharedEvents : [],
       SharedWithUsers: item.SharedWithUsers ? item.SharedWithUsers : [],
-      FileRef: item.FileRef ,
-      FileLeafRef: item.FileLeafRef ,
+      FileRef: itemDetail.FileRef ,
+      FileLeafRef: itemDetail.FileLeafRef ,
       FileSystemObjectType: item.FileSystemObjectType ,
+      id: itemDetail.id,
 
       iconName: '',
       iconColor: '',

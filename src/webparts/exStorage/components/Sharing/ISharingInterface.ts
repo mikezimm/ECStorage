@@ -32,6 +32,14 @@ export interface ISharingEvent {
   ServerRedirectedEmbedUrl?: string;  //Only added after it's needed due to length
   parentFolder: string;  //Only added after it's needed due to length 
 
+  itemId: number;
+  iconName: string;
+  iconColor: string;
+  iconTitle: string;
+
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+
+
   //Copying these down from item just for easier use.
   // GUID: string;
   // odataEditLink: string;
@@ -81,6 +89,8 @@ export interface ISharingEvent {
   iconTitle: string;
 
   iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+
+  id: number;  //Needed for on-click events
   
   // ServerRedirectedEmbedUrl: string;
   // ContentTypeId: string;

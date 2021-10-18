@@ -13,7 +13,8 @@ export function aboutTable() {
         rows: [],
     };
 
-    table.rows.push( createAboutRow('2021-10-18', '1.0.0.18', `Add Shared Events,Folder & Permission Details, improve items pages with click filtering,` ) );
+    table.rows.push( createAboutRow('2021-10-18', '1.0.0.18', `Add Version Info - Files in draft, high version counts` ) );
+    table.rows.push( createAboutRow('2021-10-15', '1.0.0.17', `Misc data and styling improvements` ) );
     table.rows.push( createAboutRow('2021-10-13', '1.0.0.16', `Add Shared Events,Folder & Permission Details, improve items pages with click filtering,` ) );
     table.rows.push( createAboutRow('2021-10-04', '1.0.0.15', `Add Timeline tab (grid charts), Items Date flag style, Labels, styling` ) );
     table.rows.push( createAboutRow('2021-09-31', '1.0.0.14', `npmFunctions update.` ) );

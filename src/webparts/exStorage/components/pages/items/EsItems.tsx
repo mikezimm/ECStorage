@@ -4,7 +4,7 @@ import itemStyles from './Items.module.scss';
 
 import { IEsItemsProps } from './IEsItemsProps';
 import { IEsItemsState } from './IEsItemsState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail, IKnownMeta } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IItemDetail, IDuplicateFile, IItemType, IFolderDetail, IKnownMeta, ISharingInfo,  } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -153,7 +153,7 @@ public constructor(props:IEsItemsProps){
   let currentYearVal = currentYear.getFullYear();
   
   let totalSize: number = 0;
-  this.props.items.map( item => {
+  this.itemsAny.map( item => {
     totalSize += item.size;
   });
 
@@ -400,7 +400,7 @@ public componentDidMount() {
 
       />
       <div className={styles.searchStatus}>
-        { `Search all ${ getCommaSepLabel( this.props.items.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
+        { `Search all ${ getCommaSepLabel( this.itemsAny.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
       </div>
     </div>;
@@ -443,6 +443,12 @@ public componentDidMount() {
         item.itemSharingInfo.sharedEvents.map( event => {
           event.ServerRedirectedEmbedUrl = item.ServerRedirectedEmbedUrl;
           event.parentFolder = item.parentFolder;
+          event.itemId = item.id;
+          event.iconName = item.iconName;
+          event.iconColor = item.iconColor;
+          event.iconTitle = item.iconTitle;
+        
+          event.iconSearch = item.iconSearch; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
           sharedEvents.push( event );
         });
       }
@@ -705,9 +711,15 @@ public componentDidMount() {
 
     }
 
+    cells.push( this.buildFolderIcon( event ) );
+    cells.push( this.buildDetailIcon( event, event.itemId.toString() ) );
+
     cells.push( <td style={ dateStyle } title={ eventTimeTitle } onClick = { () => this._onCTRLClickSearch(dateSearch) }>{ eventTime }</td> );
     cells.push( <td style={ null } title={ event.sharedBy } onClick = { () => this._onCTRLClickSearch(event.sharedBy) } >{ sharedBy } </td> );
     cells.push( <td style={ null } title={ null } onClick = { () => this._onCTRLClickSearch(event.sharedWith) } >{ sharedWith } </td> );
+
+    cells.push( this.buildOpenItemCell( event, event.itemId.toFixed(0) , null ) );
+
     cells.push( <td style={ null } title={  event.FileLeafRef  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
 
     let cellText: any = event.FileLeafRef;
@@ -752,7 +764,7 @@ public componentDidMount() {
     console.log( event.currentTarget.id );
     let clickThisItem = parseInt(event.currentTarget.id);
 
-    this.props.items.map( item => {
+    this.itemsAny.map( item => {
       if ( item.id === clickThisItem ) { 
         window.open( item.parentFolder, "_blank");
       }
@@ -765,7 +777,7 @@ public componentDidMount() {
 
     if ( this.props.itemType === 'Items' ) {
       let clickThisItem = parseInt(event.currentTarget.id) ;
-      let items: IItemDetail[] = this.props.items;
+      let items: IItemDetail[] = this.itemsAny;
       let selectedItem = null;
 
       items.map( item => {
@@ -807,7 +819,7 @@ public componentDidMount() {
     } else { alert('Ooops!  We haven\`t made it so you can click on an event yet :( ') ; }
   }
   
-  private buildOpenItemCell ( item: IItemDetail | IDuplicateFile, itemId: string, text: any ) {
+  private buildOpenItemCell ( item: IItemDetail | IDuplicateFile | ISharingEvent, itemId: string, text: any ) {
     let cell = <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
     id={ itemId } 
     title={ `Item ID: ${ itemId } Item Name: ${ text }` }
@@ -819,10 +831,14 @@ public componentDidMount() {
     return cell;
   }
 
-  private buildFolderIcon ( item: IItemDetail ) {
+  private buildFolderIcon ( itemIn: IItemDetail | ISharingEvent ) {
+
+    let item: any = itemIn; //Added any type so that itemId can be found on either type
+
+    let itemId = item.id ? item.id : item.itemId;
 
     let iconCell = <td className = { itemStyles.folderIcons } 
-      onClick={ this._onClickFolder.bind(this)} id={ item.id.toFixed(0) }
+      onClick={ this._onClickFolder.bind(this)} id={ itemId.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`} >
       {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
       { fpsAppIcons.GoToFolder }
@@ -831,8 +847,9 @@ public componentDidMount() {
 
   }
 
-  private buildDetailIcon ( item: IItemDetail, id: string ) {
+  private buildDetailIcon ( itemIn: IItemDetail | ISharingEvent , id: string ) {
 
+    let item: any = itemIn; //Needed to use same component with different interfaces that may not match
     let iconSearch : IKnownMeta = item.iconSearch;
 
     let detailIcon = item.isMedia === true ? fpsAppIcons.ImageSearchRed : fpsAppIcons.DocumentSearch;
@@ -917,8 +934,8 @@ public componentDidMount() {
       this._searchForItems ( fileType );
 
     } else {
-      if ( this.props.itemType === 'Items' ) {
-        this.props.items.map( item => {
+      if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
+        this.itemsAny.map( item => {
           let checkThis = this.props.itemsAreDups === true ? item.id : item.id  ;
           if ( checkThis == showThisType ) { selectedItem = item ; }
         });
