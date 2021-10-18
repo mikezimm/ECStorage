@@ -38,8 +38,24 @@ export interface IEXStorageList extends IPickedList {
 
 }
 
+/**
+ * 0 are draft, 1 are one version, 100 are 1 to 100, 1000 are 101 to 1000
+ */
+export type IVersionBucket = 0 | 1 | 1.1 | 100 | 500;
+
+export type IVersionBucketLabel = 'Draft' | '1.0' | '>1.0' | '>=100' | '>=500';
+
+export type IKnownFileTypes = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' ;
+
 //'MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'
-export type IKnownMeta = 'WasShared' |  'UniquePermissions' | 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | ''  ;
+export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' ;
+
+export interface IFileVersionInfo {
+    number: number;
+    string: string;
+    bucket: IVersionBucket;
+    bucketLabel: IVersionBucketLabel;
+}
 
 export interface IItemDetail {
   batch: number; //index of the batch in state.batches
@@ -90,8 +106,7 @@ export interface IItemDetail {
   sizeMB: number;
   sizeLabel: string;
 
-  version: number;
-  versionlabel: string;
+  version: IFileVersionInfo;
 
   isFolder?: boolean;
 
@@ -153,6 +168,16 @@ export interface ILargeFiles {
   GT100M: IItemDetail[];
   GT10M: IItemDetail[];
   summary: IBucketSummary;
+
+}
+
+export interface IVersionInfo {
+  draft: IItemDetail[];
+  one: IItemDetail[];
+  GT1: IItemDetail[];
+  GT100: IItemDetail[];
+  GT500: IItemDetail[];
+  // summary: IBucketSummary;
 
 }
 
@@ -220,6 +245,8 @@ export interface IUserSummary {
   duplicateInfo: IDuplicateInfo;
   
   sharingInfo: ISharingInfo;
+  
+  versionInfo: IVersionInfo;
 
 }
 
@@ -260,6 +287,9 @@ export interface IFileType {
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
+    
+  versionInfo: IVersionInfo;
+
   summary: IBucketSummary;
 
 }
@@ -347,6 +377,8 @@ export interface IBatchData {
   summary: IBucketSummary;
 
   sharingInfo: ISharingInfo;
+
+  versionInfo: IVersionInfo;
 
   analytics: {
     fetchMs: number,

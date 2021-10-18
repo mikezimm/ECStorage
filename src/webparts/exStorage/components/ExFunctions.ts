@@ -42,7 +42,8 @@ import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays
 import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType, IKnownMeta } from './IExStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType, IKnownMeta,
+    IVersionBucketLabel, IVersionInfo } from './IExStorageState';
 
 import { IDataOptions, IUiOptions } from './IExStorageProps';
 
@@ -331,6 +332,15 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       sizeRank: [],
     },
 
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
+    },
+
     uniqueInfo: {
       uniqueRolls: [],
       summary: createBucketSummary('Unique Permissions', 'Files with Unique Permissions'),
@@ -541,6 +551,14 @@ export function createThisType ( docIcon: string ) :IFileType {
     createdMs: [],
     modifiedMs: [],
     summary: createBucketSummary('File Type info', 'File Type'),
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
+    },
   };
 
   return thisType;
@@ -569,6 +587,53 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
   return thisType;
 
 }
+
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      db    db d88888b d8888b. .d8888. d888888b  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88    88 88'     88  `8D 88'  YP   `88'   .8P  Y8. 888o  88        `88'   888o  88 88'     .8P  Y8. 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      Y8    8P 88ooooo 88oobY' `8bo.      88    88    88 88V8o 88         88    88V8o 88 88ooo   88    88 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      `8b  d8' 88~~~~~ 88`8b     `Y8b.    88    88    88 88 V8o88         88    88 V8o88 88~~~   88    88 
+ *    88b  d88 88      88  .8D 88   88    88    88.           `8bd8'  88.     88 `88. db   8D   .88.   `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P         YP    Y88888P 88   YD `8888Y' Y888888P  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+ *                                                                                                                                                               
+ *                                                                                                                                                               
+ */
+
+export function updateVersionInfo ( versionInfo: IVersionInfo, detail : IItemDetail, ) : IVersionInfo {
+
+  //Ignore version info on folders
+  if ( detail.isFolder === true ) {
+    return versionInfo;
+  }
+  
+  let bucketLabel: IVersionBucketLabel  = detail.version.bucketLabel;
+
+  switch ( bucketLabel ) {
+    case "Draft":
+      versionInfo.draft.push( detail );
+      break;
+    case "1.0":
+      versionInfo.one.push( detail );
+      break;
+    case ">1.0":
+      versionInfo.GT1.push( detail );
+      break;
+    case ">=100":
+      versionInfo.GT100.push( detail );
+      break;
+    case ">=500":
+      versionInfo.GT500.push( detail );
+      break;
+    default:
+      alert('Unexpected Version Info... ' + detail.FileRef );
+      console.log('Unexpected Version Info...', detail );
+      break;
+  }
+
+  return versionInfo;
+
+}
+
 
 /***
  *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d8888b.  .d8b.  d888888b  .o88b. db   db        d8888b.  .d8b.  d888888b  .d8b.  
@@ -646,6 +711,15 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     sharingInfo: {
       sharedItems: [],
       summary: createBucketSummary('Sharing Info', 'Shared Files'),
+    },
+    
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
     },
 
     analytics: {
@@ -1004,7 +1078,10 @@ function createFolderRanks ( count: number ) : IFolderInfo {
         batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types.push( createThisType(detail.docIcon) );
       }
       batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
+      batchData.typesInfo.types[ typeIndex ].versionInfo = updateVersionInfo( batchData.typesInfo.types[ typeIndex ].versionInfo, detail );
+
       batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ] = updateThisType( batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ], detail );
+      batchData.userInfo.allUsers[ createUserAllIndex ].versionInfo = updateVersionInfo( batchData.userInfo.allUsers[ createUserAllIndex ].versionInfo, detail );
 
       /***
        *    d8888b. db    db d888888b db      d8888b.      .d8888. db   db  .d8b.  d8888b. d888888b d8b   db  d888b       d888888b d8b   db d88888b  .d88b.  
@@ -1139,6 +1216,19 @@ function createFolderRanks ( count: number ) : IFolderInfo {
         // thisDetailsParentFolder.totalSize += detail.size;
       }
 
+
+      /***
+       *                       db    db d88888b d8888b. .d8888. d888888b  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
+       *           Vb          88    88 88'     88  `8D 88'  YP   `88'   .8P  Y8. 888o  88        `88'   888o  88 88'     .8P  Y8. 
+       *            `Vb        Y8    8P 88ooooo 88oobY' `8bo.      88    88    88 88V8o 88         88    88V8o 88 88ooo   88    88 
+       *    C8888D    `V.      `8b  d8' 88~~~~~ 88`8b     `Y8b.    88    88    88 88 V8o88         88    88 V8o88 88~~~   88    88 
+       *              .d'       `8bd8'  88.     88 `88. db   8D   .88.   `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
+       *            .dP           YP    Y88888P 88   YD `8888Y' Y888888P  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+       *           dP                                                                                                              
+       *                                                                                                                           
+       */
+
+      batchData.versionInfo = updateVersionInfo( batchData.versionInfo, detail );
 
       /**
        * User Duplicates
@@ -1678,16 +1768,24 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   if ( authorShared !== '' && meta.indexOf( authorShared ) < 0 ) { meta.push( authorShared ) ; }
   if ( editorShared !== '' && meta.indexOf( editorShared ) < 0 ) { meta.push( editorShared ) ; }
 
+  let versionString = item['OData__UIVersionString'];
+  let version = item['OData__UIVersion'];
+
   if ( createMs !== modMs ) { meta.push( modifiedDateString ) ; }
-  if ( item['OData__UIVersionString'].lastIndexOf('.0') === item['OData__UIVersionString'].length -2 ) {
+  if ( versionString.lastIndexOf('.0') === versionString.length -2 ) {
     meta.push( 'IsMajor' ) ;
   } else { meta.push( 'IsDraft' ) ; }
 
-  if ( item['OData__UIVersion'] === 512 ) { meta.push( 'SingleVerion' ) ; }
+  if ( version === 512 ) { meta.push( 'SingleVerion' ) ; }
 
-  if ( authorShared.indexOf('naga') > -1 ) {
-    // debugger;
-  }
+  let versionBucketLabel : IVersionBucketLabel= null;
+  let versionBucket = null;
+
+  if ( version === 512 ) { versionBucketLabel = '1.0' ; versionBucket = 1; }
+  else if ( version < 512 ) { versionBucketLabel = 'Draft' ; versionBucket = 0; }
+  else if ( version >= 256000 ) { versionBucketLabel = '>=500' ; versionBucket = 500; }
+  else if ( version >= 51200 ) { versionBucketLabel = '>=100' ; versionBucket = 100; }
+  else if ( version >= 513 ) { versionBucketLabel = '>1.0' ; versionBucket = 1.1; }
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -1733,8 +1831,13 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     iconTitle: '',
     iconSearch: '',
     meta: meta,
-    version: item['OData__UIVersion'],
-    versionlabel: item['OData__UIVersionString'],
+    version: {
+      number: version,
+      string: versionString,
+      bucket: versionBucket,
+      bucketLabel: versionBucketLabel,
+    },
+
     isMedia: false,
   };
 
