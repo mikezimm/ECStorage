@@ -1781,11 +1781,11 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let versionBucketLabel : IVersionBucketLabel= null;
   let versionBucket = null;
 
-  if ( version === 512 ) { versionBucketLabel = '1.0' ; versionBucket = 1; }
-  else if ( version < 512 ) { versionBucketLabel = 'Draft' ; versionBucket = 0; }
-  else if ( version >= 256000 ) { versionBucketLabel = '>=500' ; versionBucket = 500; }
-  else if ( version >= 51200 ) { versionBucketLabel = '>=100' ; versionBucket = 100; }
-  else if ( version >= 513 ) { versionBucketLabel = '>1.0' ; versionBucket = 1.1; }
+  if ( version === 512 ) { versionBucketLabel = '1.0' ; versionBucket = 1; meta.push( '1.0' ); }
+  else if ( version < 512 ) { versionBucketLabel = 'Draft' ; versionBucket = 0; meta.push( 'Draft' );  }
+  else if ( version >= 256000 ) { versionBucketLabel = '>=500' ; versionBucket = 500; meta.push( '>=500' );  }
+  else if ( version >= 51200 ) { versionBucketLabel = '>=100' ; versionBucket = 100; meta.push( '>=100' );  }
+  else if ( version >= 513 ) { versionBucketLabel = '>1.0' ; versionBucket = 1.1; meta.push( '>1.0' );  }
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches

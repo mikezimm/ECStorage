@@ -110,7 +110,7 @@ const mainGridColumns: IGridColumns = {
   valueOperators: ['Sum','Count','Avg'],
   dropDownColumns: ['+authorTitle','+editorTitle','+docIcon'],
   searchColumns: ['FileLeafRef'], 
-  metaColumns: [], 
+  metaColumns: ['meta'], 
 };
 
 
@@ -1190,7 +1190,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       batchData.typesInfo.types.map( type => {
         let smallType : any = {};
         Object.keys( type ).map( key => {
-          let skipTypesKeys = [ 'items', 'createdMs', 'sizes' ];
+          let skipTypesKeys = [ 'items', 'createdMs', 'sizes', 'versionInfo' ];
           //Skip modifiedMs if there are lots of items to avoid memory issue per column
           /**
            * During testing, found that 41,000 items in 60 items: 
@@ -1217,6 +1217,10 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     if ( zzzRichText1 ) { zzzRichText1 = JSON.stringify( zzzRichText1 ); }
     if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
     if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
+
+    console.log('zzzRichText1 length:', zzzRichText1 ? zzzRichText1.length : 0 );
+    console.log('zzzRichText2 length:', zzzRichText2 ? zzzRichText2.length : 0 );
+    console.log('zzzRichText3 length:', zzzRichText3 ? zzzRichText3.length : 0 );
 
     let saveObject: IZSentAnalytics = {
       loadProperties: this.state.loadProperties,

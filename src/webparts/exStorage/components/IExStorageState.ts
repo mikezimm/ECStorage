@@ -48,7 +48,8 @@ export type IVersionBucketLabel = 'Draft' | '1.0' | '>1.0' | '>=100' | '>=500';
 export type IKnownFileTypes = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' ;
 
 //'MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'
-export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' ;
+export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' |
+'Draft' | '1.0' | '>1.0' | '>=100' | '>=500' ;
 
 export interface IFileVersionInfo {
     number: number;

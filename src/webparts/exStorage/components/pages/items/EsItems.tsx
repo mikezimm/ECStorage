@@ -694,14 +694,16 @@ public componentDidMount() {
     let sharedWith: any = event.sharedWith;
     let FileLeafRef: any = event.FileLeafRef;
     let dateSearch = event.SharedTime.toLocaleDateString();
-    let folderIcon = <td>...</td>;
-    let openItemCell = <td>...</td>;
+    let detailIcon = <td className = { itemStyles.tableIconDots }>...</td>;
+    let folderIcon = <td className = { itemStyles.tableIconDots }>...</td>;
+    let openItemCell = <td className = { itemStyles.tableIconDots }>...</td>;
 
     let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
 
     if ( isSameEvent !== true ) {
       folderIcon = this.buildFolderIcon( event );
       openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0) , event.FileLeafRef, null );
+      detailIcon = this.buildDetailIcon( event, event.id.toString() );
     }
 
     if ( isSameEvent === true ) {
@@ -718,9 +720,7 @@ public componentDidMount() {
 
     }
 
-
-    cells.push( this.buildDetailIcon( event, event.id.toString() ) );
-
+    cells.push( detailIcon );
     cells.push( <td style={ dateStyle } title={ eventTimeTitle } onClick = { () => this._onCTRLClickSearch(dateSearch) }>{ eventTime }</td> );
     cells.push( <td style={ null } title={ event.sharedBy } onClick = { () => this._onCTRLClickSearch(event.sharedBy) } >{ sharedBy } </td> );
     cells.push( <td style={ null } title={ null } onClick = { () => this._onCTRLClickSearch(event.sharedWith) } >{ sharedWith } </td> );
@@ -783,7 +783,7 @@ public componentDidMount() {
     // console.log( event );
     console.log( event.currentTarget.id );
 
-    if ( this.props.itemType === 'Items' ) {
+    if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
       let clickThisItem = parseInt(event.currentTarget.id) ;
       let items: IItemDetail[] = this.itemsAny;
       let selectedItem = null;
