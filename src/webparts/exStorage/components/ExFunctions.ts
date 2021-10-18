@@ -1858,6 +1858,12 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       FileRef: item.FileRef ,
       FileLeafRef: item.FileLeafRef ,
       FileSystemObjectType: item.FileSystemObjectType ,
+
+      iconName: '',
+      iconColor: '',
+      iconTitle: '',
+    
+      iconSearch: '', //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
       // SharedWithDetails: null,
     };
     meta.push( 'WasShared' ) ;
@@ -1893,6 +1899,14 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     itemDetail.iconTitle = 'Folder'; 
     itemDetail.iconSearch = 'Type:Folder'; 
     itemDetail.meta.push( 'Type:Folder' );
+  }
+
+  if ( itemDetail.itemSharingInfo ) {
+    itemDetail.itemSharingInfo.iconName = itemDetail.iconName;
+    itemDetail.itemSharingInfo.iconColor = itemDetail.iconColor;
+    itemDetail.itemSharingInfo.iconTitle = itemDetail.iconTitle;
+    itemDetail.itemSharingInfo.iconSearch = itemDetail.iconSearch;
+
   }
 
   itemDetail.meta.push( item.DocIcon );

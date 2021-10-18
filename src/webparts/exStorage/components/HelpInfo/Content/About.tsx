@@ -3,7 +3,7 @@ import * as React from 'react';
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
 import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
 
-export const panelVersionNumber = '1.0.0.16 - 2021-10-13'; //Added to show in panel
+export const panelVersionNumber = '1.0.0.18 - 2021-10-18'; //Added to show in panel
 
 export function aboutTable() {
 
@@ -13,6 +13,7 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2021-10-18', '1.0.0.18', `Add Shared Events,Folder & Permission Details, improve items pages with click filtering,` ) );
     table.rows.push( createAboutRow('2021-10-13', '1.0.0.16', `Add Shared Events,Folder & Permission Details, improve items pages with click filtering,` ) );
     table.rows.push( createAboutRow('2021-10-04', '1.0.0.15', `Add Timeline tab (grid charts), Items Date flag style, Labels, styling` ) );
     table.rows.push( createAboutRow('2021-09-31', '1.0.0.14', `npmFunctions update.` ) );

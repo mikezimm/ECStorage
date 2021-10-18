@@ -1,5 +1,7 @@
 // import { IItemSharingInfo, ISharingEvent } from 'ISharingInterface';
 
+import { IKnownMeta } from '../IExStorageState';
+
 export interface ISharedWithUser {
   Title: string;
   Name: string;
@@ -73,6 +75,12 @@ export interface ISharingEvent {
   FileLeafRef: string;
  
   FileSystemObjectType: number;
+
+  iconName: string;
+  iconColor: string;
+  iconTitle: string;
+
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
   
   // ServerRedirectedEmbedUrl: string;
   // ContentTypeId: string;
