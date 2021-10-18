@@ -32,7 +32,7 @@ export interface ISharingEvent {
   ServerRedirectedEmbedUrl?: string;  //Only added after it's needed due to length
   parentFolder: string;  //Only added after it's needed due to length 
 
-  itemId: number;
+  id: number;
   iconName: string;
   iconColor: string;
   iconTitle: string;
