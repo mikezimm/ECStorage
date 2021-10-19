@@ -43,6 +43,8 @@
     width: 95%;
   };
 
+  tr { height: '27px' }
+
   th {
     text-align: left;
     font-weight: 600;
@@ -50,7 +52,7 @@
 
   td {
     white-space: nowrap;
-    // padding-right: 20px;
+    padding-right: 15px;
     overflow: 'hidden';
     text-overflow: 'ellipsis';
   };
@@ -77,4 +79,13 @@
 .tableIconDots {
   // text-align: center;
   padding-left: 10px !important;
+}
+
+.cellMaxStyle {
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 70%;
+  height: 10px;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }

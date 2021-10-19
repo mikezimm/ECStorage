@@ -72,14 +72,17 @@ import { createItemDetail, getItemSearchString, getEventSearchString, getHighlig
 
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/ISharingInterface';
 
-const cellMaxStyle: React.CSSProperties = {
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  maxWidth: '70%',
-  height: '10px',
-  textOverflow: 'ellipsis',
-  cursor: 'pointer',
-};
+
+/***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 
+ *    8P      88    88 88V8o 88 `8bo.      88    
+ *    8b      88    88 88 V8o88   `Y8b.    88    
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    
+ *                                               
+ *                                               
+ */
 
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
@@ -232,6 +235,17 @@ public componentDidMount() {
 
   }
 
+
+  /***
+ *    d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
+ *    88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
+ *    88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
+ *    88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
+ *    88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
+ *    88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
+ *                                                     
+ *                                                     
+ */
   public render(): React.ReactElement<IEsItemsProps> {
 
     console.log('EsItems.tsx1');
@@ -287,7 +301,21 @@ public componentDidMount() {
     } else {
 
       let panelContent = null;
+
+/***
+ *    d888888b        d88888b d8888b.  .d8b.  .88b  d88. d88888b      d8888b. d888888b  .d8b.  db       .d88b.   d888b  
+ *      `88'          88'     88  `8D d8' `8b 88'YbdP`88 88'          88  `8D   `88'   d8' `8b 88      .8P  Y8. 88' Y8b 
+ *       88           88ooo   88oobY' 88ooo88 88  88  88 88ooooo      88   88    88    88ooo88 88      88    88 88      
+ *       88    C8888D 88~~~   88`8b   88~~~88 88  88  88 88~~~~~      88   88    88    88~~~88 88      88    88 88  ooo 
+ *      .88.          88      88 `88. 88   88 88  88  88 88.          88  .8D   .88.   88   88 88booo. `8b  d8' 88. ~8~ 
+ *    Y888888P        YP      88   YD YP   YP YP  YP  YP Y88888P      Y8888D' Y888888P YP   YP Y88888P  `Y88P'   Y888P  
+ *                                                                                                                      
+ *                                                                                                                      
+ */
+
       if ( this.state.showPreview === true && this.state.selectedItem ) {
+
+
 
         userPanel = <IFrameDialog 
           url={this.state.selectedItem.ServerRedirectedEmbedUrl}
@@ -306,11 +334,35 @@ public componentDidMount() {
           width={'60%'}
           height={'60%'}/>;
 
+/***
+ *    d8888b. d88888b d888888b  .d8b.  d888888b db           d8888b.  .d8b.  d8b   db d88888b db      
+ *    88  `8D 88'     `~~88~~' d8' `8b   `88'   88           88  `8D d8' `8b 888o  88 88'     88      
+ *    88   88 88ooooo    88    88ooo88    88    88           88oodD' 88ooo88 88V8o 88 88ooooo 88      
+ *    88   88 88~~~~~    88    88~~~88    88    88           88~~~   88~~~88 88 V8o88 88~~~~~ 88      
+ *    88  .8D 88.        88    88   88   .88.   88booo.      88      88   88 88  V888 88.     88booo. 
+ *    Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P      88      YP   YP VP   V8P Y88888P Y88888P 
+ *                                                                                                    
+ *                                                                                                    
+ */
+
       } else if ( this.state.selectedItem ) { 
+
 
         panelContent = createItemDetail( this.state.selectedItem, this.props.itemsAreDups, this.props.pickedWeb.url, this.state.textSearch, this._onCloseItemDetail.bind( this ), this._onPreviewClick.bind( this ) );
     
+/***
+ *    .d8888. db   db  .d88b.  db   d8b   db      d888888b d888888b d88888b .88b  d88. .d8888. 
+ *    88'  YP 88   88 .8P  Y8. 88   I8I   88        `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
+ *    `8bo.   88ooo88 88    88 88   I8I   88         88       88    88ooooo 88  88  88 `8bo.   
+ *      `Y8b. 88~~~88 88    88 Y8   I8I   88         88       88    88~~~~~ 88  88  88   `Y8b. 
+ *    db   8D 88   88 `8b  d8' `8b d8'8b d8'        .88.      88    88.     88  88  88 db   8D 
+ *    `8888Y' YP   YP  `Y88P'   `8b8' `8d8'       Y888888P    YP    Y88888P YP  YP  YP `8888Y' 
+ *                                                                                             
+ *                                                                                             
+ */
+
       } else if ( this.state.showItems.length > 0 ) {
+
 
         panelContent = <div style={{ marginTop: '1em' }}>
           <EsItems 
@@ -339,6 +391,18 @@ public componentDidMount() {
       
       }
 
+      
+/***
+ *    d8888b.  .d8b.  d8b   db d88888b db      
+ *    88  `8D d8' `8b 888o  88 88'     88      
+ *    88oodD' 88ooo88 88V8o 88 88ooooo 88      
+ *    88~~~   88~~~88 88 V8o88 88~~~~~ 88      
+ *    88      88   88 88  V888 88.     88booo. 
+ *    88      YP   YP VP   V8P Y88888P Y88888P 
+ *                                             
+ *                                             
+ */
+
       if ( panelContent !== null ) {
           userPanel = <div><Panel
           isOpen={ this.state.showItem === true || this.state.showItems.length > 0 ? true : false }
@@ -352,6 +416,17 @@ public componentDidMount() {
             { panelContent }
         </Panel></div>;
       }
+
+/***
+ *    d8888b.  .d8b.   d888b  d88888b 
+ *    88  `8D d8' `8b 88' Y8b 88'     
+ *    88oodD' 88ooo88 88      88ooooo 
+ *    88~~~   88~~~88 88  ooo 88~~~~~ 
+ *    88      88   88 88. ~8~ 88.     
+ *    88      YP   YP  Y888P  Y88888P 
+ *                                    
+ *                                    
+ */
 
       let panelStyle = this.showHeading !== true ? { marginTop: '1.4em'} : null;
 
@@ -378,6 +453,18 @@ public componentDidMount() {
       </div>;
     }
 
+
+
+    /***
+ *    d8888b. d88888b d888888b db    db d8888b. d8b   db 
+ *    88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+ *    88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+ *    88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+ *    88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+ *    88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+ *                                                       
+ *                                                       
+ */
     return (
       <div className={ [styles.exStorage, itemStyles.itemsPage].join(' ') } style={{ marginLeft: '25px'}}>
         { page }
@@ -386,53 +473,27 @@ public componentDidMount() {
     );
   }
 
-  private buildSearchBox( testSearch: string ) {
-    /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-    let searchBox =  
-    <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
-      <SearchBox
-        className={styles.searchBox}
-        styles={{ root: { maxWidth: 200 } }}
-        placeholder="Search"
-        onSearch={ this._searchForItems.bind(this) }
-        onFocus={ () => console.log('this.state',  this.state) }
-        onBlur={ () => console.log('onBlur called') }
-        onChange={ this._searchForItems.bind(this) }
-        value={ testSearch }
 
-      />
-      <div className={styles.searchStatus}>
-        { `Search all ${ getCommaSepLabel( this.itemsAny.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
-        { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
-      </div>
-    </div>;
 
-    return searchBox;
 
-  }
 
-  public _searchForItems = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
-    console.log('searchForItems: e',e);
-    console.log('searchForItems: item', item);
-    console.log('searchForItems: this', this);
 
-    this.setState({ textSearch: item });
-  }
 
-  private buildTableFromRows( rows, tableTitle, tableClassName ) {
-    
-    let table = <div style={{marginRight: '10px'}} className = { tableClassName }>
-      <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
-      {/* <table style={{padding: '0 20px'}}> */}
-      <table style={{  }} id="Select-b">
-        { rows }
-      </table>
-    </div>;
-    return table;
 
-  }
+
+
+
+
+  /***
+ *    .d8888. db   db  .d8b.  d8888b. d88888b d8888b.      d88888b db    db d88888b d8b   db d888888b .d8888.      d888888b d888888b d88888b .88b  d88. .d8888. 
+ *    88'  YP 88   88 d8' `8b 88  `8D 88'     88  `8D      88'     88    88 88'     888o  88 `~~88~~' 88'  YP        `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
+ *    `8bo.   88ooo88 88ooo88 88oobY' 88ooooo 88   88      88ooooo Y8    8P 88ooooo 88V8o 88    88    `8bo.           88       88    88ooooo 88  88  88 `8bo.   
+ *      `Y8b. 88~~~88 88~~~88 88`8b   88~~~~~ 88   88      88~~~~~ `8b  d8' 88~~~~~ 88 V8o88    88      `Y8b.         88       88    88~~~~~ 88  88  88   `Y8b. 
+ *    db   8D 88   88 88   88 88 `88. 88.     88  .8D      88.      `8bd8'  88.     88  V888    88    db   8D        .88.      88    88.     88  88  88 db   8D 
+ *    `8888Y' YP   YP YP   YP 88   YD Y88888P Y8888D'      Y88888P    YP    Y88888P VP   V8P    YP    `8888Y'      Y888888P    YP    Y88888P YP  YP  YP `8888Y' 
+ *                                                                                                                                                              
+ *                                                                                                                                                              
+ */
 
   private buildAllSharedEventsItems( items: IItemDetail[] ) {
 
@@ -464,6 +525,17 @@ public componentDidMount() {
 
   }
 
+  /***
+ *    d88888b db    db d88888b d8b   db d888888b .d8888.      d888888b  .d8b.  d8888b. db      d88888b 
+ *    88'     88    88 88'     888o  88 `~~88~~' 88'  YP      `~~88~~' d8' `8b 88  `8D 88      88'     
+ *    88ooooo Y8    8P 88ooooo 88V8o 88    88    `8bo.           88    88ooo88 88oooY' 88      88ooooo 
+ *    88~~~~~ `8b  d8' 88~~~~~ 88 V8o88    88      `Y8b.         88    88~~~88 88~~~b. 88      88~~~~~ 
+ *    88.      `8bd8'  88.     88  V888    88    db   8D         88    88   88 88   8D 88booo. 88.     
+ *    Y88888P    YP    Y88888P VP   V8P    YP    `8888Y'         YP    YP   YP Y8888P' Y88888P Y88888P 
+ *                                                                                                     
+ *                                                                                                     
+ */
+
   private buildSharedEventsTable( sharedEvents: ISharingEvent[] , data: string, countToShow: number, textSearch: string, ): any {
 
     // let items : IItemDetail[] = itemsIn;
@@ -483,6 +555,7 @@ public componentDidMount() {
       <th>File</th>
       <th>File Name</th>
     </tr> );
+
     //Get event rows (if visible )
     sharedEvents.map( ( event, index ) => {
       let isVisible = this.isEventVisible( textSearch, event ) === true;
@@ -497,12 +570,143 @@ public componentDidMount() {
 
   }
 
+  
+  /***
+ *    d88888b db    db d88888b d8b   db d888888b      d8888b.  .d88b.  db   d8b   db 
+ *    88'     88    88 88'     888o  88 `~~88~~'      88  `8D .8P  Y8. 88   I8I   88 
+ *    88ooooo Y8    8P 88ooooo 88V8o 88    88         88oobY' 88    88 88   I8I   88 
+ *    88~~~~~ `8b  d8' 88~~~~~ 88 V8o88    88         88`8b   88    88 Y8   I8I   88 
+ *    88.      `8bd8'  88.     88  V888    88         88 `88. `8b  d8' `8b d8'8b d8' 
+ *    Y88888P    YP    Y88888P VP   V8P    YP         88   YD  `Y88P'   `8b8' `8d8'  
+ *                                                                                   
+ *                                                                                   
+ */
+
+private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISharingEvent, highlight: string ) {
+
+  let cells : any[] = [];
+  cells.push( <td style={{width: '50px'}} >{ key }</td> );
+
+  let dateStyle : React.CSSProperties = { };
+
+  let eventTime: any = event.SharedTime.toLocaleString();
+  let eventTimeTitle = event.SharedTime.toLocaleString();
+
+  let sharedBy: any = event.sharedBy;
+  let sharedWith: any = event.sharedWith;
+  let FileLeafRef: any = event.FileLeafRef;
+  let dateSearch = event.SharedTime.toLocaleDateString();
+  let detailIcon = <td className = { itemStyles.tableIconDots }>...</td>;
+  let folderIcon = <td className = { itemStyles.tableIconDots }>...</td>;
+  let openItemCell = <td className = { itemStyles.tableIconDots }>...</td>;
+
+  let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
+
+  if ( isSameEvent !== true ) {
+    folderIcon = this.buildFolderIcon( event );
+    openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0), `Click to preview this file` , null );
+    detailIcon = this.buildDetailIcon( event, event.id.toString() );
+  }
+
+  if ( isSameEvent === true ) {
+    eventTime = '...' ;
+    sharedBy = eventTime = '...' ;
+    FileLeafRef = eventTime = '...' ;
+
+    //If there is highlight (search string), then highlight any text.
+  } else if ( highlight && highlight.length > 0 ) {
+    eventTime = getHighlightedText( eventTime, highlight ) ;
+    sharedBy = getHighlightedText( sharedBy, highlight ) ;
+    sharedWith = getHighlightedText( sharedWith, highlight ) ;
+    FileLeafRef = getHighlightedText( FileLeafRef, highlight ) ;
+
+  }
+
+  cells.push( detailIcon );
+  cells.push( <td style={ dateStyle } title={ eventTimeTitle } onClick = { () => this._onCTRLClickSearch(dateSearch) }>{ eventTime }</td> );
+  cells.push( <td style={ null } title={ event.sharedBy } onClick = { () => this._onCTRLClickSearch(event.sharedBy) } >{ sharedBy } </td> );
+  cells.push( <td style={ null } title={ null } onClick = { () => this._onCTRLClickSearch(event.sharedWith) } >{ sharedWith } </td> );
+
+  cells.push( folderIcon );
+  cells.push( openItemCell );
+
+  cells.push( <td style={ null } title={  `Id: ${event.id} Found in folder: ${event.parentFolder}`  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
+
+  let cellText: any = event.FileLeafRef;
+
+  let cellRow = <tr style={ null }> { cells } </tr>;
+
+  return cellRow;
+
+}
+
+
+  /***
+ *    d888888b .d8888.      d88888b db    db d88888b d8b   db d888888b      db    db d888888b .d8888. d888888b d8888b. db      d88888b 
+ *      `88'   88'  YP      88'     88    88 88'     888o  88 `~~88~~'      88    88   `88'   88'  YP   `88'   88  `8D 88      88'     
+ *       88    `8bo.        88ooooo Y8    8P 88ooooo 88V8o 88    88         Y8    8P    88    `8bo.      88    88oooY' 88      88ooooo 
+ *       88      `Y8b.      88~~~~~ `8b  d8' 88~~~~~ 88 V8o88    88         `8b  d8'    88      `Y8b.    88    88~~~b. 88      88~~~~~ 
+ *      .88.   db   8D      88.      `8bd8'  88.     88  V888    88          `8bd8'    .88.   db   8D   .88.   88   8D 88booo. 88.     
+ *    Y888888P `8888Y'      Y88888P    YP    Y88888P VP   V8P    YP            YP    Y888888P `8888Y' Y888888P Y8888P' Y88888P Y88888P 
+ *                                                                                                                                     
+ *                                                                                                                                     
+ */
+private isEventVisible ( textSearch: any, event: ISharingEvent ) {
+
+  let visible = true;
+
+  if ( textSearch.length > 0 ) {
+
+    visible = false;
+
+    if ( event.meta.indexOf( textSearch ) > -1 ) {
+      visible = true;
+    } else {
+      let searchThis = getEventSearchString( event );
+      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+        visible = true;
+      }
+    }
+  }
+  return visible;
+
+}
+
+
+  /***
+ *    d888888b d888888b d88888b .88b  d88. .d8888.      d888888b  .d8b.  d8888b. db      d88888b 
+ *      `88'   `~~88~~' 88'     88'YbdP`88 88'  YP      `~~88~~' d8' `8b 88  `8D 88      88'     
+ *       88       88    88ooooo 88  88  88 `8bo.           88    88ooo88 88oooY' 88      88ooooo 
+ *       88       88    88~~~~~ 88  88  88   `Y8b.         88    88~~~88 88~~~b. 88      88~~~~~ 
+ *      .88.      88    88.     88  88  88 db   8D         88    88   88 88   8D 88booo. 88.     
+ *    Y888888P    YP    Y88888P YP  YP  YP `8888Y'         YP    YP   YP Y8888P' Y88888P Y88888P 
+ *                                                                                               
+ *                                                                                               
+ */
+
   private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
 
     let rows = [];
     let tableTitle = data;
     let itemsSorted: any[] = [];
     let filteredCount = 0;
+
+    rows.push( <tr>
+      <th></th>
+      <th></th>
+      <th>Info</th>
+      { this.props.itemsAreFolders === true ? 
+      <th title='Number of files and folders in this folder'>#</th> :
+      null  }
+      <th title= { this.props.itemsAreFolders === true ? 'Total size of all files in this folder, not including subfolders' : 'File size'}>Size</th>
+      <th>Modified By</th>
+      <th>Modified</th>
+      <th style={{paddingRight: '10px'}} title='Click Folder to go directly to the parent folder of that item.'> { this.props.itemsAreFolders === true ? 'Parent' : 'Folder'}</th>
+
+      { this.props.itemsAreFolders !== true ? <th style={{paddingRight: '10px'}}>Version</th> : null  }
+      {/* { this.props.itemsAreFolders !== true ?  : null  } */}
+      <th style={{paddingRight: '10px'}}>File</th>
+    </tr> );
 
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
@@ -518,6 +722,143 @@ public componentDidMount() {
 
   }
 
+  
+  /***
+ *    d888888b d888888b d88888b .88b  d88.      d8888b.  .d88b.  db   d8b   db 
+ *      `88'   `~~88~~' 88'     88'YbdP`88      88  `8D .8P  Y8. 88   I8I   88 
+ *       88       88    88ooooo 88  88  88      88oobY' 88    88 88   I8I   88 
+ *       88       88    88~~~~~ 88  88  88      88`8b   88    88 Y8   I8I   88 
+ *      .88.      88    88.     88  88  88      88 `88. `8b  d8' `8b d8'8b d8' 
+ *    Y888888P    YP    Y88888P YP  YP  YP      88   YD  `Y88P'   `8b8' `8d8'  
+ *                                                                             
+ *                                                                             
+ */
+
+private createSingleItemRow( key: string, item: IItemDetail ) {
+
+  let itemFolder : any = this.props.itemsAreFolders === true ? item : null;
+  let folder: IFolderDetail = itemFolder;
+
+  let created = new Date( item.created );
+  let modified = new Date( item.modified );
+
+  let cells : any[] = [];
+  cells.push( <td style={{width: '50px'}} >{ key }</td> );
+
+  let id = this.props.itemsAreDups === true ? item.id.toString() : item.id.toString()  ;
+  let detailItemIcon = this.buildDetailIcon( item, id );
+  let detailMediaIcon = this.buildMediaIconCell( item, id );
+  
+  let userStyle: any =  { width: null } ;
+  let userTitle = null;
+
+  if ( item.authorTitle !== item.editorTitle ) { 
+    userStyle.color = 'red';
+    userStyle.fontWeight = 600;
+    userTitle = `Edited by ${ item.editorTitle }`;
+  }
+
+  cells.push( detailMediaIcon );
+  cells.push( detailItemIcon );
+
+  if ( this.props.itemsAreFolders === true ) {
+    cells.push( <td style={{width: null }} >{ getCountLabel( folder.directCount, 0 ) }</td> );
+    // console.log('getting sizeLabel: ', folder );
+    cells.push( <td style={{ paddingRight: '15px' }} >{ getSizeLabel( folder.directSize ) }</td> );
+
+  } else {
+    cells.push( <td style={{ paddingRight: '15px' }} >{ getSizeLabel( item.size ) }</td> );
+  }
+
+  cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
+  let dateStyle : React.CSSProperties = { };
+  let dateTitle : string = '';
+
+  if ( item.createMs < item.modMs ) {
+    dateStyle.color = 'blue';
+    dateTitle = `Modified: ${ modified.toLocaleString() }`;
+  
+  } else if ( item.createMs > item.modMs ) {
+    dateStyle.color = 'red';
+    dateStyle.fontWeight = 600;
+    dateTitle = `Modified Before Created!!! : ${ modified.toLocaleString() }`;
+
+  }
+
+  cells.push( <td style={dateStyle} title={ dateTitle }>{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
+
+  if ( this.props.itemsAreDups !== true ) {
+    cells.push( this.buildFolderIcon( item ) );
+  }
+
+  // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
+  if ( this.props.itemsAreFolders === false ) {
+
+    cells.push( <td style={{paddingRight: '15px' }} >{ item.version.string }</td> );
+  }
+
+  let cellText: any = item.FileLeafRef;
+  //For duplicate files, this will show the relative path.
+  //BUT to help when there are deep folders, it will show based on the common parent folder, not full folder url because it can be to long
+  if ( this.props.itemsAreDups === true ) {
+    cellText = <span><span style={{ fontWeight: 600 }}>{'../' + this.commonParent }</span><span>{ item.parentFolder.replace( this.commonRelativePath, '' ) } </span></span> ; //commonParent
+  } 
+  cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText, cellText ) );
+
+  let cellRow = <tr style={ null }> { cells } </tr>;
+
+  return cellRow;
+
+}
+
+
+  /***
+ *    d888888b .d8888.      d888888b d888888b d88888b .88b  d88.      db    db d888888b .d8888. d888888b d8888b. db      d88888b 
+ *      `88'   88'  YP        `88'   `~~88~~' 88'     88'YbdP`88      88    88   `88'   88'  YP   `88'   88  `8D 88      88'     
+ *       88    `8bo.           88       88    88ooooo 88  88  88      Y8    8P    88    `8bo.      88    88oooY' 88      88ooooo 
+ *       88      `Y8b.         88       88    88~~~~~ 88  88  88      `8b  d8'    88      `Y8b.    88    88~~~b. 88      88~~~~~ 
+ *      .88.   db   8D        .88.      88    88.     88  88  88       `8bd8'    .88.   db   8D   .88.   88   8D 88booo. 88.     
+ *    Y888888P `8888Y'      Y888888P    YP    Y88888P YP  YP  YP         YP    Y888888P `8888Y' Y888888P Y8888P' Y88888P Y88888P 
+ *                                                                                                                               
+ *                                                                                                                               
+ */
+private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boolean ) {
+
+  let visible : boolean = true;
+  let anyTextSearch : any = textSearch;
+
+  if ( textSearch.length > 0 ) {
+    visible = false;
+
+    if ( item.meta.length > 0 ) {
+      if ( item.meta.indexOf( anyTextSearch ) > -1 ) {
+        visible = true;
+      }
+    }
+
+    if ( visible === false ) {
+      let searchThis = getItemSearchString( item, itemsAreDups, false );
+      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+        visible = true;
+      }
+    }
+  }
+
+  return visible;
+
+}
+
+
+  /***
+ *    d8888b. db    db d8888b. .d8888.      d888888b  .d8b.  d8888b. db      d88888b 
+ *    88  `8D 88    88 88  `8D 88'  YP      `~~88~~' d8' `8b 88  `8D 88      88'     
+ *    88   88 88    88 88oodD' `8bo.           88    88ooo88 88oooY' 88      88ooooo 
+ *    88   88 88    88 88~~~     `Y8b.         88    88~~~88 88~~~b. 88      88~~~~~ 
+ *    88  .8D 88b  d88 88      db   8D         88    88   88 88   8D 88booo. 88.     
+ *    Y8888D' ~Y8888P' 88      `8888Y'         YP    YP   YP Y8888P' Y88888P Y88888P 
+ *                                                                                   
+ *                                                                                   
+ */
   /**
    * Same as buildItemsTable but only for when  } objectType === 'Duplicates'
    * @param items
@@ -534,6 +875,13 @@ public componentDidMount() {
     let tableTitle = data;
     let itemsSorted: any[] = [];
     let filteredCount = 0;
+    
+    rows.push( <tr>
+      <th></th>
+      <th title='Number of files with the same exact name and extension'>#</th>
+      <th>Size</th>
+      <th style={{paddingRight: '10px'}}>File</th>
+    </tr> );
 
     itemsSorted = sortObjectArrayByChildNumberKey( items, 'dec', sortKey );
     
@@ -549,56 +897,17 @@ public componentDidMount() {
 
   }
   
-  private isEventVisible ( textSearch: any, event: ISharingEvent ) {
 
-    let visible = true;
-
-    if ( textSearch.length > 0 ) {
-
-      visible = false;
-
-      if ( event.meta.indexOf( textSearch ) > -1 ) {
-        visible = true;
-      } else {
-        let searchThis = getEventSearchString( event );
-        if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
-          visible = true;
-        }
-      }
-
-    }
-
-    return visible;
-
-  }
-
-  private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boolean ) {
-
-    let visible : boolean = true;
-    let anyTextSearch : any = textSearch;
-
-    if ( textSearch.length > 0 ) {
-      visible = false;
-
-      if ( item.meta.length > 0 ) {
-        if ( item.meta.indexOf( anyTextSearch ) > -1 ) {
-          visible = true;
-        }
-      }
-
-      if ( visible === false ) {
-        let searchThis = getItemSearchString( item, itemsAreDups, false );
-        if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
-          visible = true;
-        }
-      }
-    }
-
-    return visible;
-
-  }
-
-  
+  /***
+ *    d8888b. db    db d8888b.      d8888b.  .d88b.  db   d8b   db 
+ *    88  `8D 88    88 88  `8D      88  `8D .8P  Y8. 88   I8I   88 
+ *    88   88 88    88 88oodD'      88oobY' 88    88 88   I8I   88 
+ *    88   88 88    88 88~~~        88`8b   88    88 Y8   I8I   88 
+ *    88  .8D 88b  d88 88           88 `88. `8b  d8' `8b d8'8b d8' 
+ *    Y8888D' ~Y8888P' 88           88   YD  `Y88P'   `8b8' `8d8'  
+ *                                                                 
+ *                                                                 
+ */
   private createSingleDupRow( key: string, item: IDuplicateFile ) {
 
     // let created = new Date( item.created );
@@ -625,254 +934,99 @@ public componentDidMount() {
   
   }
 
-  private createSingleItemRow( key: string, item: IItemDetail ) {
 
-    let itemFolder : any = this.props.itemsAreFolders === true ? item : null;
-    let folder: IFolderDetail = itemFolder;
-
-    let created = new Date( item.created );
-    let modified = new Date( item.modified );
-
-    let cells : any[] = [];
-    cells.push( <td style={{width: '50px'}} >{ key }</td> );
-
-    let id = this.props.itemsAreDups === true ? item.id.toString() : item.id.toString()  ;
-    let detailItemIcon = this.buildDetailIcon( item, id );
-    let detailMediaIcon = this.buildMediaIconCell( item, id );
-    
-    let userStyle: any =  { width: '150px' } ;
-    let userTitle = null;
-
-    if ( item.authorTitle !== item.editorTitle ) { 
-      userStyle.color = 'red';
-      userStyle.fontWeight = 600;
-      userTitle = `Edited by ${ item.editorTitle }`;
-    }
-
-    cells.push( detailMediaIcon );
-    cells.push( detailItemIcon );
-
-    if ( this.props.itemsAreFolders === true ) {
-      cells.push( <td style={{width: '80px'}} >{ getCountLabel( folder.directCount, 0 ) }</td> );
-      // console.log('getting sizeLabel: ', folder );
-      cells.push( <td style={{width: '80px'}} >{ getSizeLabel( folder.directSize ) }</td> );
-
-    } else {
-      cells.push( <td style={{width: '80px'}} >{ getSizeLabel( item.size ) }</td> );
-    }
-
-    cells.push( <td style={ userStyle } title={ userTitle }>{ item.authorTitle }</td> );
-    let dateStyle : React.CSSProperties = {width: '160px'};
-    let dateTitle : string = '';
-
-    if ( item.createMs < item.modMs ) {
-      dateStyle.color = 'blue';
-      dateTitle = `Modified: ${ modified.toLocaleString() }`;
-    
-    } else if ( item.createMs > item.modMs ) {
-      dateStyle.color = 'red';
-      dateStyle.fontWeight = 600;
-      dateTitle = `Modified Before Created!!! : ${ modified.toLocaleString() }`;
-
-    }
-
-    cells.push( <td style={dateStyle} title={ dateTitle }>{ created.toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) }</td> );
-
-    // cells.push( <td style={cellMaxStyle}><a href={ item.FileRef } target={ '_blank' }>{ item.FileLeafRef }</a></td> );
-    if ( this.props.itemsAreFolders === false ) {
-      cells.push( this.buildFolderIcon( item ) );
-      cells.push( <td style={{width: '60px'}} >{ item.version.string }</td> );
-    }
-
-    let cellText: any = item.FileLeafRef;
-    //For duplicate files, this will show the relative path.
-    //BUT to help when there are deep folders, it will show based on the common parent folder, not full folder url because it can be to long
-    if ( this.props.itemsAreDups === true ) {
-      cellText = <span><span style={{ fontWeight: 600 }}>{'../' + this.commonParent }</span><span>{ item.parentFolder.replace( this.commonRelativePath, '' ) } </span></span> ; //commonParent
-    } 
-    cells.push( this.buildOpenItemCell( item, item.id.toFixed(0) , cellText, cellText ) );
-  
-    let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
-
-    return cellRow;
-  
-  }
-
-  private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISharingEvent, highlight: string ) {
-
-    let cells : any[] = [];
-    cells.push( <td style={{width: '50px'}} >{ key }</td> );
-
-    let dateStyle : React.CSSProperties = {width: '160px'};
-
-    let eventTime: any = event.SharedTime.toLocaleString();
-    let eventTimeTitle = event.SharedTime.toLocaleString();
-
-    let sharedBy: any = event.sharedBy;
-    let sharedWith: any = event.sharedWith;
-    let FileLeafRef: any = event.FileLeafRef;
-    let dateSearch = event.SharedTime.toLocaleDateString();
-    let detailIcon = <td className = { itemStyles.tableIconDots }>...</td>;
-    let folderIcon = <td className = { itemStyles.tableIconDots }>...</td>;
-    let openItemCell = <td className = { itemStyles.tableIconDots }>...</td>;
-
-    let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
-
-    if ( isSameEvent !== true ) {
-      folderIcon = this.buildFolderIcon( event );
-      openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0), `Click to preview this file` , null );
-      detailIcon = this.buildDetailIcon( event, event.id.toString() );
-    }
-
-    if ( isSameEvent === true ) {
-      eventTime = '...' ;
-      sharedBy = eventTime = '...' ;
-      FileLeafRef = eventTime = '...' ;
-
-      //If there is highlight (search string), then highlight any text.
-    } else if ( highlight && highlight.length > 0 ) {
-      eventTime = getHighlightedText( eventTime, highlight ) ;
-      sharedBy = getHighlightedText( sharedBy, highlight ) ;
-      sharedWith = getHighlightedText( sharedWith, highlight ) ;
-      FileLeafRef = getHighlightedText( FileLeafRef, highlight ) ;
-
-    }
-
-    cells.push( detailIcon );
-    cells.push( <td style={ dateStyle } title={ eventTimeTitle } onClick = { () => this._onCTRLClickSearch(dateSearch) }>{ eventTime }</td> );
-    cells.push( <td style={ null } title={ event.sharedBy } onClick = { () => this._onCTRLClickSearch(event.sharedBy) } >{ sharedBy } </td> );
-    cells.push( <td style={ null } title={ null } onClick = { () => this._onCTRLClickSearch(event.sharedWith) } >{ sharedWith } </td> );
-
-    cells.push( folderIcon );
-    cells.push( openItemCell );
-
-    cells.push( <td style={ null } title={  `Id: ${event.id} Found in folder: ${event.parentFolder}`  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
-
-    let cellText: any = event.FileLeafRef;
-  
-    let cellRow = <tr style={{ height: '27px' }}> { cells } </tr>;
-
-    return cellRow;
-  
-  }
-
-  /**
-   * This is the same as _onCTRLClickSearch except it was clicked via the file type icon at the top.
-   * @param event 
-   */
-  private _onClickType( event ) {
-    console.log( '_onClickType:',  event );
-    let iconSearch = event.currentTarget.id;
-    let fileType = event.currentTarget.dataset.search;
-    //This is a quick "clear search" feature
-    if ( iconSearch === this.state.textSearch ) { iconSearch = ''; }
-    this._searchForItems ( iconSearch );
-
-  }
-
-  /**
-   * This is used for sharingEvents originally when clicking on an item.
-   * Originally no CTRL press is required but called it that in case I use it elsewhere on normal items where 
-   *    CTRL press might be required to distinguish a normal existing click
-   * 
-   * @param searchThis 
-   */
-  private _onCTRLClickSearch( searchThis: string ) : void {
-    //This is a quick "clear search" feature
-
-    if ( searchThis === this.state.textSearch ) { searchThis = ''; }
-    this._searchForItems ( searchThis );
-
-  }
-
-  private _onClickFolder( event ) {
-    // console.log( event );
-    console.log( event.currentTarget.id );
-    let clickThisItem = parseInt(event.currentTarget.id);
-
-    this.itemsAny.map( item => {
-      if ( item.id === clickThisItem ) { 
-        window.open( item.parentFolder, "_blank");
-      }
-    });
-  }
-
-  private _onClickItem( event ) {
-    // console.log( event );
-    console.log( event.currentTarget.id );
-
-    if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
-      let clickThisItem = parseInt(event.currentTarget.id) ;
-      let items: IItemDetail[] = this.itemsAny;
-      let selectedItem = null;
-
-      items.map( item => {
-        let openThisLink =  item.ServerRedirectedEmbedUrl;
-        if ( !openThisLink || openThisLink.length === 0 ) { 
-          openThisLink = item.FileRef ;
-         }
-  
-        if ( item.id === clickThisItem ) { 
-          if ( !item.ServerRedirectedEmbedUrl ) {
-            window.open( openThisLink, "_blank");
-          }
-          selectedItem = item;
-         }
-      });
-  
-      this.setState({ 
-        selectedItem: selectedItem,
-        showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
-        showItems: [],  //Clear any duplicate items
-      });
-
-    } else if ( this.props.itemType === 'Duplicates' ) {
-      let clickThisItem = event.currentTarget.id ; //For some reason this has the DupName but then is set to undefined after the next line.
-      let duplicates: IDuplicateFile[] = this.props.duplicateInfo.duplicates ;
-      let showItems : IItemDetail[] = [];
-      duplicates.map( dup => {
-        if ( dup.FileLeafRef === event.currentTarget.id ) {
-          showItems = dup.items;
-        }
-      });
-
-      this.setState({ 
-        selectedItem: null,
-        showPreview: null,
-        showItems: showItems,
-      });
-
-    } else { alert('Ooops!  We haven\`t made it so you can click on an event yet :( ') ; }
-  }
-  
+  /***
+ *     .d88b.  d8888b. d88888b d8b   db      d888888b d888888b d88888b .88b  d88.       .o88b. d88888b db      db      
+ *    .8P  Y8. 88  `8D 88'     888o  88        `88'   `~~88~~' 88'     88'YbdP`88      d8P  Y8 88'     88      88      
+ *    88    88 88oodD' 88ooooo 88V8o 88         88       88    88ooooo 88  88  88      8P      88ooooo 88      88      
+ *    88    88 88~~~   88~~~~~ 88 V8o88         88       88    88~~~~~ 88  88  88      8b      88~~~~~ 88      88      
+ *    `8b  d8' 88      88.     88  V888        .88.      88    88.     88  88  88      Y8b  d8 88.     88booo. 88booo. 
+ *     `Y88P'  88      Y88888P VP   V8P      Y888888P    YP    Y88888P YP  YP  YP       `Y88P' Y88888P Y88888P Y88888P 
+ *                                                                                                                     
+ *                                                                                                                     
+ */
   private buildOpenItemCell ( item: IItemDetail | IDuplicateFile | ISharingEvent, itemId: string, titleName: any, text: any ) {
-    let cell = <td style={cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
+    let cell = <td className={itemStyles.cellMaxStyle} onClick={ this._onClickItem.bind(this)} 
     id={ itemId } 
     title={ `Item ID: ${ itemId } Item Name: ${ titleName }` }
   >
     { <Icon iconName= { item.iconName } data-search={ item.iconSearch } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
     { text }</td>;
 
-
     return cell;
   }
 
-  private buildFolderIcon ( itemIn: IItemDetail | ISharingEvent ) {
 
-    let item: any = itemIn; //Added any type so that itemId can be found on either type
+  /***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      d888888b d888888b d88888b .88b  d88. 
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'        `88'   `~~88~~' 88'     88'YbdP`88 
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P           88       88    88ooooo 88  88  88 
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b           88       88    88~~~~~ 88  88  88 
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.        .88.      88    88.     88  88  88 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD      Y888888P    YP    Y88888P YP  YP  YP 
+ *                                                                                                              
+ *                                                                                                              
+ */
+private _onClickItem( event ) {
+  // console.log( event );
+  console.log( event.currentTarget.id );
 
-    let itemId = item.id ? item.id : item.itemId;
-    let folderIcon = buildAppWarnIcon('eXTremeStorage', StdIcons.FabricMovetoFolder, `Go to folder: ${ item.parentFolder }`, 'black');
-    let iconCell = <td className = { itemStyles.folderIcons } 
-      onClick={ this._onClickFolder.bind(this)} id={ itemId.toFixed(0) }
-      title={ `Go to parent folder: ${ item.parentFolder }`} >
-      {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
-      { folderIcon }
-    </td>;
-    return iconCell;
+  if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
+    let clickThisItem = parseInt(event.currentTarget.id) ;
+    let items: IItemDetail[] = this.itemsAny;
+    let selectedItem = null;
 
-  }
+    items.map( item => {
+      let openThisLink =  item.ServerRedirectedEmbedUrl;
+      if ( !openThisLink || openThisLink.length === 0 ) { 
+        openThisLink = item.FileRef ;
+       }
 
+      if ( item.id === clickThisItem ) { 
+        if ( !item.ServerRedirectedEmbedUrl ) {
+          window.open( openThisLink, "_blank");
+        }
+        selectedItem = item;
+       }
+    });
+
+    this.setState({ 
+      selectedItem: selectedItem,
+      showPreview: selectedItem && selectedItem.ServerRedirectedEmbedUrl ? true : false,
+      showItems: [],  //Clear any duplicate items
+    });
+
+  } else if ( this.props.itemType === 'Duplicates' ) {
+    let clickThisItem = event.currentTarget.id ; //For some reason this has the DupName but then is set to undefined after the next line.
+    let duplicates: IDuplicateFile[] = this.props.duplicateInfo.duplicates ;
+    let showItems : IItemDetail[] = [];
+    duplicates.map( dup => {
+      if ( dup.FileLeafRef === event.currentTarget.id ) {
+        showItems = dup.items;
+      }
+    });
+
+    this.setState({ 
+      selectedItem: null,
+      showPreview: null,
+      showItems: showItems,
+    });
+
+  } else { alert('Ooops!  We haven\`t made it so you can click on an event yet :( ') ; }
+}
+
+
+
+  /***
+ *    d8888b. d88888b d888888b  .d8b.  d888888b db           d888888b  .o88b.  .d88b.  d8b   db 
+ *    88  `8D 88'     `~~88~~' d8' `8b   `88'   88             `88'   d8P  Y8 .8P  Y8. 888o  88 
+ *    88   88 88ooooo    88    88ooo88    88    88              88    8P      88    88 88V8o 88 
+ *    88   88 88~~~~~    88    88~~~88    88    88              88    8b      88    88 88 V8o88 
+ *    88  .8D 88.        88    88   88   .88.   88booo.        .88.   Y8b  d8 `8b  d8' 88  V888 
+ *    Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P      Y888888P  `Y88P'  `Y88P'  VP   V8P 
+ *                                                                                              
+ *                                                                                              
+ */
   private buildDetailIcon ( itemIn: IItemDetail | ISharingEvent , id: string ) {
 
     let item: any = itemIn; //Needed to use same component with different interfaces that may not match
@@ -900,6 +1054,112 @@ public componentDidMount() {
 
   }
 
+  
+/***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      d888888b d888888b d88888b .88b  d88.      d8888b. d88888b d888888b  .d8b.  d888888b db      
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'        `88'   `~~88~~' 88'     88'YbdP`88      88  `8D 88'     `~~88~~' d8' `8b   `88'   88      
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P           88       88    88ooooo 88  88  88      88   88 88ooooo    88    88ooo88    88    88      
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b           88       88    88~~~~~ 88  88  88      88   88 88~~~~~    88    88~~~88    88    88      
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.        .88.      88    88.     88  88  88      88  .8D 88.        88    88   88   .88.   88booo. 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD      Y888888P    YP    Y88888P YP  YP  YP      Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P 
+ *                                                                                                                                                                     
+ *                                                                                                                                                                     
+ */
+private _onClickItemDetail( event ){
+  console.log( event );
+  console.log( event.currentTarget.id );
+  let showThisType = event.currentTarget.id;
+
+  let selectedItem = null;
+
+  if ( event.ctrlKey === true ) {
+    let fileType = event.currentTarget.dataset.search;
+    //Apply file type filter only on CTRL-Click, else other filter
+    if ( fileType === this.state.textSearch ) { fileType = ''; }
+    this._searchForItems ( fileType );
+
+  } else {
+    if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
+      this.itemsAny.map( item => {
+        let checkThis = this.props.itemsAreDups === true ? item.id : item.id  ;
+        if ( checkThis == showThisType ) { selectedItem = item ; }
+      });
+      this.setState({
+        showItem: true,
+        showPreview: false,
+        selectedItem: selectedItem,
+        showItems: [],
+      });
+
+    } else {
+      console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
+    }
+  }
+}
+
+
+
+
+  /***
+ *    d88888b  .d88b.  db      d8888b. d88888b d8888b.      d888888b  .o88b.  .d88b.  d8b   db 
+ *    88'     .8P  Y8. 88      88  `8D 88'     88  `8D        `88'   d8P  Y8 .8P  Y8. 888o  88 
+ *    88ooo   88    88 88      88   88 88ooooo 88oobY'         88    8P      88    88 88V8o 88 
+ *    88~~~   88    88 88      88   88 88~~~~~ 88`8b           88    8b      88    88 88 V8o88 
+ *    88      `8b  d8' 88booo. 88  .8D 88.     88 `88.        .88.   Y8b  d8 `8b  d8' 88  V888 
+ *    YP       `Y88P'  Y88888P Y8888D' Y88888P 88   YD      Y888888P  `Y88P'  `Y88P'  VP   V8P 
+ *                                                                                             
+ *                                                                                             
+ */
+
+private buildFolderIcon ( itemIn: IItemDetail | ISharingEvent ) {
+
+  let item: any = itemIn; //Added any type so that itemId can be found on either type
+
+  let itemId = item.id ? item.id : item.itemId;
+  let folderIcon = buildAppWarnIcon('eXTremeStorage', StdIcons.FabricMovetoFolder, `Go to folder: ${ item.parentFolder }`, 'black');
+  let iconCell = <td className = { itemStyles.folderIcons } 
+    onClick={ this._onClickFolder.bind(this)} id={ itemId.toFixed(0) }
+    title={ `Go to parent folder: ${ item.parentFolder }`} >
+    {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
+    { folderIcon }
+  </td>;
+  return iconCell;
+
+}
+
+
+  /***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      d88888b  .d88b.  db      d8888b. d88888b d8888b. 
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'      88'     .8P  Y8. 88      88  `8D 88'     88  `8D 
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P        88ooo   88    88 88      88   88 88ooooo 88oobY' 
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b        88~~~   88    88 88      88   88 88~~~~~ 88`8b   
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.      88      `8b  d8' 88booo. 88  .8D 88.     88 `88. 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD      YP       `Y88P'  Y88888P Y8888D' Y88888P 88   YD 
+ *                                                                                                                          
+ *                                                                                                                          
+ */
+private _onClickFolder( event ) {
+  // console.log( event );
+  console.log( event.currentTarget.id );
+  let clickThisItem = parseInt(event.currentTarget.id);
+
+  this.itemsAny.map( item => {
+    if ( item.id === clickThisItem ) { 
+      window.open( item.parentFolder, "_blank");
+    }
+  });
+}
+
+  /***
+ *    .88b  d88. d88888b d8888b. d888888b  .d8b.        .o88b. d88888b db      db      
+ *    88'YbdP`88 88'     88  `8D   `88'   d8' `8b      d8P  Y8 88'     88      88      
+ *    88  88  88 88ooooo 88   88    88    88ooo88      8P      88ooooo 88      88      
+ *    88  88  88 88~~~~~ 88   88    88    88~~~88      8b      88~~~~~ 88      88      
+ *    88  88  88 88.     88  .8D   .88.   88   88      Y8b  d8 88.     88booo. 88booo. 
+ *    YP  YP  YP Y88888P Y8888D' Y888888P YP   YP       `Y88P' Y88888P Y88888P Y88888P 
+ *                                                                                     
+ *                                                                                     
+ */
   private buildMediaIconCell ( item: IItemDetail, id: string ) {
     
     let MediaIcons: any[] = item.isMedia ? this.buildMediaIcons( item ) : [];
@@ -912,6 +1172,17 @@ public componentDidMount() {
 
   }
 
+
+  /***
+ *    .88b  d88. d88888b d8888b. d888888b  .d8b.       d888888b  .o88b.  .d88b.  d8b   db .d8888. 
+ *    88'YbdP`88 88'     88  `8D   `88'   d8' `8b        `88'   d8P  Y8 .8P  Y8. 888o  88 88'  YP 
+ *    88  88  88 88ooooo 88   88    88    88ooo88         88    8P      88    88 88V8o 88 `8bo.   
+ *    88  88  88 88~~~~~ 88   88    88    88~~~88         88    8b      88    88 88 V8o88   `Y8b. 
+ *    88  88  88 88.     88  .8D   .88.   88   88        .88.   Y8b  d8 `8b  d8' 88  V888 db   8D 
+ *    YP  YP  YP Y88888P Y8888D' Y888888P YP   YP      Y888888P  `Y88P'  `Y88P'  VP   V8P `8888Y' 
+ *                                                                                                
+ *                                                                                                
+ */
   private buildMediaIcons( item: any ) { //IItemDetail
     let MediaIcons = [];
     if ( item.isMedia ) {
@@ -939,6 +1210,132 @@ public componentDidMount() {
 
   }
   
+
+
+  /***
+ *    .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db      d8888b.  .d88b.  db    db 
+ *    88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88      88  `8D .8P  Y8. `8b  d8' 
+ *    `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88      88oooY' 88    88  `8bd8'  
+ *      `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88      88~~~b. 88    88  .dPYb.  
+ *    db   8D 88.     88   88 88 `88. Y8b  d8 88   88      88   8D `8b  d8' .8P  Y8. 
+ *    `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP      Y8888P'  `Y88P'  YP    YP 
+ *                                                                                   
+ *                                                                                   
+ */
+
+private buildSearchBox( testSearch: string ) {
+  /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
+  let searchBox =  
+  <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
+    <SearchBox
+      className={styles.searchBox}
+      styles={{ root: { maxWidth: 200 } }}
+      placeholder="Search"
+      onSearch={ this._searchForItems.bind(this) }
+      onFocus={ () => console.log('this.state',  this.state) }
+      onBlur={ () => console.log('onBlur called') }
+      onChange={ this._searchForItems.bind(this) }
+      value={ testSearch }
+
+    />
+    <div className={styles.searchStatus}>
+      { `Search all ${ getCommaSepLabel( this.itemsAny.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
+      { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+    </div>
+  </div>;
+
+  return searchBox;
+
+}
+  
+
+  /***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      d888888b db    db d8888b. d88888b 
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'      `~~88~~' `8b  d8' 88  `8D 88'     
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P           88     `8bd8'  88oodD' 88ooooo 
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b           88       88    88~~~   88~~~~~ 
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.         88       88    88      88.     
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD         YP       YP    88      Y88888P 
+ *                                                                                                           
+ *                                                                                                           
+ */
+  /**
+   * This is the same as _onCTRLClickSearch except it was clicked via the file type icon at the top.
+   * @param event 
+   */
+  private _onClickType( event ) {
+    console.log( '_onClickType:',  event );
+    let iconSearch = event.currentTarget.id;
+    let fileType = event.currentTarget.dataset.search;
+    //This is a quick "clear search" feature
+    if ( iconSearch === this.state.textSearch ) { iconSearch = ''; }
+    this._searchForItems ( iconSearch );
+
+  }
+
+
+
+
+  
+  /***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'      88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88 
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P        `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88 
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b          `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88 
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.      db   8D 88.     88   88 88 `88. Y8b  d8 88   88 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD      `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP 
+ *                                                                                                                         
+ *                                                                                                                         
+ */
+  /**
+   * This is used for sharingEvents originally when clicking on an item.
+   * Originally no CTRL press is required but called it that in case I use it elsewhere on normal items where 
+   *    CTRL press might be required to distinguish a normal existing click
+   * 
+   * @param searchThis 
+   */
+  private _onCTRLClickSearch( searchThis: string ) : void {
+    //This is a quick "clear search" feature
+
+    if ( searchThis === this.state.textSearch ) { searchThis = ''; }
+    this._searchForItems ( searchThis );
+
+  }
+
+
+  /***
+ *    .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db      d88888b  .d88b.  d8888b.      d888888b d888888b d88888b .88b  d88. .d8888. 
+ *    88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88      88'     .8P  Y8. 88  `8D        `88'   `~~88~~' 88'     88'YbdP`88 88'  YP 
+ *    `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88      88ooo   88    88 88oobY'         88       88    88ooooo 88  88  88 `8bo.   
+ *      `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88      88~~~   88    88 88`8b           88       88    88~~~~~ 88  88  88   `Y8b. 
+ *    db   8D 88.     88   88 88 `88. Y8b  d8 88   88      88      `8b  d8' 88 `88.        .88.      88    88.     88  88  88 db   8D 
+ *    `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP      YP       `Y88P'  88   YD      Y888888P    YP    Y88888P YP  YP  YP `8888Y' 
+ *                                                                                                                                    
+ *                                                                                                                                    
+ */
+
+public _searchForItems = (item): void => {
+  //This sends back the correct pivot category which matches the category on the tile.
+  let e: any = event;
+  console.log('searchForItems: e',e);
+  console.log('searchForItems: item', item);
+  console.log('searchForItems: this', this);
+
+  this.setState({ textSearch: item });
+}
+
+
+
+  /***
+ *    d888888b db    db d8888b. d88888b      .d8888. db      d888888b d8888b. d88888b d8888b. 
+ *    `~~88~~' `8b  d8' 88  `8D 88'          88'  YP 88        `88'   88  `8D 88'     88  `8D 
+ *       88     `8bd8'  88oodD' 88ooooo      `8bo.   88         88    88   88 88ooooo 88oobY' 
+ *       88       88    88~~~   88~~~~~        `Y8b. 88         88    88   88 88~~~~~ 88`8b   
+ *       88       88    88      88.          db   8D 88booo.   .88.   88  .8D 88.     88 `88. 
+ *       YP       YP    88      Y88888P      `8888Y' Y88888P Y888888P Y8888D' Y88888P 88   YD 
+ *                                                                                            
+ *                                                                                            
+ */
   private _typeSlider(newValue: number){
     this.setState({
       rankSlider: newValue,
@@ -946,38 +1343,41 @@ public componentDidMount() {
   }
 
 
-  private _onClickItemDetail( event ){
-    console.log( event );
-    console.log( event.currentTarget.id );
-    let showThisType = event.currentTarget.id;
+/***
+*    d8888b. db    db d888888b db      d8888b.      d888888b  .d8b.  d8888b. db      d88888b 
+*    88  `8D 88    88   `88'   88      88  `8D      `~~88~~' d8' `8b 88  `8D 88      88'     
+*    88oooY' 88    88    88    88      88   88         88    88ooo88 88oooY' 88      88ooooo 
+*    88~~~b. 88    88    88    88      88   88         88    88~~~88 88~~~b. 88      88~~~~~ 
+*    88   8D 88b  d88   .88.   88booo. 88  .8D         88    88   88 88   8D 88booo. 88.     
+*    Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'         YP    YP   YP Y8888P' Y88888P Y88888P 
+*                                                                                            
+*                                                                                            
+*/
 
-    let selectedItem = null;
-
-    if ( event.ctrlKey === true ) {
-      let fileType = event.currentTarget.dataset.search;
-      //Apply file type filter only on CTRL-Click, else other filter
-      if ( fileType === this.state.textSearch ) { fileType = ''; }
-      this._searchForItems ( fileType );
-
-    } else {
-      if ( this.props.itemType === 'Items' || this.props.itemType === 'Shared' ) {
-        this.itemsAny.map( item => {
-          let checkThis = this.props.itemsAreDups === true ? item.id : item.id  ;
-          if ( checkThis == showThisType ) { selectedItem = item ; }
-        });
-        this.setState({
-          showItem: true,
-          showPreview: false,
-          selectedItem: selectedItem,
-          showItems: [],
-        });
+private buildTableFromRows( rows, tableTitle, tableClassName ) {
   
-      } else {
-        console.log('WHOOOPPS... THIS SHOULD NO HAVE HAPPEND - EsItems.tsx ~654');
-      }
-    }
-  }
+  let table = <div style={{marginRight: '10px'}} className = { tableClassName }>
+    <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
+    {/* <table style={{padding: '0 20px'}}> */}
+    <table style={{  }} id="Select-b">
+      { rows }
+    </table>
+  </div>;
+  return table;
 
+}
+
+
+  /***
+ *     .d88b.  d8b   db      d8888b. d888888b  .d8b.  db       .d88b.   d888b       d8888b. d888888b .d8888. .88b  d88. d888888b .d8888. .d8888. 
+ *    .8P  Y8. 888o  88      88  `8D   `88'   d8' `8b 88      .8P  Y8. 88' Y8b      88  `8D   `88'   88'  YP 88'YbdP`88   `88'   88'  YP 88'  YP 
+ *    88    88 88V8o 88      88   88    88    88ooo88 88      88    88 88           88   88    88    `8bo.   88  88  88    88    `8bo.   `8bo.   
+ *    88    88 88 V8o88      88   88    88    88~~~88 88      88    88 88  ooo      88   88    88      `Y8b. 88  88  88    88      `Y8b.   `Y8b. 
+ *    `8b  d8' 88  V888      88  .8D   .88.   88   88 88booo. `8b  d8' 88. ~8~      88  .8D   .88.   db   8D 88  88  88   .88.   db   8D db   8D 
+ *     `Y88P'  VP   V8P      Y8888D' Y888888P YP   YP Y88888P  `Y88P'   Y888P       Y8888D' Y888888P `8888Y' YP  YP  YP Y888888P `8888Y' `8888Y' 
+ *                                                                                                                                               
+ *                                                                                                                                               
+ */
   private _onDialogDismiss( event ) {
     this.setState({
       showItem: false,
@@ -987,6 +1387,16 @@ public componentDidMount() {
     });
   }
 
+  /***
+ *     .d88b.  d8b   db       .o88b. db       .d88b.  .d8888. d88888b      d8888b. d88888b d888888b  .d8b.  d888888b db      
+ *    .8P  Y8. 888o  88      d8P  Y8 88      .8P  Y8. 88'  YP 88'          88  `8D 88'     `~~88~~' d8' `8b   `88'   88      
+ *    88    88 88V8o 88      8P      88      88    88 `8bo.   88ooooo      88   88 88ooooo    88    88ooo88    88    88      
+ *    88    88 88 V8o88      8b      88      88    88   `Y8b. 88~~~~~      88   88 88~~~~~    88    88~~~88    88    88      
+ *    `8b  d8' 88  V888      Y8b  d8 88booo. `8b  d8' db   8D 88.          88  .8D 88.        88    88   88   .88.   88booo. 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P  `Y88P'  `8888Y' Y88888P      Y8888D' Y88888P    YP    YP   YP Y888888P Y88888P 
+ *                                                                                                                           
+ *                                                                                                                           
+ */
   private _onCloseItemDetail( event ){
     this.setState({
       showItem: false,
