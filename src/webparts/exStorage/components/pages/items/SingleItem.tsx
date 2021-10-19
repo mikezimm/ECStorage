@@ -116,7 +116,7 @@ export function getHighlightedText(text, highlight) {
 export function getEventSearchString ( event: ISharingEvent ) {
 
   let searchThis = '';
-  searchThis = [event.FileLeafRef, event.sharedBy, event.sharedWith, event.SharedTime.toLocaleDateString() ].join('|');
+  searchThis = [event.FileLeafRef, event.sharedBy, event.iconSearch, event.sharedWith, event.SharedTime.toLocaleDateString() ].join('|');
 
   if ( event.FileSystemObjectType === 1 ) { searchThis += `|folder` ; } //MSAT:
 

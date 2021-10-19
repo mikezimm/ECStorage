@@ -1841,6 +1841,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     isMedia: false,
   };
 
+  meta = itemDetail.meta;
   if ( item.FileLeafRef === 'Unshared file in SubFolder shared with Pablo.pptx' ) {
     debugger;
   }
@@ -1865,6 +1866,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
       iconTitle: '',
     
       iconSearch: '', //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+      meta: itemDetail.meta,
       // SharedWithDetails: null,
     };
     meta.push( 'WasShared' ) ;

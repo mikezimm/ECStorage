@@ -39,6 +39,7 @@ export interface ISharingEvent {
 
   iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
 
+  meta: IKnownMeta[];
 
   //Copying these down from item just for easier use.
   // GUID: string;
@@ -89,7 +90,7 @@ export interface ISharingEvent {
   iconTitle: string;
 
   iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
-
+  meta: IKnownMeta[];
   id: number;  //Needed for on-click events
   
   // ServerRedirectedEmbedUrl: string;

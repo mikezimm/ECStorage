@@ -38,32 +38,39 @@
   cursor: 'pointer';
 }
 
-.eventsTable {
+.allItemsTables {
   table {
     width: 95%;
-    table-layout: null;
-  }
-
-  td {
-    white-space: nowrap;
-    padding-right: 20px;
-    overflow: 'hidden';
-    text-overflow: 'ellipsis';
   };
-}
 
-.itemsTable {
-  table {
-    width: 95%;
-    // table-layout: 'fixed';
+  th {
+    text-align: left;
+    font-weight: 600;
   };
-  
+
   td {
     white-space: nowrap;
     // padding-right: 20px;
     overflow: 'hidden';
     text-overflow: 'ellipsis';
   };
+}
+
+.eventsTable {
+  @extend .allItemsTables;
+  table {
+    table-layout: null;
+  }
+
+  td {
+    padding-right: 20px;
+  };
+
+}
+
+.itemsTable {
+  @extend .allItemsTables;
+
 }
 
 

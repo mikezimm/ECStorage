@@ -51,7 +51,9 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { buildAppWarnIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
+
+import * as StdIcons from '@mikezimm/npmfunctions/dist/Icons//iconNames';
 
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
@@ -447,8 +449,9 @@ public componentDidMount() {
           event.iconName = item.iconName;
           event.iconColor = item.iconColor;
           event.iconTitle = item.iconTitle;
-        
+          event.meta = item.meta;
           event.iconSearch = item.iconSearch; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+
           sharedEvents.push( event );
         });
       }
@@ -470,6 +473,16 @@ public componentDidMount() {
     let priorEvent =  null;
     let filteredCount = 0;
 
+    rows.push( <tr>
+      <th></th>
+      <th>Info</th>
+      <th>When shared</th>
+      <th>Who shared</th>
+      <th>Shared with</th>
+      <th>Folder</th>
+      <th>File</th>
+      <th>File Name</th>
+    </tr> );
     //Get event rows (if visible )
     sharedEvents.map( ( event, index ) => {
       let isVisible = this.isEventVisible( textSearch, event ) === true;
@@ -536,7 +549,7 @@ public componentDidMount() {
 
   }
   
-  private isEventVisible ( textSearch: string, event: ISharingEvent ) {
+  private isEventVisible ( textSearch: any, event: ISharingEvent ) {
 
     let visible = true;
 
@@ -544,10 +557,15 @@ public componentDidMount() {
 
       visible = false;
 
-      let searchThis = getEventSearchString( event );
-      if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+      if ( event.meta.indexOf( textSearch ) > -1 ) {
         visible = true;
+      } else {
+        let searchThis = getEventSearchString( event );
+        if ( searchThis.toLowerCase().indexOf( textSearch.toLowerCase()) > -1 ) {
+          visible = true;
+        }
       }
+
     }
 
     return visible;
@@ -702,7 +720,7 @@ public componentDidMount() {
 
     if ( isSameEvent !== true ) {
       folderIcon = this.buildFolderIcon( event );
-      openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0) , event.FileLeafRef, null );
+      openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0), `Click to preview this file` , null );
       detailIcon = this.buildDetailIcon( event, event.id.toString() );
     }
 
@@ -728,7 +746,7 @@ public componentDidMount() {
     cells.push( folderIcon );
     cells.push( openItemCell );
 
-    cells.push( <td style={ null } title={  event.FileLeafRef  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
+    cells.push( <td style={ null } title={  `Id: ${event.id} Found in folder: ${event.parentFolder}`  } onClick = { () => this._onCTRLClickSearch(event.FileLeafRef) } >{ FileLeafRef }</td> );
 
     let cellText: any = event.FileLeafRef;
   
@@ -844,12 +862,12 @@ public componentDidMount() {
     let item: any = itemIn; //Added any type so that itemId can be found on either type
 
     let itemId = item.id ? item.id : item.itemId;
-
+    let folderIcon = buildAppWarnIcon('eXTremeStorage', StdIcons.FabricMovetoFolder, `Go to folder: ${ item.parentFolder }`, 'black');
     let iconCell = <td className = { itemStyles.folderIcons } 
       onClick={ this._onClickFolder.bind(this)} id={ itemId.toFixed(0) }
       title={ `Go to parent folder: ${ item.parentFolder }`} >
       {/* { <Icon iconName= {'FabricMovetoFolder'} style={{ padding: '4px 4px', fontSize: 'large' }}></Icon> } */}
-      { fpsAppIcons.GoToFolder }
+      { folderIcon }
     </td>;
     return iconCell;
 
