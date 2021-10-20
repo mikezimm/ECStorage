@@ -377,6 +377,10 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   public render(): React.ReactElement<IExStorageProps> {
 
+    let nothingToShow = <div style={{height: '100px', display: 'flex' }}>
+      <h2>Well, not sure how to tell you this but I can't find anything in this category :(</h2>
+    </div>
+
     let batchData = this.state.batchData;
     const batches = this.state.batches;
 
@@ -601,7 +605,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
       </ExDups></div>;
 
-    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? null : 
+    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? nothingToShow : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -627,7 +631,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         >
       </EsItems>;
 
-    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? null : 
+    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? nothingToShow : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -684,7 +688,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
     </ExVersions></div>;
 
-      let itemsContent = !this.state.pickedList ? null : <EsItems 
+      let itemsContent = !this.state.pickedList ? nothingToShow : <EsItems 
 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -708,7 +712,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         >
       </EsItems>;
 
-    let folderPivotContent = batchData.folderInfo.count === 0 ? null : 
+    let folderPivotContent = batchData.folderInfo.count === 0 ? nothingToShow : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -736,7 +740,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
-    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? null : 
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? nothingToShow : 
       <Gridcharts
 
         items = { this.state.batchData.items }

@@ -338,6 +338,8 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       GT1: [],
       GT100: [],
       GT500: [],
+      checkedOut: [],
+      minor: [],
       // summary: createBucketSummary('Version info', 'Versions'),
     },
 
@@ -557,6 +559,8 @@ export function createThisType ( docIcon: string ) :IFileType {
       GT1: [],
       GT100: [],
       GT500: [],
+      checkedOut: [],
+      minor: [],
       // summary: createBucketSummary('Version info', 'Versions'),
     },
   };
@@ -609,7 +613,7 @@ export function updateVersionInfo ( versionInfo: IVersionInfo, detail : IItemDet
   let bucketLabel: IVersionBucketLabel  = detail.version.bucketLabel;
 
   switch ( bucketLabel ) {
-    case "Draft":
+    case "IsDraft":
       versionInfo.draft.push( detail );
       break;
     case "1.0":
@@ -629,6 +633,10 @@ export function updateVersionInfo ( versionInfo: IVersionInfo, detail : IItemDet
       console.log('Unexpected Version Info...', detail );
       break;
   }
+
+  if ( detail.checkedOutId ) { versionInfo.checkedOut.push( detail ) ; }
+  if ( detail.meta.indexOf( 'IsMinor' ) > -1 ) { versionInfo.minor.push( detail ) ; }
+
 
   return versionInfo;
 
@@ -719,6 +727,8 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
       GT1: [],
       GT100: [],
       GT500: [],
+      checkedOut: [],
+      minor: [],
       // summary: createBucketSummary('Version info', 'Versions'),
     },
 
@@ -1749,16 +1759,25 @@ function createFolderRanks ( count: number ) : IFolderInfo {
 
   let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
   isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
+  isCurrentUser = item.CheckoutUserId === currentUser.Id ? true : isCurrentUser;
+
+  let checkedOutCurrentUser = item.CheckoutUserId  && item.CheckoutUserId === currentUser.Id ? true : false;
+
   let size = item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0;
 
   let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
   let localFolder = `/${ parentFolder.replace( LibraryUrl, '' )}`;
 
+  /**
+   * User Name styles:
+   * For team:  i:0#.f|membership|first.last@tenantDomain.com
+   * For SPO site member:  i:0#.f|eu\\first.last
+   */
   let authorSharedSplit = item.Author && item.Author.Name ? item.Author.Name.split('|') : [];
   let editorSharedSplit = item.Editor && item.Editor.Name ? item.Editor.Name.split('|') : [];
 
-  let authorShared = authorSharedSplit.length > 0 ? authorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
-  let editorShared = editorSharedSplit.length > 0 ? editorSharedSplit[ 2 ].replace( domainEmail, '' ) : '';
+  let authorShared = authorSharedSplit.length > 0 ? authorSharedSplit[ authorSharedSplit.length -1 ].replace( domainEmail, '' ) : '';
+  let editorShared = editorSharedSplit.length > 0 ? editorSharedSplit[ editorSharedSplit.length -1 ].replace( domainEmail, '' ) : '';
 
   let createdDateString: any = created.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
   let modifiedDateString: any = modified.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
@@ -1772,9 +1791,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let version = item['OData__UIVersion'];
 
   if ( createMs !== modMs ) { meta.push( modifiedDateString ) ; }
-  if ( versionString.lastIndexOf('.0') === versionString.length -2 ) {
-    meta.push( 'IsMajor' ) ;
-  } else { meta.push( 'IsDraft' ) ; }
 
   if ( version === 512 ) { meta.push( 'SingleVerion' ) ; }
 
@@ -1782,10 +1798,14 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   let versionBucket = null;
 
   if ( version === 512 ) { versionBucketLabel = '1.0' ; versionBucket = 1; meta.push( '1.0' ); }
-  else if ( version < 512 ) { versionBucketLabel = 'Draft' ; versionBucket = 0; meta.push( 'Draft' );  }
+  else if ( version < 512 ) { versionBucketLabel = 'IsDraft' ; versionBucket = 0; meta.push( 'IsDraft' );  }
   else if ( version >= 256000 ) { versionBucketLabel = '>=500' ; versionBucket = 500; meta.push( '>=500' );  }
   else if ( version >= 51200 ) { versionBucketLabel = '>=100' ; versionBucket = 100; meta.push( '>=100' );  }
   else if ( version >= 513 ) { versionBucketLabel = '>1.0' ; versionBucket = 1.1; meta.push( '>1.0' );  }
+
+  if ( versionString.lastIndexOf('.0') === versionString.length -2 ) {
+    meta.push( 'IsMajor' ) ;
+  } else if ( version > 512 ) { meta.push( 'IsMinor' ) ; }
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -1805,6 +1825,9 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     editorName: item.Editor.Name,
     parentFolder: parentFolder,
     localFolder: localFolder,
+
+    checkedOutId: item.CheckoutUserId ? item.CheckoutUserId : null,
+    checkedOutCurrentUser: checkedOutCurrentUser,
 
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
@@ -1845,7 +1868,9 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   if ( item.FileLeafRef === 'Unshared file in SubFolder shared with Pablo.pptx' ) {
     debugger;
   }
-  if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
+
+  if ( item.CheckoutUserId ) { itemDetail.meta.push( 'CheckedOut' ) ; }
+
   if ( item.HasUniqueRoleAssignments === true ) { 
     itemDetail.uniquePerms = item.HasUniqueRoleAssignments;
     if ( itemDetail.uniquePerms === true ) { meta.push( 'UniquePermissions') ; }

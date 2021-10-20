@@ -66,11 +66,13 @@ const pivotStyles = {
   }};
 
 const pivotHeading1 = 'Version Summary';
-const pivotHeading2 :IVersionBucketLabel = 'Draft';
+const pivotHeading2 :IVersionBucketLabel = 'IsDraft';
 const pivotHeading3 :IVersionBucketLabel = '1.0';
 const pivotHeading4 :IVersionBucketLabel = '>1.0';
 const pivotHeading5 :IVersionBucketLabel = '>=100';
 const pivotHeading6 :IVersionBucketLabel = '>=500';
+const pivotHeading7 :IVersionBucketLabel = 'IsMinor';
+const pivotHeading8 :IVersionBucketLabel = 'CheckedOut';
 
 
 export default class ExVersions extends React.Component<IExVersionsProps, IExVersionsState> {
@@ -306,7 +308,58 @@ public componentDidMount() {
 
           ></EsItems>
       </PivotItem> 
+     
+      <PivotItem headerText={ pivotHeading7 } ariaLabel={pivotHeading7} title={pivotHeading7}
+        itemKey={ pivotHeading7 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.minor.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
 
+            items = { this.props.versionInfo.minor }
+            itemsAreDups = { false }
+            itemsAreFolders = { false }
+            duplicateInfo = { null }
+            heading = { ` with minor versions > 1.0` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+
+          ></EsItems>
+      </PivotItem> 
+     
+      <PivotItem headerText={ pivotHeading8 } ariaLabel={pivotHeading8} title={pivotHeading8}
+        itemKey={ pivotHeading8 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.checkedOut.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.versionInfo.checkedOut }
+            itemsAreDups = { false }
+            itemsAreFolders = { false }
+            duplicateInfo = { null }
+            heading = { ` currently Checked Out` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+
+          ></EsItems>
+      </PivotItem> 
 
     </Pivot>;
 

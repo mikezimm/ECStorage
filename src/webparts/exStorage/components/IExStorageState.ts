@@ -9,7 +9,7 @@ import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
 import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
 
-export type IItemType = 'Items' | 'Duplicates' | 'Shared';
+export type IItemType = 'Items' | 'Duplicates' | 'Shared' | 'CheckedOut' ;
 
 export interface IIconArray {
   iconTitle: string;
@@ -43,13 +43,13 @@ export interface IEXStorageList extends IPickedList {
  */
 export type IVersionBucket = 0 | 1 | 1.1 | 100 | 500;
 
-export type IVersionBucketLabel = 'Draft' | '1.0' | '>1.0' | '>=100' | '>=500';
+export type IVersionBucketLabel = 'IsDraft' | '1.0' | '>1.0' | '>=100' | '>=500' | 'IsMinor' | 'CheckedOut';
 
 export type IKnownFileTypes = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' ;
 
 //'MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'
-export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' |
-'Draft' | '1.0' | '>1.0' | '>=100' | '>=500' ;
+export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMinor' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' |
+'1.0' | '>1.0' | '>=100' | '>=500' | 'CheckedOut' ;
 
 export interface IFileVersionInfo {
     number: number;
@@ -82,6 +82,7 @@ export interface IItemDetail {
   FileLeafRef: string;
   FileRef: string;
   checkedOutId?: number;
+  checkedOutCurrentUser: boolean;
   docIcon?: IKnownMeta;  
   iconName: string;
   iconColor: string;
@@ -178,6 +179,9 @@ export interface IVersionInfo {
   GT1: IItemDetail[];
   GT100: IItemDetail[];
   GT500: IItemDetail[];
+  checkedOut: IItemDetail[];
+  minor: IItemDetail[];
+
   // summary: IBucketSummary;
 
 }

@@ -17,6 +17,7 @@ import {
   Spinner,
   SpinnerSize,
   FloatingPeoplePicker,
+  tdProperties,
   // MessageBar,
   // MessageBarType,
   // SearchBox,
@@ -53,7 +54,7 @@ import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/d
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { buildAppWarnIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
 
-import * as StdIcons from '@mikezimm/npmfunctions/dist/Icons//iconNames';
+import * as StdIcons from '@mikezimm/npmfunctions/dist/Icons/iconNames';
 
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { sortObjectArrayByChildNumberKey, } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
@@ -99,6 +100,8 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private getRelativePath = this.props.itemType === 'Items' && this.itemsLength > 0 ? true : false;
   private commonFolders: string[] = this.getRelativePath === true ? this.getCommonFolders( this.itemsAny ) : [];
   private commonRelativePath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonFolders.join('/') : '';
+
+  private checkedOut : boolean = this.props.heading.indexOf( 'Checked Out' ) > -1 ? true : false;
 
   private commonPath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonRelativePath.replace( this.props.pickedList.LibraryUrl , '') + '/' : '';
   private commonParent: string = this.getRelativePath === true && this.commonFolders.length > 0 && this.commonRelativePath !== this.props.pickedList.LibraryUrl ? this.commonFolders[ this.commonFolders.length - 1 ] : '';
@@ -704,6 +707,7 @@ private isEventVisible ( textSearch: any, event: ISharingEvent ) {
       <th style={{paddingRight: '10px'}} title='Click Folder to go directly to the parent folder of that item.'> { this.props.itemsAreFolders === true ? 'Parent' : 'Folder'}</th>
 
       { this.props.itemsAreFolders !== true ? <th style={{paddingRight: '10px'}}>Version</th> : null  }
+      { this.props.itemsAreFolders !== true ? <th style={{paddingRight: '10px'}}></th> : null  }
       {/* { this.props.itemsAreFolders !== true ?  : null  } */}
       <th style={{paddingRight: '10px'}}>File</th>
     </tr> );
@@ -795,6 +799,15 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
   if ( this.props.itemsAreFolders === false ) {
 
     cells.push( <td style={{paddingRight: '15px' }} >{ item.version.string }</td> );
+
+    if ( item.checkedOutCurrentUser === true ) {
+      cells.push( <td style={ null } >{ buildAppWarnIcon('eXTremeStorage', StdIcons.CheckedOutByYou , `You checked out this item.  Your Id is: ${ item.checkedOutId }`, '#a4262c') }</td> );
+
+    } else if ( item.checkedOutId ) {
+      cells.push( <td style={ null } >{ buildAppWarnIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black') }</td> );
+      
+    } else { cells.push( <td></td> ); }
+
   }
 
   let cellText: any = item.FileLeafRef;
