@@ -295,8 +295,9 @@ public componentDidMount() {
       { itemsTable }
     </div>;
 
-    let sliderTypeCount = this.itemsLength < 5 ? null : 
-      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), this.state.isLoading, 350) }</div> ;
+    let disableSlider = this.state.isLoading === true || this.itemsLength < 5 ? true : false;
+    let sliderTypeCount = 
+      <div style={{margin: '0px 50px 20px 50px'}}> { createSlider( this.sliderTitle , this.state.rankSlider , this.siderMin, this.sliderMax, this.sliderInc , this._typeSlider.bind(this), disableSlider, 350) }</div> ;
 
     if ( showEmptyElements ) {
       page = emptyItemsElements[Math.floor(Math.random()*emptyItemsElements.length)];  //https://stackoverflow.com/a/5915122
