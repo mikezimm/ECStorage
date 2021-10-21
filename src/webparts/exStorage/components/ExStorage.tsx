@@ -72,6 +72,7 @@ import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
 import EsItems from './pages/items/EsItems';
+import { nothingToShow } from './pages/miniComps/components';
 
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
@@ -118,7 +119,7 @@ export default class ExStorage extends React.Component<IExStorageProps, IExStora
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
-  
+
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -304,7 +305,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       list.maxYear = maxYear;
 
       pickLists.push( list );
-      dropDownLabels.push( list.Title );
+      dropDownLabels.push( `${list.Title} ${list.ItemCount}` );
 
       if ( list.Title === this.state.listTitle ) { 
         theList = list ;
@@ -376,10 +377,6 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   }
 
   public render(): React.ReactElement<IExStorageProps> {
-
-    let nothingToShow = <div style={{height: '100px', display: 'flex' }}>
-      <h2>Well, not sure how to tell you this but I can't find anything in this category :(</h2>
-    </div>
 
     let batchData = this.state.batchData;
     const batches = this.state.batches;
@@ -605,7 +602,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
       </ExDups></div>;
 
-    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? nothingToShow : 
+    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? nothingToShow('All item permissions') : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -631,7 +628,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         >
       </EsItems>;
 
-    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? nothingToShow : 
+    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? nothingToShow('All item sharing') : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -688,7 +685,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
     </ExVersions></div>;
 
-      let itemsContent = !this.state.pickedList ? nothingToShow : <EsItems 
+      let itemsContent = !this.state.pickedList ? nothingToShow('All item versions') : <EsItems 
 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -712,7 +709,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         >
       </EsItems>;
 
-    let folderPivotContent = batchData.folderInfo.count === 0 ? nothingToShow : 
+    let folderPivotContent = batchData.folderInfo.count === 0 ? nothingToShow('No folders found!') : 
       <EsItems 
         pickedWeb  = { this.state.pickedWeb }
         pickedList = { this.state.pickedList }
@@ -740,7 +737,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
-    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? nothingToShow : 
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? nothingToShow('No items to show on the timeline') : 
       <Gridcharts
 
         items = { this.state.batchData.items }

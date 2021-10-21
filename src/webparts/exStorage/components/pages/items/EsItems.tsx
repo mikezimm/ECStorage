@@ -52,7 +52,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { buildAppWarnIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
+import { buildAppWarnIcon, buildClickableIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
 
 import * as StdIcons from '@mikezimm/npmfunctions/dist/Icons/iconNames';
 
@@ -801,10 +801,10 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
     cells.push( <td style={{paddingRight: '15px' }} >{ item.version.string }</td> );
 
     if ( item.checkedOutCurrentUser === true ) {
-      cells.push( <td style={ null } >{ buildAppWarnIcon('eXTremeStorage', StdIcons.CheckedOutByYou , `You checked out this item.  Your Id is: ${ item.checkedOutId }`, '#a4262c') }</td> );
+      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByYou , `You checked out this item.  Your Id is: ${ item.checkedOutId }`, '#a4262c', this._onClickDataSearch.bind(this), null 'CheckedOutToYou' ) }</td> );
 
     } else if ( item.checkedOutId ) {
-      cells.push( <td style={ null } >{ buildAppWarnIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black') }</td> );
+      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black', this._onClickDataSearch.bind(this), null 'CheckedOutToYou') }</td> );
       
     } else { cells.push( <td></td> ); }
 
@@ -1286,8 +1286,28 @@ private buildSearchBox( testSearch: string ) {
 
   }
 
+/***
+ *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD      d8888b.  .d8b.  d888888b  .d8b.       .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
+ *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P'      88  `8D d8' `8b `~~88~~' d8' `8b      88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88 
+ *    88    88 88V8o 88      8P      88         88    8P      88,8P        88   88 88ooo88    88    88ooo88      `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88 
+ *    88    88 88 V8o88      8b      88         88    8b      88`8b        88   88 88~~~88    88    88~~~88        `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88 
+ *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88.      88  .8D 88   88    88    88   88      db   8D 88.     88   88 88 `88. Y8b  d8 88   88 
+ *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD      Y8888D' YP   YP    YP    YP   YP      `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP 
+ *                                                                                                                                                               
+ *                                                                                                                                                               
+ */
+  /**
+   * This is the same as _onCTRLClickSearch except it was clicked via the file type icon at the top.
+   * @param event 
+   */
+  private _onClickDataSearch( event ) {
+    console.log( '_onClickType:',  event );
+    let textSearch = event.currentTarget.dataset.search;
+    //This is a quick "clear search" feature
+    if ( textSearch === this.state.textSearch ) { textSearch = ''; }
+    this._searchForItems ( textSearch );
 
-
+  }
 
   
   /***

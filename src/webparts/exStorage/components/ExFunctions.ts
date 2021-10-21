@@ -1870,6 +1870,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   }
 
   if ( item.CheckoutUserId ) { itemDetail.meta.push( 'CheckedOut' ) ; }
+  if ( item.checkedOutCurrentUser === true ) { itemDetail.meta.push( 'CheckedOutToYou' ) ; }
 
   if ( item.HasUniqueRoleAssignments === true ) { 
     itemDetail.uniquePerms = item.HasUniqueRoleAssignments;

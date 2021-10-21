@@ -67,6 +67,9 @@ import ExAge from '../age/ExAge';
 import ExDups from '../dups/ExDups';
 import EsItems from '../items/EsItems';
 
+import { nothingToShow } from '../miniComps/components';
+
+
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
   root: {
@@ -266,8 +269,6 @@ public componentDidMount() {
       </ExTypes>
       <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
 
-    let usersPivotContent = null;
-
     let sizePivotContent = <div>
       <ExSize 
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -428,7 +429,7 @@ public componentDidMount() {
       >
     </EsItems>;
           
-    let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? null : 
+    let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? nothingToShow('No items to show in Timeline') : 
     <Gridcharts
 
       items = { this.props.userSummary.items }

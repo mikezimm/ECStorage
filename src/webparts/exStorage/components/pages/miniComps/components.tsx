@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
+import stylesMini from './mini.module.scss';
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, ILargeFiles, IOldFiles, IItemType, IIconArray, IItemDetail, IDuplicateFile } from '../../IExStorageState';
 
@@ -74,3 +75,17 @@ export function createIconElementArray( icons: IIconArray[], onClickIcon: any ) 
   return iconArray;
 
 }
+
+
+export function nothingToShow( sub?: string, head?: string ) {
+
+  let heading = head ? head : 'Well, not sure how to tell you this but I can\'t find anything in this category :(';
+  let subHeading = sub ? sub : '';
+  let element = <div className={ stylesMini.noItems }>
+    <h2>{ heading }</h2>
+    { subHeading === '' ? null  : <h4>{ subHeading }</h4> }
+  </div>;
+
+  return element;
+
+} 
