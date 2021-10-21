@@ -192,7 +192,7 @@ public constructor(props:IExStorageProps){
         
         dropDownLabels: [],
         dropDownIndex: 0,
-        dropDownText: 'Oops!  No Libraries was found',
+        dropDownText: 'Oops!  No Libraries were found',
 
         loadProperties: null,
 
@@ -223,7 +223,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   } else {
 
-    pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', false, ' > GenWP.tsx ~ 825', 'BaseErrorTrace' );
+    pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', true, 'ExStorage.tsx ~ 226', 'BaseErrorTrace' );
 
     errMessage = pickedWeb.error;
     if ( pickedWeb.error && pickedWeb.error.length > 0 ) {
@@ -231,7 +231,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
     }
   
-    theSite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
+    theSite = await getSiteInfo( webUrl, true, 'ExStorage.tsx ~ 226', 'BaseErrorTrace' );
 
   }
 
@@ -266,7 +266,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   let areSystemLists = SystemLists.join(',').toLowerCase().split(',');
 
-  allLists.map( list => {
+  allLists.map( ( list, index ) => {
+    console.log('working on list: ', index, list.Title, list.Id, list.guid );
     let isSystemList = areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
     if ( areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1  ) { isSystemList = true; }
 
@@ -305,16 +306,23 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       list.maxYear = maxYear;
 
       pickLists.push( list );
-      dropDownLabels.push( `${list.Title} ${list.ItemCount}` );
+      // let thisDropDownText = `${list.Title} ${list.ItemCount}`;
+      let thisDropDownText = `${list.Title}`;
+      dropDownLabels.push( thisDropDownText );
 
       if ( list.Title === this.state.listTitle ) { 
         theList = list ;
         dropDownIndex = dropDownLabels.length -1;
-        dropDownText = list.Title;
+        dropDownText = thisDropDownText;
       }   
     }
   });
 
+  if ( !theList ) {
+    alert('Did not find the list: ' + this.state.listTitle );
+    console.log('Title, state.lists', pickLists, this.state.listTitle, );
+  }
+  console.log('dropDownText', dropDownIndex, dropDownText );
   console.log('allLists', allLists );
   console.log('pickLists', pickLists );
 
@@ -935,7 +943,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
           { sliderYearComponent }
           { sliderCountComponent }
           { this.state.isLoading ? 
-              <div>
+              <div style={{ height: '200px', padding: '50px 25px 25px 25px' }}>
                 { loadingNote }
                 { searchSpinner }
                 { myProgress }
@@ -1114,7 +1122,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       errorMessage: '',
       isLoaded: false,
     });
-    getSearchedFiles( this.props.tenant, pickedList, true);
+    // getSearchedFiles( this.props.tenant, pickedList, true);
     getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.dataOptions, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
@@ -1317,9 +1325,9 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           choices.map(val => {
 
             if ( val === this.state.dropDownText ) { 
-              // console.log(`_createDropdownField val MATCH: ${ val } `);
+              console.log(`_createDropdownField val MATCH: ${ val } `, this.state.dropDownText);
             } else {
-              // console.log(`_createDropdownField val: ${ val } `);
+              console.log(`_createDropdownField val: ${ val } `, this.state.dropDownText);
             }
               return {
                   key: getChoiceKey(val),

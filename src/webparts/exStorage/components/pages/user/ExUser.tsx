@@ -66,6 +66,7 @@ import ExSize from '../size/ExSize';
 import ExAge from '../age/ExAge';
 import ExDups from '../dups/ExDups';
 import EsItems from '../items/EsItems';
+import ExVersions from '../versions/ExVersions';
 
 import { nothingToShow } from '../miniComps/components';
 
@@ -88,6 +89,7 @@ const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
 const pivotHeading10 = 'Sharing';
+const pivotHeading13 = 'Versions';
 const pivotHeading11 = 'All Files';
 const pivotHeading12 = 'Timeline';
 
@@ -405,6 +407,37 @@ public componentDidMount() {
       >
     </EsItems>;
 
+
+    let versionContent = <div>
+      <ExVersions 
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+
+        pickedWeb  = { this.props.pickedWeb }
+        pickedList = { this.props.pickedList }
+        theSite = {null }
+
+        versionInfo = { this.props.userSummary.versionInfo }
+        batchData = { this.props.batchData }
+
+        heading = { `From user: ${ this.props.userSummary.userTitle }` }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        columns = { this.props.columns }
+        gridStyles = { this.props.gridStyles }
+      >
+    </ExVersions></div>;
+
     let itemsContent = <EsItems 
 
       pickedWeb  = { this.props.pickedWeb }
@@ -526,6 +559,10 @@ public componentDidMount() {
 
       <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { sharingPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading13 } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={ pivotHeading13 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { versionContent }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>

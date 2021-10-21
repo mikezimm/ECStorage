@@ -888,8 +888,21 @@ function createFolderRanks ( count: number ) : IFolderInfo {
             errMessage = '';
           }
         }
+        try {
+          items = await thisListObject.items.select(selectThese).expand(expandThese).top(batchSize).filter('').getPaged(); 
 
-        items = await thisListObject.items.select(selectThese).expand(expandThese).top(batchSize).filter('').getPaged(); 
+        } catch (e){
+          let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+          errMessage = getHelpfullErrorV2(e, false, true, [ 'BaseErrorTrace' , 'Failed', 'GetStorage ~ 896', helpfulErrorEnd ].join('|') );
+          if ( errMessage.indexOf('SharedWithUsers') > -1 ) {
+            //This library doesn't have SharedWithUsers.  Use Normal fetch
+            selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+            expandThese = thisExpand;
+          }
+          errMessage = '';
+
+        }
+
   
         //Put basics into array just to check what order they are returned in.
         items.results.map( item => {
@@ -1870,7 +1883,7 @@ function createFolderRanks ( count: number ) : IFolderInfo {
   }
 
   if ( item.CheckoutUserId ) { itemDetail.meta.push( 'CheckedOut' ) ; }
-  if ( item.checkedOutCurrentUser === true ) { itemDetail.meta.push( 'CheckedOutToYou' ) ; }
+  if ( itemDetail.checkedOutCurrentUser === true ) { itemDetail.meta.push( 'CheckedOutToYou' ) ; }
 
   if ( item.HasUniqueRoleAssignments === true ) { 
     itemDetail.uniquePerms = item.HasUniqueRoleAssignments;

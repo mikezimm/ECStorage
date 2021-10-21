@@ -801,10 +801,12 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
     cells.push( <td style={{paddingRight: '15px' }} >{ item.version.string }</td> );
 
     if ( item.checkedOutCurrentUser === true ) {
-      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByYou , `You checked out this item.  Your Id is: ${ item.checkedOutId }`, '#a4262c', this._onClickDataSearch.bind(this), null 'CheckedOutToYou' ) }</td> );
+      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByYou , `You checked out this item.  Your Id is: ${ item.checkedOutId }`, '#a4262c', 
+      this._onClickDataSearch.bind(this), null, 'CheckedOutToYou' ) }</td> );
 
     } else if ( item.checkedOutId ) {
-      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black', this._onClickDataSearch.bind(this), null 'CheckedOutToYou') }</td> );
+      cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black', 
+      this._onClickDataSearch.bind(this), null, 'CheckedOutToYou') }</td> );
       
     } else { cells.push( <td></td> ); }
 
