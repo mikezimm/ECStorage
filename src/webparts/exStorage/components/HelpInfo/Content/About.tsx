@@ -3,7 +3,7 @@ import * as React from 'react';
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
 import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
 
-export const panelVersionNumber = '1.0.0.19 - 2021-10-21'; //Added to show in panel
+export const panelVersionNumber = '2021-10-22 -  1.0.0.19'; //Added to show in panel
 
 export function aboutTable() {
 
@@ -13,7 +13,7 @@ export function aboutTable() {
         rows: [],
     };
 
-    table.rows.push( createAboutRow('2021-10-19', '1.0.0.21', `Add CheckedOut and IsMinor to Versions tab` ) );
+    table.rows.push( createAboutRow('2021-10-22', '1.0.0.19', `Add CheckedOut and IsMinor to Versions tab` ) );
     table.rows.push( createAboutRow('2021-10-18', '1.0.0.18', `Add Version Info - Files in draft, high version counts` ) );
     table.rows.push( createAboutRow('2021-10-15', '1.0.0.17', `Misc data and styling improvements` ) );
     table.rows.push( createAboutRow('2021-10-13', '1.0.0.16', `Add Shared Events,Folder & Permission Details, improve items pages with click filtering,` ) );

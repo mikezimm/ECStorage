@@ -18,12 +18,12 @@ export function advancedContent() {
             <li>However, if you find the 'Stop Sharing' button in Manage access, it removes the specific link permissions but the item still has broken permissions.</li>
 
 
+            {/* <li></li>
             <li></li>
             <li></li>
             <li></li>
             <li></li>
-            <li></li>
-            <li></li>
+            <li></li> */}
         </ul>
     </div>;
 
