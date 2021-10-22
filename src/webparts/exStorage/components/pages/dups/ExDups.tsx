@@ -184,6 +184,7 @@ public componentDidMount() {
 
             items = { [] }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             childrenAreDups = { true }
             duplicateInfo = { this.props.duplicateInfo }
             heading = { `` }
@@ -192,6 +193,10 @@ public componentDidMount() {
 
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+
+            itemType = { 'Duplicates' }
 
           ></EsItems>
       </PivotItem>

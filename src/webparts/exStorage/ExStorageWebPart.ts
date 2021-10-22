@@ -66,6 +66,8 @@ export interface IExStorageWebPartProps {
   uniqueId: string;
 
   useMediaTags: boolean;
+  getSharedDetails: boolean;
+
   quickCloseItem: boolean;
   maxVisibleItems: number;
 
@@ -106,7 +108,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
   private currentUser: IUser = null;
   private urlVars : any;
   private allowOtherSites: boolean = false;
-  private forceBanner = true ;
+  private forceBanner = false ;
 
   public onInit():Promise<void> {
     return super.onInit().then(_ => {
@@ -162,9 +164,11 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
   public render(): void {
 
     //For FPS Options
-
+    if ( this.properties.showBanner === undefined ) { this.properties.showBanner = true ; }
     this.setThisPageFormatting( this.properties.fpsPageStyle );
     this.setQuickLaunch( this.properties.quickLaunchHide );
+
+    console.log('forceBanner, showBanner:' , this.forceBanner, this.properties.showBanner );
 
     //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
     //If it's undefined, null or '', get current page context value
@@ -193,6 +197,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
 
     let dataOptions: IDataOptions = {
       useMediaTags: this.properties.useMediaTags,
+      getSharedDetails: this.properties.getSharedDetails ? this.properties.getSharedDetails : true,
     };
 
     let uiOptions: IUiOptions = {
@@ -212,7 +217,10 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
       showTricks: showTricks,      
       title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
-      style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
+      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : `{'background': 'yellow', 'fontWeight':600,'fontSize':'large'}`,
+      style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle.replace('\"','"') : `{"background": "PaleGreen"}`,
+      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle.replace('\"','"') : `{"background": "yellow", "fontWeight":600,"fontSize":"large"}`,
+      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
       
       gitHubRepo: links.gitRepoEasyStorageSmall,
     };
@@ -353,10 +361,10 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                   disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
                 }),
 
-                PropertyPaneToggle('showTricks', {
-                  label: 'Show Advanced',
-                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
-                }),
+                // PropertyPaneToggle('showTricks', {
+                //   label: 'Show Advanced',
+                //   disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
+                // }),
 
                 // showBanner: true,
                 // showTricks: true,      

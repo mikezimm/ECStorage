@@ -1,0 +1,12 @@
+
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.noItems {
+  // height: 200px;
+  max-width: 1000px;
+  display: flex;
+  padding: 45px 35px 85px 35px;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}

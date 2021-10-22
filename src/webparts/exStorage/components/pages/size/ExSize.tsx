@@ -184,6 +184,7 @@ public componentDidMount() {
 
             items = { this.props.largeData.GT10G }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             duplicateInfo = { null }
             heading = { ` larger than 10GB ${ this.props.heading }` }
             // batches = { batches }
@@ -192,6 +193,10 @@ public componentDidMount() {
               
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
 
           ></EsItems>
       </PivotItem>
@@ -205,6 +210,7 @@ public componentDidMount() {
 
             items = { this.props.largeData.GT01G }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             duplicateInfo = { null }
             heading = { ` larger than 1GB ${ this.props.heading }` }
             // batches = { batches }
@@ -213,6 +219,11 @@ public componentDidMount() {
                           
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+
           ></EsItems>
       </PivotItem> 
 
@@ -225,6 +236,7 @@ public componentDidMount() {
 
             items = { this.props.largeData.GT100M }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             duplicateInfo = { null }
             heading = { ` larger than 100MB ${ this.props.heading }` }
             // batches = { batches }
@@ -233,6 +245,11 @@ public componentDidMount() {
                           
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+
+            itemType = { 'Items' }
+
           ></EsItems>
       </PivotItem> 
 
@@ -245,6 +262,7 @@ public componentDidMount() {
 
             items = { this.props.largeData.GT10M }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
             duplicateInfo = { null }
             heading = { ` larger than 10MB ${ this.props.heading }` }
             // batches = { batches }
@@ -253,6 +271,10 @@ public componentDidMount() {
                           
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
             
           ></EsItems>
       </PivotItem>

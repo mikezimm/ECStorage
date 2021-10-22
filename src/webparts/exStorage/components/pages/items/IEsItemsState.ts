@@ -18,6 +18,8 @@ export interface IEsItemsState {
 
   dups: IDuplicateFile[];
   showItems: IItemDetail[];
+
+  filteredCount: number;
   
   totalSize: number;
 
@@ -37,7 +39,6 @@ export interface IEsItemsState {
   showItem: boolean;
   showPreview: boolean;
   selectedItem: IItemDetail;
-  selectedDup: IDuplicateFile;
 
   hasMedia: boolean;
 

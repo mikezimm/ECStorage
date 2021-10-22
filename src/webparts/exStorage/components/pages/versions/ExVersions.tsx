@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
-import { IExAgeProps } from './IExAgeProps';
-import { IExAgeState } from './IExAgeState';
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType } from '../../IExStorageState';
+import { IExVersionsProps } from './IExVersionsProps';
+import { IExVersionsState } from './IExVersionsState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, IVersionBucketLabel } from '../../IExStorageState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 
@@ -54,7 +54,7 @@ import { createSlider, createChoiceSlider } from '../../fields/sliderFieldBuilde
 import { getStorageItems, batchSize, createBatchData } from '../../ExFunctions';
 import { getSearchedFiles } from '../../ExSearch';
 
-import { createAgeSummary } from '../summary/ExAgeSummary';
+import { createVersionsSummary } from '../summary/ExVersionsSummary';
 
 import EsItems from '../items/EsItems';
 
@@ -65,15 +65,17 @@ const pivotStyles = {
   //   textAlign: "center"
   }};
 
-const pivotHeading1 = 'Age Summary';
-const pivotHeading2 = '>5yr';
-const pivotHeading3 = '>4yr';
-const pivotHeading4 = '>3yr';
-const pivotHeading5 = '>2yr';
-const pivotHeading6 = '>1yr';
+const pivotHeading1 = 'Version Summary';
+const pivotHeading2 :IVersionBucketLabel = 'IsDraft';
+const pivotHeading3 :IVersionBucketLabel = '1.0';
+const pivotHeading4 :IVersionBucketLabel = '>1.0';
+const pivotHeading5 :IVersionBucketLabel = '>=100';
+const pivotHeading6 :IVersionBucketLabel = '>=500';
+const pivotHeading7 :IVersionBucketLabel = 'IsMinor';
+const pivotHeading8 :IVersionBucketLabel = 'CheckedOut';
 
 
-export default class ExAge extends React.Component<IExAgeProps, IExAgeState> {
+export default class ExVersions extends React.Component<IExVersionsProps, IExVersionsState> {
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -91,7 +93,7 @@ export default class ExAge extends React.Component<IExAgeProps, IExAgeState> {
 
 
 
-public constructor(props:IExAgeProps){
+public constructor(props:IExVersionsProps){
   super(props);
 
   let currentYear = new Date();
@@ -148,18 +150,18 @@ public componentDidMount() {
 
   }
 
-  public render(): React.ReactElement<IExAgeProps> {
+  public render(): React.ReactElement<IExVersionsProps> {
 
     let emptyItemsElements = [
       <div style={{ padding: '20px', width: '100%', height: '100px' }}>
         Well I don't see any files in this category yet.  Is that a good thing?
       </div>,
       <div style={{ padding: '20px', }}>
-        They say... Good things come to those who age... but bad things can come if files are kept longer than they are supposed to :)
-        <br/><br/>- Unknown 
+        I'll tell you one thing about the universe, though. The universe is a pretty big place. It's bigger than anything anyone has ever dreamed of before. So if it's just us... seems like an awful waste of space. Right?
+        <br/><br/>- Ellie Arroway
       </div>,
       <div style={{ padding: '20px', }}>
-        Looks like we have not created any files this old yet :)
+        Looks like we have not created any files this big yet :)
         <br/><br/>Hint - The Tabs tell you how many items fall under this category.
       </div>,
     ];
@@ -172,25 +174,78 @@ public componentDidMount() {
         // onLinkClick={this._selectedListDefIndex.bind(this)}
     > 
       <PivotItem headerText={ pivotHeading1 } ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={ pivotHeading1 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { createAgeSummary( this.props.oldFiles, this.props.batchData ) }
+        { createVersionsSummary( this.props.batchData.versionInfo, this.props.batchData ) }
+      </PivotItem>
+
+      
+      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6}
+        itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.GT500.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.versionInfo.GT500 }
+            itemsAreDups = { false }
+            itemsAreFolders = { false }
+            duplicateInfo = { null }
+            heading = { ` with 500 or more versions` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+            
+          ></EsItems>
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5}
+        itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.GT100.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.versionInfo.GT100 }
+            itemsAreDups = { false }
+            itemsAreFolders = { false }
+            duplicateInfo = { null }
+            heading = { ` with 100-500 versions` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+            
+          ></EsItems>
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading2 } ariaLabel={pivotHeading2} title={pivotHeading2} 
-        itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age5Yr.length }>
+        itemKey={ pivotHeading2 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.draft.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.oldFiles.Age5Yr }
+            items = { this.props.versionInfo.draft }
             itemsAreDups = { false }
             itemsAreFolders = { false }
             duplicateInfo = { null }
-            heading = { ` created BEFORE ${this.currentYear -4 }` }
+            heading = { ` in draft state.  Version < 1.0` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
-                                      
+              
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
 
@@ -201,48 +256,23 @@ public componentDidMount() {
           ></EsItems>
       </PivotItem>
 
-      <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3}
-        itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age4Yr.length }>
-        <EsItems 
-            pickedWeb  = { this.props.pickedWeb }
-            pickedList = { this.props.pickedList }
-            theSite = {null }
-
-            items = { this.props.oldFiles.Age4Yr }
-            itemsAreDups = { false }
-            itemsAreFolders = { false }
-            duplicateInfo = { null }
-            heading = { ` created in ${this.currentYear -4 }` }
-            // batches = { batches }
-            icons = { [ ]}
-            emptyItemsElements = { emptyItemsElements }
-                                      
-            dataOptions = { this.props.dataOptions }
-            uiOptions = { this.props.uiOptions }
-
-            sharedItems = { [] }
-
-            itemType = { 'Items' }
-
-          ></EsItems>
-      </PivotItem> 
 
       <PivotItem headerText={ pivotHeading4 } ariaLabel={pivotHeading4} title={pivotHeading4} 
-        itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age3Yr.length }>
+        itemKey={ pivotHeading4 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.GT1.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.oldFiles.Age3Yr }
+            items = { this.props.versionInfo.GT1 }
             itemsAreDups = { false }
             itemsAreFolders = { false }
             duplicateInfo = { null }
-            heading = { ` created in ${this.currentYear -3 }` }
+            heading = { ` with versions 1.1 to 99.500` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
-                                      
+                          
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
 
@@ -252,23 +282,23 @@ public componentDidMount() {
 
           ></EsItems>
       </PivotItem> 
-      
-      <PivotItem headerText={ pivotHeading5 } ariaLabel={pivotHeading5} title={pivotHeading5}
-        itemKey={ pivotHeading5 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age2Yr.length }>
+     
+      <PivotItem headerText={ pivotHeading3 } ariaLabel={pivotHeading3} title={pivotHeading3}
+        itemKey={ pivotHeading3 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.one.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.oldFiles.Age2Yr }
+            items = { this.props.versionInfo.one }
             itemsAreDups = { false }
             itemsAreFolders = { false }
             duplicateInfo = { null }
-            heading = { ` created in ${this.currentYear -2 }` }
+            heading = { ` with only 1 major version` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
-                                      
+                          
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
 
@@ -277,33 +307,59 @@ public componentDidMount() {
             itemType = { 'Items' }
 
           ></EsItems>
-      </PivotItem>
-      
-      <PivotItem headerText={ pivotHeading6 } ariaLabel={pivotHeading6} title={pivotHeading6}
-        itemKey={ pivotHeading6 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.oldFiles.Age1Yr.length }>
+      </PivotItem> 
+     
+      <PivotItem headerText={ pivotHeading7 } ariaLabel={pivotHeading7} title={pivotHeading7}
+        itemKey={ pivotHeading7 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.minor.length }>
         <EsItems 
             pickedWeb  = { this.props.pickedWeb }
             pickedList = { this.props.pickedList }
             theSite = {null }
 
-            items = { this.props.oldFiles.Age1Yr }
+            items = { this.props.versionInfo.minor }
             itemsAreDups = { false }
             itemsAreFolders = { false }
             duplicateInfo = { null }
-            heading = { ` created in ${this.currentYear -1 }` }
+            heading = { ` with minor versions > 1.0` }
             // batches = { batches }
             icons = { [ ]}
             emptyItemsElements = { emptyItemsElements }
-                                      
+                          
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
 
             sharedItems = { [] }
-
-            itemType = { 'Items' }
             
+            itemType = { 'Items' }
+
           ></EsItems>
-      </PivotItem>
+      </PivotItem> 
+     
+      <PivotItem headerText={ pivotHeading8 } ariaLabel={pivotHeading8} title={pivotHeading8}
+        itemKey={ pivotHeading8 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } } itemCount= { this.props.versionInfo.checkedOut.length }>
+        <EsItems 
+            pickedWeb  = { this.props.pickedWeb }
+            pickedList = { this.props.pickedList }
+            theSite = {null }
+
+            items = { this.props.versionInfo.checkedOut }
+            itemsAreDups = { false }
+            itemsAreFolders = { false }
+            duplicateInfo = { null }
+            heading = { ` currently Checked Out` }
+            // batches = { batches }
+            icons = { [ ]}
+            emptyItemsElements = { emptyItemsElements }
+                          
+            dataOptions = { this.props.dataOptions }
+            uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
+
+          ></EsItems>
+      </PivotItem> 
 
     </Pivot>;
 

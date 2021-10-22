@@ -17,6 +17,8 @@ import { IWebpartBannerProps, IWebpartBannerState } from './HelpInfo/banner/bann
 import {  IGridStyles , IGridColumns} from './pages/GridCharts/IGridchartsProps';
 
 export interface IDataOptions {
+
+  getSharedDetails: boolean;
   useMediaTags: boolean;
 
 } 

@@ -66,6 +66,10 @@ import ExSize from '../size/ExSize';
 import ExAge from '../age/ExAge';
 import ExDups from '../dups/ExDups';
 import EsItems from '../items/EsItems';
+import ExVersions from '../versions/ExVersions';
+
+import { nothingToShow } from '../miniComps/components';
+
 
 //copied pivotStyles from \generic-solution\src\webparts\genericWebpart\components\Contents\Lists\railAddTemplate\component.tsx
 const pivotStyles = {
@@ -84,8 +88,10 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
-const pivotHeading10 = 'All Files';
-const pivotHeading11 = 'Timeline';
+const pivotHeading10 = 'Sharing';
+const pivotHeading13 = 'Versions';
+const pivotHeading11 = 'All Files';
+const pivotHeading12 = 'Timeline';
 
 
 
@@ -236,6 +242,13 @@ public componentDidMount() {
     let typesPivotContent = <div>
       <ExTypes 
   
+          pageContext = { this.props.pageContext }
+          wpContext = { this.props.wpContext }
+          tenant = { this.props.tenant }
+
+          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+          WebpartElement = { this.props.WebpartElement }
+
           //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
           WebpartHeight = { this.props.WebpartHeight }
           WebpartWidth = { this.props.WebpartWidth }
@@ -251,11 +264,12 @@ public componentDidMount() {
 
           dataOptions = { this.props.dataOptions }
           uiOptions = { this.props.uiOptions }
+
+          columns = { this.props.columns }
+          gridStyles = { this.props.gridStyles }
       >
       </ExTypes>
       <ReactJson src={ userSummary.typesInfo.types } name={ 'Types' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/></div>;
-
-    let usersPivotContent = null;
 
     let sizePivotContent = <div>
       <ExSize 
@@ -301,12 +315,51 @@ public componentDidMount() {
         </ExAge></div>;
 
 
-    let permsPivotContent = <div><div>
-      <h3>Summary of files with broken permissions</h3>
-      </div>
-        <ReactJson src={ userSummary.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let permsPivotContent = <EsItems 
 
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.uniqueInfo.uniqueRolls }
+      itemsAreDups = { false }
+      itemsAreFolders = { false }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+      sharedItems = { [] }
+
+      itemType = { 'Items' }
+
+      >
+    </EsItems>;
+
+    let sharingPivotContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.uniqueInfo.uniqueRolls }
+      itemsAreDups = { false }
+      itemsAreFolders = { false }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+      sharedItems = { this.props.userSummary.sharingInfo.sharedItems }
+
+      itemType = { 'Shared' }
+
+      >
+    </EsItems>;
 
     let dupsPivotContent = <div>
       <ExDups
@@ -330,11 +383,60 @@ public componentDidMount() {
       >
       </ExDups></div>;
 
-    let folderPivotContent = <div><div>
-      <h3>Summary of Folders</h3>
-      </div>
-        <ReactJson src={ userSummary.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let folderPivotContent = <EsItems 
+
+      pickedWeb  = { this.props.pickedWeb }
+      pickedList = { this.props.pickedList }
+      theSite = {null }
+
+      items = { this.props.userSummary.folderInfo.folders }
+      itemsAreDups = { false }
+      itemsAreFolders = { true }
+      duplicateInfo = { null }
+      heading = { `From user: ${ this.props.userSummary.userTitle }` }
+      // batches = { batches }
+      icons = { [] }
+
+      dataOptions = { this.props.dataOptions }
+      uiOptions = { this.props.uiOptions }
+      
+      sharedItems = { [] }
+
+      itemType = { 'Items' }
+
+      >
+    </EsItems>;
+
+
+    let versionContent = <div>
+      <ExVersions 
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+
+        pickedWeb  = { this.props.pickedWeb }
+        pickedList = { this.props.pickedList }
+        theSite = {null }
+
+        versionInfo = { this.props.userSummary.versionInfo }
+        batchData = { this.props.batchData }
+
+        heading = { `From user: ${ this.props.userSummary.userTitle }` }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        columns = { this.props.columns }
+        gridStyles = { this.props.gridStyles }
+      >
+    </ExVersions></div>;
 
     let itemsContent = <EsItems 
 
@@ -344,6 +446,7 @@ public componentDidMount() {
 
       items = { this.props.userSummary.items }
       itemsAreDups = { false }
+      itemsAreFolders = { false }
       duplicateInfo = { null }
       heading = { `From user: ${ this.props.userSummary.userTitle }` }
       // batches = { batches }
@@ -351,11 +454,15 @@ public componentDidMount() {
 
       dataOptions = { this.props.dataOptions }
       uiOptions = { this.props.uiOptions }
+      
+      sharedItems = { [] }
+
+      itemType = { 'Items' }
 
       >
     </EsItems>;
           
-    let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? null : 
+    let gridPivotContent = !this.props.isLoaded || this.props.userSummary.summary.count === 0 ? nothingToShow('No items to show in Timeline') : 
     <Gridcharts
 
       items = { this.props.userSummary.items }
@@ -451,10 +558,18 @@ public componentDidMount() {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
-        { itemsContent }
+        { sharingPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading13 } ariaLabel={pivotHeading13} title={pivotHeading13} itemKey={ pivotHeading13 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { versionContent }
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { itemsContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading12 } ariaLabel={pivotHeading12} title={pivotHeading12} itemKey={ pivotHeading12 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { gridPivotContent }
       </PivotItem>
     </Pivot>;

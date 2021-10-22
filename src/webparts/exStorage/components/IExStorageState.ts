@@ -7,6 +7,20 @@ import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/S
 
 import { IGridColumns } from './pages/GridCharts/IGridchartsProps';
 
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
+
+export type IItemType = 'Items' | 'Duplicates' | 'Shared' | 'CheckedOut' ;
+
+export interface IIconArray {
+  iconTitle: string;
+  iconName: string;
+  iconColor: string;
+  iconSearch: string;
+  other?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+  sort1?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+  sort2?: any; //Can be used as anything as needed such as a way to sort - ie count of items with this icon
+}
+
 export interface IEXStorageList extends IPickedList {
 
   Created: string;
@@ -24,6 +38,26 @@ export interface IEXStorageList extends IPickedList {
 
 }
 
+/**
+ * 0 are draft, 1 are one version, 100 are 1 to 100, 1000 are 101 to 1000
+ */
+export type IVersionBucket = 0 | 1 | 1.1 | 100 | 500;
+
+export type IVersionBucketLabel = 'IsDraft' | '1.0' | '>1.0' | '>=100' | '>=500' | 'IsMinor' | 'CheckedOut' | 'CheckedOutToYou';
+
+export type IKnownFileTypes = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' ;
+
+//'MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'
+export type IKnownMeta = 'Type:Excel' | 'Type:Word' | 'Type:PowerPoint' | 'Type:Text' | 'Type:pdf' | 'Type:OneNote' | 'Type:Outlook' | 'Type:Zipped' | 'Type:Movie' | 'Type:Image' | 'Type:Dwg' | 'Type:File' | 'WasShared' |  'UniquePermissions' | 'Type:Folder' | 'IsDraft' | 'IsMinor' | 'IsMajor' | 'SingleVerion' | 'MediaServiceAutoTags' | 'MediaServiceLocation' | 'MediaServiceOCR' | 'MediaServiceKeyPoints' | 'MediaLengthInSeconds' | '' |
+'1.0' | '>1.0' | '>=100' | '>=500' | 'CheckedOut' | 'CheckedOutToYou' ;
+
+export interface IFileVersionInfo {
+    number: number;
+    string: string;
+    bucket: IVersionBucket;
+    bucketLabel: IVersionBucketLabel;
+}
+
 export interface IItemDetail {
   batch: number; //index of the batch in state.batches
   index: number; //index of item in state.batches[batch].items
@@ -38,18 +72,26 @@ export interface IItemDetail {
   authorTitle: string;
   editorTitle: string;
   authorName: string;
+  authorShared: string;
   editorName: string;
+  editorShared: string;
   parentFolder: string;
 
   localFolder: string;  //localFolder is the folder Url with the site and library removed... just showing \foldername\subfoldername\
 
   FileLeafRef: string;
   FileRef: string;
-  checkedOutId?: number;
-  docIcon?: string;  
+  checkedOutId: number;
+  checkedOutCurrentUser: boolean;
+  docIcon?: IKnownMeta;  
   iconName: string;
   iconColor: string;
   iconTitle: string;
+
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+
+  meta: IKnownMeta[];
+
   uniquePerms?: boolean;
   
   currentUser: boolean;
@@ -66,8 +108,7 @@ export interface IItemDetail {
   sizeMB: number;
   sizeLabel: string;
 
-  version: number;
-  versionlabel: string;
+  version: IFileVersionInfo;
 
   isFolder?: boolean;
 
@@ -79,6 +120,8 @@ export interface IItemDetail {
   isMedia: boolean;
   whichWasFirst: 'created' | 'modfied';
   whichWasFirstDays: string;
+
+  itemSharingInfo?: IItemSharingInfo;
 
 }
 
@@ -92,6 +135,7 @@ export interface IFolderDetail extends IItemDetail {
   otherItems: IItemDetail[];  //Items in folders below this folder
 }
 
+export type IBucketType = 'Batch' | 'User' | 'Old Files' | 'Large Files' | 'Duplicate Files' | 'Files with Unique Permissions' | 'Folders' | 'File Type' | 'Shared Files' ;
 
 export interface IBucketSummary {
   title: string;
@@ -101,6 +145,7 @@ export interface IBucketSummary {
   sizeLabel: string;
   countP: number;
   sizeP: number;
+  bucket: IBucketType;
   ranges: {
     firstCreateMs: any;
     lastCreateMs: any;
@@ -115,6 +160,8 @@ export interface IBucketSummary {
   sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
   userTitles: string[];
   userIds: number[];
+  itemIds: number[];
+
 }
 
 export interface ILargeFiles {
@@ -123,6 +170,19 @@ export interface ILargeFiles {
   GT100M: IItemDetail[];
   GT10M: IItemDetail[];
   summary: IBucketSummary;
+
+}
+
+export interface IVersionInfo {
+  draft: IItemDetail[];
+  one: IItemDetail[];
+  GT1: IItemDetail[];
+  GT100: IItemDetail[];
+  GT500: IItemDetail[];
+  checkedOut: IItemDetail[];
+  minor: IItemDetail[];
+
+  // summary: IBucketSummary;
 
 }
 
@@ -153,6 +213,7 @@ export interface IUserSummary {
   userTitle: string;
   userFirst: any;
   userLast: any;
+  sharedName: string;
 
   folderCreateCount: number;
 
@@ -187,6 +248,10 @@ export interface IUserSummary {
   typesInfo: ITypeInfo;
 
   duplicateInfo: IDuplicateInfo;
+  
+  sharingInfo: ISharingInfo;
+  
+  versionInfo: IVersionInfo;
 
 }
 
@@ -197,20 +262,10 @@ export interface IDuplicateFile {
   iconName: string;
   iconColor: string;
   iconTitle: string;
+
+  iconSearch: IKnownMeta; //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+  meta: IKnownMeta[];
   
-  // These are already in IBucketSummary
-  // title: string;
-  // count: number;
-  // size: number;
-  // sizeGB: number;
-  // sizeLabel: string;
-  // countP: number;
-  // sizeP: number;
-  // sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
-  // userTitles: string[];
-  // userIds: number[];
-  count: number;
-  size: number;
   items: IItemDetail[];
   locations: string[];
   sizes: number[];
@@ -222,25 +277,32 @@ export interface IDuplicateFile {
 }
 
 export interface IFileType {
+
   type: string;
   iconName: string;
   iconColor: string;
   iconTitle: string;
-  count: number;
-  size: number;
-  sizeGB: number;
-  sizeP: number;
-  countP: number;
-  sizeToCountRatio: number;  //Ratio of sizeP over countP.  Like 75% of all storage is filled by 5% of files ( 75/5 = 15 : 1 )
-  sizeLabel: string;
+
   avgSize: number;
   maxSize: number;
   avgSizeLabel: string;
   maxSizeLabel: string;
+
   items: IItemDetail[];
   sizes: number[];
   createdMs: number[];
   modifiedMs: number[];
+    
+  versionInfo: IVersionInfo;
+
+  summary: IBucketSummary;
+
+}
+
+export interface ISharingInfo {
+
+  sharedItems: IItemDetail[];
+  summary: IBucketSummary;
 
 }
 
@@ -270,8 +332,8 @@ export interface ITypeInfo {
 }
 
 export interface IDuplicateInfo {
-  count: number;
   duplicateNames: string[];
+  allNames: string[];
   duplicates: IDuplicateFile[];
   sizeRank: number[]; //Array of user index's in the AllUsers array based on this metric.
   countRank: number[]; //Array of user index's in the AllUsers array based on this metric.
@@ -287,8 +349,8 @@ export interface IFolderInfo {
 }
 
 export interface IUniqueInfo {
-  count: number;
   uniqueRolls: IItemDetail[];
+  summary: IBucketSummary;
 }
 
 export type IAllItemTypes = IFolderDetail | IItemDetail;
@@ -296,10 +358,6 @@ export type IAllItemTypes = IFolderDetail | IItemDetail;
 
 export interface IBatchData {
   totalCount: number;
-  count: number;
-  size: number;
-  sizeGB: number;
-  sizeLabel: string;
 
   large: ILargeFiles;
 
@@ -320,6 +378,24 @@ export interface IBatchData {
 
   significance: number; // % of all items returned
   isSignificant: boolean;
+
+  summary: IBucketSummary;
+
+  sharingInfo: ISharingInfo;
+
+  versionInfo: IVersionInfo;
+
+  analytics: {
+    fetchMs: number,
+    analyzeMs: number,
+    fetchTime: any,
+    fetchDuration: string,
+    analyzeDuration: string,
+    count: number,
+    msPerFetch: number,
+    msPerAnalyze: number,
+
+  };
 
 }
 

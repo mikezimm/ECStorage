@@ -25,6 +25,7 @@ import { Search, Suggest } from "@pnp/sp/search";
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { sortNumberArray, sortObjectArrayByChildNumberKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { expandArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 // import { sortObjectArrayByChildNumberKey, sortNumberArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 
 
@@ -38,10 +39,11 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { msPerDay, msPerWk }  from '@mikezimm/npmfunctions/dist/Services/Time/constants';
 
 import { updateNextOpenIndex } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-import { getSizeLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IItemDetail, IBatchData, ILargeFiles, IOldFiles, IUserSummary, IFileType, 
-    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes } from './IExStorageState';
+    IDuplicateFile, IBucketSummary, IUserInfo, ITypeInfo, IFolderInfo, IDuplicateInfo, IFolderDetail, IAllItemTypes, IBucketType, IKnownMeta,
+    IVersionBucketLabel, IVersionInfo } from './IExStorageState';
 
 import { IDataOptions, IUiOptions } from './IExStorageProps';
 
@@ -72,7 +74,18 @@ import { escape } from '@microsoft/sp-lodash-subset';
  *                                               
  */
 
+import { sharedWithSelect, sharedWithExpand, processSharedItems } from './Sharing/SharingFunctions2';
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from './Sharing/ISharingInterface';
+
+
+const domainEmail = window.location.hostname.replace('.sharepoint','');
+
  const thisSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','Title','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
+
+ //Preservation Hold Library errors out if you try to select the Title.  All other properties work.
+ const presHoldSelect = ['*','ID','FileRef','FileLeafRef','Author/Title','Editor/Title','Author/Name','Editor/Name','Modified','Created','CheckoutUserId','HasUniqueRoleAssignments','FileSystemObjectType','FileSizeDisplay','FileLeafRef','LinkFilename','OData__UIVersion','OData__UIVersionString','DocIcon'];
+
+
  const thisExpand = ['Author','Editor'];
   export const batchSize = 500;
 
@@ -104,9 +117,10 @@ import { escape } from '@microsoft/sp-lodash-subset';
  *                                                                                                                          
  */
 
-  export function createBucketSummary( title: string ): IBucketSummary {
+  export function createBucketSummary( title: string, bucket: IBucketType ): IBucketSummary {
     let summary: IBucketSummary = {
       title: title,
+      bucket: bucket,
       count: 0,
       size: 0,
       sizeGB: 0,
@@ -115,17 +129,18 @@ import { escape } from '@microsoft/sp-lodash-subset';
       countP: 0,
       sizeP: 0,
       userIds: [],
+      itemIds: [],
       userTitles: [],
       ranges: {
         firstCreateMs: 1e20,
         lastCreateMs:  0,
         firstModifiedMs:  1e20,
         lastModifiedMs:  0,
-        createRange: "",
-        modifyRange: "",
+        createRange: ``,
+        modifyRange: ``,
         firstAllMs: 0,
         lastAllMs: 0,
-        rangeAll: "",
+        rangeAll: ``,
       }
     };
     return summary;
@@ -152,6 +167,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
     if ( summary.userIds.indexOf( detail.editorId ) < 0 ) { summary.userIds.push( detail.editorId ) ; }
     if ( summary.userTitles.indexOf( detail.authorTitle ) < 0 ) { summary.userTitles.push( detail.authorTitle ) ; }
     if ( summary.userTitles.indexOf( detail.editorTitle ) < 0 ) { summary.userTitles.push( detail.editorTitle ) ; }
+    if ( summary.itemIds.indexOf( detail.id ) < 0 ) { summary.itemIds.push( detail.id ) ; }
 
     let rangeChanged = false;
     // debugger;
@@ -190,7 +206,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
   }
 
-  export function updateBucketSummaryPercents( summary: IBucketSummary, compare: IBucketSummary | IBatchData ): IBucketSummary {
+  export function updateBucketSummaryPercents( summary: IBucketSummary, compare: IBucketSummary ): IBucketSummary {
     summary.sizeGB = summary.size / 1e9 ;
     summary.sizeP = 100 * summary.size / compare.size ;
     summary.countP = 100 * summary.count / compare.count;
@@ -218,7 +234,7 @@ export function createLargeFiles() :ILargeFiles {
     GT01G: [],
     GT100M: [],
     GT10M: [],
-    summary: createBucketSummary( `Files BIGGER than 100MB` ),
+    summary: createBucketSummary( `Files BIGGER than 100MB`, 'Large Files' ),
   };
 }
 
@@ -239,7 +255,7 @@ export function createOldFiles () :IOldFiles {
     Age3Yr: [],
     Age2Yr: [],
     Age1Yr: [],
-    summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}` ),
+    summary: createBucketSummary( `Files created before ${( getCurrentYear() - 1 )}`, 'Old Files' ),
   };
 }
 
@@ -254,11 +270,15 @@ export function createOldFiles () :IOldFiles {
  *                                                                                           
  */
 
-export function createThisUser( detail : IItemDetail, userId: number, userTitle: string ) :IUserSummary {
+export function createThisUser( detail : IItemDetail, userId: number, userTitle: string, userName: string ) :IUserSummary {
+  
+  let sharedNameSplit = userName ? userName.split('|') : [];
+  let sharedName = sharedNameSplit.length > 1 ? sharedNameSplit[ 2 ].replace( domainEmail, '' ) : userName;
 
   let userSummary: IUserSummary = {
     userId: userId,
     userTitle: userTitle,
+    sharedName: sharedName,
     userFirst: null,
     userLast: null,
 
@@ -285,7 +305,7 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     large: createLargeFiles(),
 
     items: [],
-    summary: createBucketSummary( `Summary for ${userTitle}` ),
+    summary: createBucketSummary( `Summary for ${userTitle}`, 'User' ),
 
     typesInfo: {
       count: 0,
@@ -296,12 +316,12 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
     },
     
     duplicateInfo: {
-      count: 0,
+      allNames: [],
       duplicateNames: [],
       duplicates: [],
       countRank: [],
       sizeRank: [],
-      summary: createBucketSummary('Duplicate file info'),
+      summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
     },
 
     folderInfo: {
@@ -312,9 +332,25 @@ export function createThisUser( detail : IItemDetail, userId: number, userTitle:
       sizeRank: [],
     },
 
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      checkedOut: [],
+      minor: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
+    },
+
     uniqueInfo: {
-      count: 0,
       uniqueRolls: [],
+      summary: createBucketSummary('Unique Permissions', 'Files with Unique Permissions'),
+    },
+
+    sharingInfo: {
+      sharedItems: [],
+      summary: createBucketSummary('Sharing Info', 'Shared Files'),
     },
 
   };
@@ -393,21 +429,22 @@ export function updateThisAuthor ( detail : IItemDetail, userSummary: IUserSumma
 export function createThisDuplicate ( detail : IItemDetail ) :IDuplicateFile {
 
   let iconInfo = getFileTypeIconInfo( detail.docIcon );
+  let anyFileLeafRef: any = detail.FileLeafRef; //Needed to pass value into meta: IKnownTypes
 
   let thisDup: IDuplicateFile = {
       name: detail.FileLeafRef,
       type: detail.docIcon, 
       locations: [],
-      size: 0,
-      count: 0,
       iconName: iconInfo.iconName,
       iconColor: iconInfo.iconColor,
       iconTitle: iconInfo.iconTitle,
+      iconSearch: iconInfo.iconSearch,
+      meta: [ anyFileLeafRef, iconInfo.iconSearch, detail.docIcon ],
       items: [],
       sizes: [],
       createdMs: [],
       modifiedMs: [],
-      summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`),
+      summary: createBucketSummary(`Dup: ${detail.FileLeafRef}`, 'Duplicate Files'),
       FileLeafRef: detail.FileLeafRef,
     };
 
@@ -442,8 +479,8 @@ export function updateThisDup ( thisDup: IDuplicateFile, detail : IItemDetail, L
   // thisDup.summary.count ++;
   // thisDup.summary.size += detail.size;
 
-  thisDup.count ++;
-  thisDup.size += detail.size;
+  thisDup.summary = updateBucketSummary( thisDup.summary, detail );
+
 
   // thisDup.summary.sizeGB = detail.size / 1e9;
   // thisDup.summary.sizeLabel = getSizeLabel( detail.size );
@@ -507,21 +544,25 @@ export function createThisType ( docIcon: string ) :IFileType {
     iconName: iconInfo.iconName,
     iconColor: iconInfo.iconColor,
     iconTitle: iconInfo.iconTitle,
-    count: 0,
-    size: 0,
-    sizeGB: 0,
-    sizeLabel: '',
     avgSizeLabel: '',
     maxSizeLabel: '',
     avgSize: 0,
     maxSize: 0,
-    sizeP: 0,
-    countP: 0,
-    sizeToCountRatio: 0,
     items: [],
     sizes: [],
     createdMs: [],
     modifiedMs: [],
+    summary: createBucketSummary('File Type info', 'File Type'),
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      checkedOut: [],
+      minor: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
+    },
   };
 
   return thisType;
@@ -540,18 +581,67 @@ export function createThisType ( docIcon: string ) :IFileType {
  */
 export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : IFileType {
 
-  thisType.count ++;
-  thisType.size += detail.size;
-
   thisType.items.push( detail );
   thisType.sizes.push(detail.size);
 
   thisType.createdMs.push( detail.createMs ) ;
   thisType.modifiedMs.push( detail.modMs ) ;
+  thisType.summary = updateBucketSummary( thisType.summary, detail );
 
   return thisType;
 
 }
+
+/***
+ *    db    db d8888b. d8888b.  .d8b.  d888888b d88888b      db    db d88888b d8888b. .d8888. d888888b  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
+ *    88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88    88 88'     88  `8D 88'  YP   `88'   .8P  Y8. 888o  88        `88'   888o  88 88'     .8P  Y8. 
+ *    88    88 88oodD' 88   88 88ooo88    88    88ooooo      Y8    8P 88ooooo 88oobY' `8bo.      88    88    88 88V8o 88         88    88V8o 88 88ooo   88    88 
+ *    88    88 88~~~   88   88 88~~~88    88    88~~~~~      `8b  d8' 88~~~~~ 88`8b     `Y8b.    88    88    88 88 V8o88         88    88 V8o88 88~~~   88    88 
+ *    88b  d88 88      88  .8D 88   88    88    88.           `8bd8'  88.     88 `88. db   8D   .88.   `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
+ *    ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P         YP    Y88888P 88   YD `8888Y' Y888888P  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+ *                                                                                                                                                               
+ *                                                                                                                                                               
+ */
+
+export function updateVersionInfo ( versionInfo: IVersionInfo, detail : IItemDetail, ) : IVersionInfo {
+
+  //Ignore version info on folders
+  if ( detail.isFolder === true ) {
+    return versionInfo;
+  }
+  
+  let bucketLabel: IVersionBucketLabel  = detail.version.bucketLabel;
+
+  switch ( bucketLabel ) {
+    case "IsDraft":
+      versionInfo.draft.push( detail );
+      break;
+    case "1.0":
+      versionInfo.one.push( detail );
+      break;
+    case ">1.0":
+      versionInfo.GT1.push( detail );
+      break;
+    case ">=100":
+      versionInfo.GT100.push( detail );
+      break;
+    case ">=500":
+      versionInfo.GT500.push( detail );
+      break;
+    default:
+      alert('Unexpected Version Info... ' + detail.FileRef );
+      console.log('Unexpected Version Info...', detail );
+      break;
+  }
+
+  if ( detail.checkedOutId ) { versionInfo.checkedOut.push( detail ) ; }
+  if ( detail.meta.indexOf( 'IsMinor' ) > -1 ) { versionInfo.minor.push( detail ) ; }
+
+
+  return versionInfo;
+
+}
+
 
 /***
  *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d8888b.  .d8b.  d888888b  .o88b. db   db        d8888b.  .d8b.  d888888b  .d8b.  
@@ -565,14 +655,15 @@ export function updateThisType ( thisType: IFileType, detail : IItemDetail, ) : 
  */
 //IBatchData, ILargeFiles, IUserFiles, IOldFiles
 export function createBatchData ( currentUser: IUser, totalCount: number ):IBatchData {
+  let currentUserId = currentUser ? currentUser.Id : 'TBD-Id';
+  let currentUserTitle = currentUser ? currentUser.Title : 'TBD-Title';
+  let currentUserName = !currentUser  ? 'TBD-Name' : currentUser.Name ? currentUser.Name  : currentUser.LoginName ;
+
   return {  
     totalCount: totalCount,
-    count: 0,
+    summary: createBucketSummary('Duplicate file info', 'Batch'),
     significance: 0,
     isSignificant: false,
-    size: 0,
-    sizeGB: 0,
-    sizeLabel: '',
     items: [],
     typesInfo: {
       count: 0,
@@ -583,12 +674,12 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     },
     
     duplicateInfo: {
-      count: 0,
+      allNames: [],
       duplicateNames: [],
       duplicates: [],
       countRank: [],
       sizeRank: [],
-      summary: createBucketSummary('Duplicate file info'),
+      summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
     },
 
     folderInfo: {
@@ -600,8 +691,8 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
     },
 
     uniqueInfo: {
-      count: 0,
       uniqueRolls: [],
+      summary: createBucketSummary('Unique Permissions', 'Files with Unique Permissions'),
     },
 
     large: createLargeFiles(),
@@ -612,7 +703,7 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
 
       count: 0,
 
-      currentUser: createThisUser( null, currentUser ? currentUser.Id : 'TBD-Id', currentUser ? currentUser.Title : 'TBD-Title' ),
+      currentUser: createThisUser( null, currentUserId, currentUserTitle, currentUserName ),
 
       creatorIds: [],
       editorIds: [],
@@ -624,6 +715,33 @@ export function createBatchData ( currentUser: IUser, totalCount: number ):IBatc
       modifySizeRank: [],
       modifyCountRank: [],
     },
+
+    sharingInfo: {
+      sharedItems: [],
+      summary: createBucketSummary('Sharing Info', 'Shared Files'),
+    },
+    
+    versionInfo: {
+      draft: [],
+      one: [],
+      GT1: [],
+      GT100: [],
+      GT500: [],
+      checkedOut: [],
+      minor: [],
+      // summary: createBucketSummary('Version info', 'Versions'),
+    },
+
+    analytics: {
+      fetchMs: 0,
+      analyzeMs: 0,
+      fetchTime: null,
+      fetchDuration: '',
+      analyzeDuration: '',
+      count: 0,
+      msPerAnalyze: 0,
+      msPerFetch: 0,
+    }
 
   };
 }
@@ -657,12 +775,12 @@ function createTypeRanks ( count: number ) : ITypeInfo {
 
 function createDupRanks ( count: number ) : IDuplicateInfo {
   let theseInfos : IDuplicateInfo = {
-    count: 0,
+    allNames: [],
     duplicates: [],
     duplicateNames: [],
     countRank: [],
     sizeRank: [],
-    summary: createBucketSummary('Duplicate file info'),
+    summary: createBucketSummary('Duplicate file info', 'Duplicate Files'),
   };
 
   for (let index = 0; index < count; index++) {
@@ -687,25 +805,6 @@ function createFolderRanks ( count: number ) : IFolderInfo {
     theseInfos.sizeRank.push( null );
   }
 
-  return theseInfos;
-}
-
-/***
- *    d88888b db    db d8888b.  .d8b.  d8b   db d8888b.       .d8b.  d8888b. d8888b.  .d8b.  db    db 
- *    88'     `8b  d8' 88  `8D d8' `8b 888o  88 88  `8D      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 
- *    88ooooo  `8bd8'  88oodD' 88ooo88 88V8o 88 88   88      88ooo88 88oobY' 88oobY' 88ooo88  `8bd8'  
- *    88~~~~~  .dPYb.  88~~~   88~~~88 88 V8o88 88   88      88~~~88 88`8b   88`8b   88~~~88    88    
- *    88.     .8P  Y8. 88      88   88 88  V888 88  .8D      88   88 88 `88. 88 `88. 88   88    88    
- *    Y88888P YP    YP 88      YP   YP VP   V8P Y8888D'      YP   YP 88   YD 88   YD YP   YP    YP    
- *                                                                                                    
- *       import { expandArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';                                                                                             
- */
-
-function expandArray ( count: number ) : any[] {
-  let theseInfos: any[] = [];
-  for (let index = 0; index < count; index++) {
-    theseInfos.push( null );
-  }
   return theseInfos;
 }
 
@@ -745,7 +844,7 @@ function expandArray ( count: number ) : any[] {
   
       // This testing did not return anything I can understand that looks like a result.
       // this can accept any of the query types (text, ISearchQuery, or SearchQueryBuilder)
-      // const results = await searcher("Frauenhofer");
+      // const results = await searcher(`Frauenhofer`);
       // console.log('Test searcher results', results);
   
       /***
@@ -766,7 +865,44 @@ function expandArray ( count: number ) : any[] {
   
         let fetchStart = new Date();
         let startMs = fetchStart.getTime();
-        items = await thisListObject.items.select(thisSelect).expand(thisExpand).top(batchSize).filter('').getPaged(); 
+        let selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+        let expandThese = thisExpand;
+
+        if ( dataOptions.getSharedDetails === true ) {
+          selectThese =  [...selectThese, ...sharedWithSelect,  ];
+          expandThese =  [...expandThese, ...sharedWithExpand,  ];
+                  /**
+           * This try just tries to get one item wtih the shared with details and if not, reverts back to baseline columns
+           */
+          try {
+            items = await thisListObject.items.select(selectThese).expand(expandThese).top(1).filter('').getPaged();
+
+          } catch (e){
+            let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, false, true, [ 'BaseErrorTrace' , 'Failed', 'GetStorage ~ 59', helpfulErrorEnd ].join('|') );
+            if ( errMessage.indexOf('SharedWithUsers') > -1 ) {
+              //This library doesn't have SharedWithUsers.  Use Normal fetch
+              selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+              expandThese = thisExpand;
+            }
+            errMessage = '';
+          }
+        }
+        try {
+          items = await thisListObject.items.select(selectThese).expand(expandThese).top(batchSize).filter('').getPaged(); 
+
+        } catch (e){
+          let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+          errMessage = getHelpfullErrorV2(e, false, true, [ 'BaseErrorTrace' , 'Failed', 'GetStorage ~ 896', helpfulErrorEnd ].join('|') );
+          if ( errMessage.indexOf('SharedWithUsers') > -1 ) {
+            //This library doesn't have SharedWithUsers.  Use Normal fetch
+            selectThese = listTitle === 'Preservation Hold Library' ? presHoldSelect : thisSelect;
+            expandThese = thisExpand;
+          }
+          errMessage = '';
+
+        }
+
   
         //Put basics into array just to check what order they are returned in.
         items.results.map( item => {
@@ -837,8 +973,11 @@ function expandArray ( count: number ) : any[] {
   let userLargest: IItemDetail = null;
   let userOldestCreate: IItemDetail = null;
   let userOldestModified: IItemDetail = null;
+  let missedParentFileLeafs: string[] = [];
+  let foundParentFileLeafs: string[] = [];
 
-  let allNameStrings: string[] = [];
+  let allNames: string[] = [];
+  let duplicateNames: string[] = [];
   let allNameItems: IDuplicateFile[] = [];
 
   let allFolderRefs: string [] = [];
@@ -855,13 +994,15 @@ function expandArray ( count: number ) : any[] {
  */
 
   batches.map( batch=> {
-    batch.items.map( ( item, itemIndex )=> {
+
+    let batchItems = dataOptions.getSharedDetails === true ? processSharedItems( batch.items ) : batch.items ;
+
+    batchItems.map( ( item, itemIndex )=> {
 
       //Get item summary
       let detail: IItemDetail = createGenericItemDetail( batch.index , itemIndex, item, currentUser, dataOptions, pickedList.LibraryUrl );
 
-      batchData.count ++;
-      batchData.size += detail.size;
+      batchData.summary = updateBucketSummary( batchData.summary, detail );
 
       /***
        *                        d888b  d88888b d888888b       .d8b.  db    db d888888b db   db  .d88b.  d8888b.      d88888b d8888b. d888888b d888888b  .d88b.  d8888b. 
@@ -891,7 +1032,7 @@ function expandArray ( count: number ) : any[] {
       let createUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.authorId );
       if ( createUserAllIndex === -1 ) { 
         batchData.userInfo.allUsersIds.push( detail.authorId  );
-        batchData.userInfo.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle )  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.authorId, detail.authorTitle, detail.authorShared )  );
         createUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
@@ -899,7 +1040,7 @@ function expandArray ( count: number ) : any[] {
       let editUserAllIndex = batchData.userInfo.allUsersIds.indexOf( detail.editorId  );
       if ( editUserAllIndex === -1 ) { 
         batchData.userInfo.allUsersIds.push( detail.editorId  );
-        batchData.userInfo.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle )  );
+        batchData.userInfo.allUsers.push( createThisUser( detail, detail.editorId, detail.editorTitle, detail.editorShared )  );
         editUserAllIndex = batchData.userInfo.allUsers.length -1;
       }
 
@@ -960,8 +1101,28 @@ function expandArray ( count: number ) : any[] {
         batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types.push( createThisType(detail.docIcon) );
       }
       batchData.typesInfo.types[ typeIndex ] = updateThisType( batchData.typesInfo.types[ typeIndex ], detail );
-      batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ] = updateThisType( batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ], detail );
+      batchData.typesInfo.types[ typeIndex ].versionInfo = updateVersionInfo( batchData.typesInfo.types[ typeIndex ].versionInfo, detail );
 
+      batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ] = updateThisType( batchData.userInfo.allUsers[ createUserAllIndex ].typesInfo.types[ typeIndexUser ], detail );
+      batchData.userInfo.allUsers[ createUserAllIndex ].versionInfo = updateVersionInfo( batchData.userInfo.allUsers[ createUserAllIndex ].versionInfo, detail );
+
+      /***
+       *    d8888b. db    db d888888b db      d8888b.      .d8888. db   db  .d8b.  d8888b. d888888b d8b   db  d888b       d888888b d8b   db d88888b  .d88b.  
+       *    88  `8D 88    88   `88'   88      88  `8D      88'  YP 88   88 d8' `8b 88  `8D   `88'   888o  88 88' Y8b        `88'   888o  88 88'     .8P  Y8. 
+       *    88oooY' 88    88    88    88      88   88      `8bo.   88ooo88 88ooo88 88oobY'    88    88V8o 88 88              88    88V8o 88 88ooo   88    88 
+       *    88~~~b. 88    88    88    88      88   88        `Y8b. 88~~~88 88~~~88 88`8b      88    88 V8o88 88  ooo         88    88 V8o88 88~~~   88    88 
+       *    88   8D 88b  d88   .88.   88booo. 88  .8D      db   8D 88   88 88   88 88 `88.   .88.   88  V888 88. ~8~        .88.   88  V888 88      `8b  d8' 
+       *    Y8888P' ~Y8888P' Y888888P Y88888P Y8888D'      `8888Y' YP   YP YP   YP 88   YD Y888888P VP   V8P  Y888P       Y888888P VP   V8P YP       `Y88P'  
+       *                                                                                                                                                     
+       *                                                                                                                                                     
+       */
+
+      if ( detail.itemSharingInfo ) {
+        batchData.sharingInfo.sharedItems.push( detail );
+        batchData.sharingInfo.summary = updateBucketSummary( batchData.sharingInfo.summary, detail, );
+
+
+      }
 
       /***
        *                       d8888b. db    db d888888b db      d8888b.      d8888b. db    db d8888b. db      d888888b  .o88b.  .d8b.  d888888b d88888b .d8888. 
@@ -974,15 +1135,32 @@ function expandArray ( count: number ) : any[] {
        *                                                                                                                                                         
        */
       //Build up Duplicate list - only for filenames not folder names
+
+      // let allNames: string[] = [];
+      // let duplicateNames: string[] = [];
+
       if ( detail.isFolder !== true ) {
-        let dupIndex = allNameStrings.indexOf( detail.FileLeafRef.toLowerCase() );
+        let FileLeafRefLC = detail.FileLeafRef.toLowerCase();
+        let dupIndex = allNames.indexOf( FileLeafRefLC );
+
+        //Filename not encountered, add to All Names and create the Duplicate Item
         if ( dupIndex < 0 ) {
-          allNameStrings.push( detail.FileLeafRef.toLowerCase() );
-          dupIndex = allNameStrings.length - 1;
-          allNameItems.push( createThisDuplicate(detail)  );
+          allNames.push( FileLeafRefLC );
+          dupIndex = allNames.length - 1;
+          allNameItems.push( createThisDuplicate(detail) );
+          allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+
+        //Filename was encountered, update the Duplicate Item
+        } else {
+
+          if ( duplicateNames.indexOf( FileLeafRefLC ) < 0 ) {
+            duplicateNames.push( FileLeafRefLC ) ; 
+          }
+
+          allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
+          batchData.duplicateInfo.summary = updateBucketSummary( batchData.duplicateInfo.summary, detail, );
         }
-        allNameItems[ dupIndex ] = updateThisDup( allNameItems[ dupIndex ], detail, pickedList.LibraryUrl );
-        allNameItems[ dupIndex ].summary = updateBucketSummary( allNameItems[ dupIndex ].summary, detail );
+
       }
 
 
@@ -1016,6 +1194,11 @@ function expandArray ( count: number ) : any[] {
       let parentFolderIndex = allFolderRefs.indexOf( detail.parentFolder );
       let userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folderRefs.indexOf( detail.parentFolder );
 
+      if ( detail.isFolder && detail.FileLeafRef === 'SO-21010166 - BR297 centred cushion' ) {
+        //This item a folder,
+        // debugger;
+      }
+
       if ( detail.isFolder === true ) { 
         //Create new IFolderDetail in all folders.
         allFolderRefs.push( detail.FileRef );
@@ -1039,15 +1222,17 @@ function expandArray ( count: number ) : any[] {
         batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.push ( folderDetail ) ;
         userParentFolderIndex = batchData.userInfo.allUsers[ createUserAllIndex ].folderInfo.folders.length - 1;
 
+        if ( foundParentFileLeafs.indexOf( detail.FileRef ) < 0 ) { foundParentFileLeafs.push( detail.FileRef ); }
+
       } else { //This is not a folder but an item... update sizes
-        if ( parentFolderIndex < 0 ) {
-          console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
-        }
+
       }
 
       let thisDetailsParentFolder: IFolderDetail = batchData.folderInfo.folders[ parentFolderIndex ];
       if ( parentFolderIndex < 0 ) {
-        console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+        // console.log('WARNING - NOT ABLE TO FIND FOLDER:', detail.parentFolder );
+        if ( missedParentFileLeafs.indexOf( detail.parentFolder ) < 0 ) { missedParentFileLeafs.push( detail.parentFolder ); }
+
       } else {
 
         // thisDetailsParentFolder.totalCount ++;
@@ -1055,6 +1240,22 @@ function expandArray ( count: number ) : any[] {
       }
 
 
+      /***
+       *                       db    db d88888b d8888b. .d8888. d888888b  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
+       *           Vb          88    88 88'     88  `8D 88'  YP   `88'   .8P  Y8. 888o  88        `88'   888o  88 88'     .8P  Y8. 
+       *            `Vb        Y8    8P 88ooooo 88oobY' `8bo.      88    88    88 88V8o 88         88    88V8o 88 88ooo   88    88 
+       *    C8888D    `V.      `8b  d8' 88~~~~~ 88`8b     `Y8b.    88    88    88 88 V8o88         88    88 V8o88 88~~~   88    88 
+       *              .d'       `8bd8'  88.     88 `88. db   8D   .88.   `8b  d8' 88  V888        .88.   88  V888 88      `8b  d8' 
+       *            .dP           YP    Y88888P 88   YD `8888Y' Y888888P  `Y88P'  VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+       *           dP                                                                                                              
+       *                                                                                                                           
+       */
+
+      batchData.versionInfo = updateVersionInfo( batchData.versionInfo, detail );
+
+      /**
+       * User Duplicates
+       */
 
       /***
        *                       db    db .d8888. d88888b d8888b.      d8888b. d88888b d8888b. .88b  d88. .d8888. 
@@ -1069,6 +1270,8 @@ function expandArray ( count: number ) : any[] {
       if ( detail.uniquePerms === true ) { 
         batchData.uniqueInfo.uniqueRolls.push ( detail ) ;
         batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.uniqueRolls.push ( detail ) ;
+        batchData.uniqueInfo.summary = updateBucketSummary (batchData.uniqueInfo.summary , detail );
+        batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.summary = updateBucketSummary (batchData.userInfo.allUsers[ createUserAllIndex ].uniqueInfo.summary , detail );
       }
 
       /***
@@ -1221,8 +1424,6 @@ function expandArray ( count: number ) : any[] {
 
 
   batchData.userInfo.count = batchData.userInfo.allUsersIds.length;
-  batchData.sizeGB += ( batchData.size / 1e9 );
-  batchData.sizeLabel = getSizeLabel( batchData.size );
 
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d888888b db    db d8888b. d88888b d888888b d8b   db d88888b  .d88b.  
@@ -1236,15 +1437,11 @@ function expandArray ( count: number ) : any[] {
    */
   //Update batchData typesInfo
   batchData.typesInfo.types.map( docType => {
-    docType.sizeGB = docType.size/1e9;
-    docType.sizeLabel = getSizeLabel( docType.size );
-    docType.sizeP = docType.size / batchData.size * 100;
-    docType.countP = docType.count / batchData.count * 100;
-    docType.avgSize = docType.size/docType.count;
+
+    docType.avgSize = docType.summary.size/docType.summary.count;
     docType.maxSize = Math.max(...docType.sizes);
-    docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
-    docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
-    docType.sizeToCountRatio = docType.sizeP / docType.countP;
+    docType.avgSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+    docType.maxSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.maxSize) : '-';
 
   });
 
@@ -1253,14 +1450,14 @@ function expandArray ( count: number ) : any[] {
   //Modify each user's typesInfo
   batchData.userInfo.allUsers.map( user => {
     user.typesInfo.types.map( docType => {
-      docType.sizeGB = docType.size/1e9;
-      docType.sizeLabel = getSizeLabel( docType.size );
-      docType.sizeP = docType.size / user.createTotalSize * 100;
-      docType.countP = docType.count / user.createCount * 100;
-      docType.avgSize = docType.size/docType.count;
+      docType.summary.sizeGB = docType.summary.size/1e9;
+      docType.summary.sizeLabel = getSizeLabel( docType.summary.size );
+      docType.summary.sizeP = docType.summary.size / user.createTotalSize * 100;
+      docType.summary.countP = docType.summary.count / user.createCount * 100;
+      docType.avgSize = docType.summary.size/docType.summary.count;
       docType.maxSize = Math.max(...docType.sizes);
-      docType.avgSizeLabel = docType.count > 0 ? getSizeLabel(docType.avgSize) : '-';
-      docType.maxSizeLabel = docType.count > 0 ? getSizeLabel(docType.maxSize) : '-';
+      docType.avgSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.avgSize) : '-';
+      docType.maxSizeLabel = docType.summary.count > 0 ? getSizeLabel(docType.maxSize) : '-';
     });
     user.typesInfo.count = user.typesInfo.typeList.length;
   });
@@ -1300,6 +1497,56 @@ function expandArray ( count: number ) : any[] {
   // batchData.folderRanks = createFolderRanks( batchData.folderInfo.count );
   // let folderRanks = batchData.folderRanks;
 
+
+  
+
+  /***
+   *    d88888b d888888b d8b   db d888888b .d8888. db   db      .d8888. db   db  .d8b.  d8888b. d88888b d8888b. 
+   *    88'       `88'   888o  88   `88'   88'  YP 88   88      88'  YP 88   88 d8' `8b 88  `8D 88'     88  `8D 
+   *    88ooo      88    88V8o 88    88    `8bo.   88ooo88      `8bo.   88ooo88 88ooo88 88oobY' 88ooooo 88   88 
+   *    88~~~      88    88 V8o88    88      `Y8b. 88~~~88        `Y8b. 88~~~88 88~~~88 88`8b   88~~~~~ 88   88 
+   *    88        .88.   88  V888   .88.   db   8D 88   88      db   8D 88   88 88   88 88 `88. 88.     88  .8D 
+   *    YP      Y888888P VP   V8P Y888888P `8888Y' YP   YP      `8888Y' YP   YP YP   YP 88   YD Y88888P Y8888D' 
+   *                                                                                                            
+  * This section adds all shared items to the user' sharingInfo.items array
+  * It will also create a new profile if the sharing info is not part of the allUsers array already (not likely)                                                                                                     
+   */
+
+  let sharedNames = batchData.userInfo.allUsers.map( user => {
+    return user.sharedName;
+  });
+
+  cleanedItems.map( item => {
+
+    // return ;
+
+    if ( item.itemSharingInfo && item.itemSharingInfo.sharedEvents ) {
+
+      //get list of all sharedNames related to this item:
+      let itemSharedNames: string[] = [ item.authorShared ];
+      if ( item.authorShared !== item.editorShared ) { itemSharedNames.push( item.editorShared ) ; }
+      item.itemSharingInfo.sharedEvents.map( event => {
+        if ( itemSharedNames.indexOf( event.sharedBy ) < 0 ) { itemSharedNames.push( event.sharedBy ) ; }
+        if ( itemSharedNames.indexOf( event.sharedWith ) < 0 ) { itemSharedNames.push( event.sharedWith ) ; }
+      });
+
+      //Loop through all itemSharedNames and add this item to each user's shared Items, update summary
+
+      itemSharedNames.map( itemSharedName => {
+        let nameIndex = sharedNames.indexOf( itemSharedName );
+        if ( nameIndex < 0 ) {
+          batchData.userInfo.allUsers.push( createThisUser( item, -79, itemSharedName + '-???', itemSharedName )  );
+          nameIndex = sharedNames.length;
+          sharedNames.push( itemSharedName );
+        }
+        let sharedProfile = batchData.userInfo.allUsers[ nameIndex ];
+        sharedProfile.sharingInfo.sharedItems.push( item );
+        sharedProfile.sharingInfo.summary = updateBucketSummary (sharedProfile.sharingInfo.summary , item );
+      });
+    }
+
+  });
+
   batchData.userInfo.allUsers.map( user => {
     user.createTotalSizeGB = user.createTotalSize / 1e9;
     user.modifyTotalSizeGB = user.modifyTotalSize / 1e9;
@@ -1308,13 +1555,17 @@ function expandArray ( count: number ) : any[] {
     user.summary.count = user.createCount;
     user.summary.sizeGB = user.summary.size / 1e9;
 
-    user.summary = updateBucketSummaryPercents( user.summary, batchData);
+    user.summary = updateBucketSummaryPercents( user.summary, batchData.summary );
 
     user.large.summary = updateBucketSummaryPercents( user.large.summary, user.summary );
 
     user.oldCreated.summary = updateBucketSummaryPercents( user.oldCreated.summary, user.summary );
 
     user.oldModified.summary = updateBucketSummaryPercents( user.oldModified.summary, user.summary );
+
+    user.duplicateInfo.summary = updateBucketSummaryPercents( user.duplicateInfo.summary, user.summary );
+
+    user.uniqueInfo.summary = updateBucketSummaryPercents( user.uniqueInfo.summary, user.summary );
 
     allUserCreateSize.push( user.createTotalSize );
     allUserCreateCount.push( user.createCount );
@@ -1351,6 +1602,21 @@ function expandArray ( count: number ) : any[] {
 
   });
 
+  let foundParentsAfter: string[] = [];
+  let missedParentsAfter: string[] = [];
+  missedParentFileLeafs.map( ( ref , index )=> {
+    if ( foundParentFileLeafs.indexOf( ref ) < 0 ) {
+      missedParentsAfter.push( `${index}: ${ref}` );
+    } else  {
+      foundParentsAfter.push( `${index}: ${ref}` );
+    }
+  });
+  console.log( 'missedParentFileLeafs:', missedParentFileLeafs );
+  console.log( 'foundParentFileLeafs:', foundParentFileLeafs );
+  console.log( 'foundParentsAfter:', foundParentsAfter );
+  console.log( 'missedParentsAfter:', missedParentsAfter );
+
+
   /***
    *                       d88888b d888888b d8b   db d888888b .d8888. db   db      d8888b. d888888b  d888b       d8888b.  .d8b.  d888888b  .d8b.  
    *           Vb          88'       `88'   888o  88   `88'   88'  YP 88   88      88  `8D   `88'   88' Y8b      88  `8D d8' `8b `~~88~~' d8' `8b 
@@ -1362,8 +1628,10 @@ function expandArray ( count: number ) : any[] {
    *                                                                                                                                              
    */
 
-  bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData);
-  oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData);
+  bigData.summary = updateBucketSummaryPercents( bigData.summary, batchData.summary);
+  oldData.summary = updateBucketSummaryPercents( oldData.summary, batchData.summary);
+  batchData.duplicateInfo.summary = updateBucketSummaryPercents( batchData.duplicateInfo.summary, batchData.summary );
+  batchData.uniqueInfo.summary = updateBucketSummaryPercents( batchData.uniqueInfo.summary, batchData.summary );
 
   batchData.folderInfo.folders.map( folder => {
     folder.sizeMB = folder.size / 1e6;
@@ -1382,40 +1650,20 @@ function expandArray ( count: number ) : any[] {
    */
   allNameItems.map( dup => {
     if ( dup.summary.count > 1 ) {
-      dup.summary.sizeGB = dup.summary.size/1e9;
-      dup.summary.sizeLabel = getSizeLabel( dup.summary.size );
-      dup.summary.sizeP = dup.summary.size / batchData.size * 100;
-      dup.summary.countP = dup.summary.count / batchData.count * 100;
       batchData.duplicateInfo.duplicateNames.push( dup.name ) ;
       batchData.duplicateInfo.duplicates.push( dup ) ;
     }
   });
 
-/***
- *                       d8888b. d88888b d888888b db    db d8888b. d8b   db      d888888b d8b   db d88888b  .d88b.  
- *           Vb          88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88        `88'   888o  88 88'     .8P  Y8. 
- *            `Vb        88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88         88    88V8o 88 88ooo   88    88 
- *    C8888D    `V.      88`8b   88~~~~~    88    88    88 88`8b   88 V8o88         88    88 V8o88 88~~~   88    88 
- *              .d'      88 `88. 88.        88    88b  d88 88 `88. 88  V888        .88.   88  V888 88      `8b  d8' 
- *            .dP        88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P      Y888888P VP   V8P YP       `Y88P'  
- *           dP                                                                                                     
- *                                                                                                                  
- */
-  let analyzeEnd = new Date();
-  let endMs2 = analyzeEnd.getTime();
-  let analyzeMs = endMs2 - startMs2;
-
-  let fetchMs = 0;
-  let totalLength = 0;
-  batches.map ( batch => { 
-    fetchMs += batch.duration;
-    totalLength += batch.items.length;
-  });
 
   let currentUserAllIndex = batchData.userInfo.allUsersIds.indexOf( currentUser.Id );
   if ( currentUserAllIndex < 0 ) {
     //User was not created based on content... create a user profile in memory:
-    let currentUserObj = createThisUser( null, currentUser.Id, currentUser.Title ) ;
+    let currentUserId = currentUser ? currentUser.Id : 'TBD-Id';
+    let currentUserTitle = currentUser ? currentUser.Title : 'TBD-Title';
+    let currentUserName = !currentUser  ? 'TBD-Name' : currentUser.Name ? currentUser.Name  : currentUser.LoginName ;
+
+    let currentUserObj = createThisUser( null, currentUserId, currentUserTitle, currentUserName ) ;
     batchData.userInfo.count ++;
 
     currentUserObj.createSizeRank = batchData.userInfo.count - 1;
@@ -1438,17 +1686,50 @@ function expandArray ( count: number ) : any[] {
 
   }
 
-  batchData.significance = batchData.count > 0 ? batchData.count / batchData.totalCount : 0 ;
+  batchData.significance = batchData.summary.count > 0 ? batchData.summary.count / batchData.totalCount : 0 ;
   if ( batchData.significance > .95 ) { batchData.isSignificant = true ; }
 
   batchData.userInfo.currentUser = batchData.userInfo.allUsers [ currentUserAllIndex ];
   batchData.items = cleanedItems;
 
+  let fetchTime = new Date();
+
+  
+  /***
+   *                       d8888b. d88888b d888888b db    db d8888b. d8b   db      d888888b d8b   db d88888b  .d88b.  
+   *           Vb          88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88        `88'   888o  88 88'     .8P  Y8. 
+   *            `Vb        88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88         88    88V8o 88 88ooo   88    88 
+   *    C8888D    `V.      88`8b   88~~~~~    88    88    88 88`8b   88 V8o88         88    88 V8o88 88~~~   88    88 
+   *              .d'      88 `88. 88.        88    88b  d88 88 `88. 88  V888        .88.   88  V888 88      `8b  d8' 
+   *            .dP        88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P      Y888888P VP   V8P YP       `Y88P'  
+   *           dP                                                                                                     
+   *                                                                                                                  
+   */
+  let analyzeEnd = new Date();
+  let endMs2 = analyzeEnd.getTime();
+  let analyzeMs = endMs2 - startMs2;
+
+  let fetchMs = 0;
+  let totalLength = 0;
+  batches.map ( batch => { 
+    fetchMs += batch.duration;
+    totalLength += batch.items.length;
+  });
+
+  batchData.analytics = {
+    fetchMs: fetchMs,
+    analyzeMs: analyzeMs,
+    fetchTime: fetchTime.toLocaleString(),
+    fetchDuration: getCountLabel( fetchMs / ( 1000 * 60 ), 2 ) + ' minutes',
+    analyzeDuration: ( analyzeMs / 1000 ).toFixed(4) + ' seconds',
+    count: batchData.summary.count,
+    msPerAnalyze: batchData.summary.count > 0 ?( analyzeMs / batchData.summary.count ) : null,
+    msPerFetch: batchData.summary.count > 0 ?( fetchMs / batchData.summary.count ) : null,
+  };
+
   let batchInfo = {
     batches: batches,
     batchData: batchData,
-    fetchMs: fetchMs,
-    analyzeMs: analyzeMs,
     totalLength: totalLength,
     userInfo: userInfo,
   };
@@ -1486,12 +1767,58 @@ function expandArray ( count: number ) : any[] {
   let createYr = created.getFullYear();
   let modYr = modified.getFullYear();
 
+  let createMs = created.getTime();
+  let modMs = modified.getTime();
+
   let isCurrentUser = item.AuthorId === currentUser.Id ? true : false;
   isCurrentUser = item.EditorId === currentUser.Id ? true : isCurrentUser;
+  isCurrentUser = item.CheckoutUserId === currentUser.Id ? true : isCurrentUser;
+
+  let checkedOutCurrentUser = item.CheckoutUserId  && item.CheckoutUserId === currentUser.Id ? true : false;
+
   let size = item.FileSizeDisplay ? parseInt(item.FileSizeDisplay) : 0;
 
   let parentFolder =  item.FileRef.substring(0, item.FileRef.lastIndexOf('/') );
   let localFolder = `/${ parentFolder.replace( LibraryUrl, '' )}`;
+
+  /**
+   * User Name styles:
+   * For team:  i:0#.f|membership|first.last@tenantDomain.com
+   * For SPO site member:  i:0#.f|eu\\first.last
+   */
+  let authorSharedSplit = item.Author && item.Author.Name ? item.Author.Name.split('|') : [];
+  let editorSharedSplit = item.Editor && item.Editor.Name ? item.Editor.Name.split('|') : [];
+
+  let authorShared = authorSharedSplit.length > 0 ? authorSharedSplit[ authorSharedSplit.length -1 ].replace( domainEmail, '' ) : '';
+  let editorShared = editorSharedSplit.length > 0 ? editorSharedSplit[ editorSharedSplit.length -1 ].replace( domainEmail, '' ) : '';
+
+  let createdDateString: any = created.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
+  let modifiedDateString: any = modified.toLocaleDateString();  //This needs to be type any to merge with IKnownMeta
+
+  let meta : IKnownMeta[] = [ item.Author.Title, item.Editor.Title, createdDateString ];
+
+  if ( authorShared !== '' && meta.indexOf( authorShared ) < 0 ) { meta.push( authorShared ) ; }
+  if ( editorShared !== '' && meta.indexOf( editorShared ) < 0 ) { meta.push( editorShared ) ; }
+
+  let versionString = item['OData__UIVersionString'];
+  let version = item['OData__UIVersion'];
+
+  if ( createMs !== modMs ) { meta.push( modifiedDateString ) ; }
+
+  if ( version === 512 ) { meta.push( 'SingleVerion' ) ; }
+
+  let versionBucketLabel : IVersionBucketLabel= null;
+  let versionBucket = null;
+
+  if ( version === 512 ) { versionBucketLabel = '1.0' ; versionBucket = 1; meta.push( '1.0' ); }
+  else if ( version < 512 ) { versionBucketLabel = 'IsDraft' ; versionBucket = 0; meta.push( 'IsDraft' );  }
+  else if ( version >= 256000 ) { versionBucketLabel = '>=500' ; versionBucket = 500; meta.push( '>=500' );  }
+  else if ( version >= 51200 ) { versionBucketLabel = '>=100' ; versionBucket = 100; meta.push( '>=100' );  }
+  else if ( version >= 513 ) { versionBucketLabel = '>1.0' ; versionBucket = 1.1; meta.push( '>1.0' );  }
+
+  if ( versionString.lastIndexOf('.0') === versionString.length -2 ) {
+    meta.push( 'IsMajor' ) ;
+  } else if ( version > 512 ) { meta.push( 'IsMinor' ) ; }
 
   let itemDetail: IItemDetail = {
     batch: batchIndex, //index of the batch in state.batches
@@ -1506,9 +1833,14 @@ function expandArray ( count: number ) : any[] {
     authorTitle: item.Author.Title,
     editorTitle: item.Editor.Title,
     authorName: item.Author.Name,
+    authorShared: authorShared,
+    editorShared: editorShared,
     editorName: item.Editor.Name,
     parentFolder: parentFolder,
     localFolder: localFolder,
+
+    checkedOutId: item.CheckoutUserId ? item.CheckoutUserId : null,
+    checkedOutCurrentUser: checkedOutCurrentUser,
 
     FileLeafRef: item.FileLeafRef,
     FileRef: item.FileRef,
@@ -1521,11 +1853,11 @@ function expandArray ( count: number ) : any[] {
     createYr: createYr,
     modYr: modYr,
     bucket: `${createYr}-${modYr}`,
-    createMs: created.getTime(),
-    modMs: modified.getTime(),
+    createMs: createMs,
+    modMs: modMs,
 
-    whichWasFirst: created.getTime() > modified.getTime() ? 'modfied' : 'created',
-    whichWasFirstDays: ( ( modified.getTime() - created.getTime() ) / msPerDay ).toPrecision(4),
+    whichWasFirst: createMs > modMs ? 'modfied' : 'created',
+    whichWasFirstDays: ( ( modMs - createMs ) / msPerDay ).toPrecision(4),
 
     ContentTypeId: item.ContentTypeId,
     ContentTypeName: '',
@@ -1533,27 +1865,60 @@ function expandArray ( count: number ) : any[] {
     iconColor: '',
     iconName: '',
     iconTitle: '',
-    version: item['OData__UIVersion'],
-    versionlabel: item['OData__UIVersionString'],
+    iconSearch: '',
+    meta: meta,
+    version: {
+      number: version,
+      string: versionString,
+      bucket: versionBucket,
+      bucketLabel: versionBucketLabel,
+    },
+
     isMedia: false,
   };
 
+  meta = itemDetail.meta;
+  if ( item.FileLeafRef === 'Unshared file in SubFolder shared with Pablo.pptx' ) {
+    debugger;
+  }
 
-  if ( item.CheckoutUserId ) { itemDetail.checkedOutId = item.CheckoutUserId; }
-  if ( item.HasUniqueRoleAssignments ) { itemDetail.uniquePerms = item.HasUniqueRoleAssignments; }
+  if ( item.CheckoutUserId ) { itemDetail.meta.push( 'CheckedOut' ) ; }
+  if ( itemDetail.checkedOutCurrentUser === true ) { itemDetail.meta.push( 'CheckedOutToYou' ) ; }
+
+  if ( item.HasUniqueRoleAssignments === true ) { 
+    itemDetail.uniquePerms = item.HasUniqueRoleAssignments;
+    if ( itemDetail.uniquePerms === true ) { meta.push( 'UniquePermissions') ; }
+   }
   if ( item.FileSystemObjectType === 1 ) { itemDetail.isFolder = true; }
 
+  if ( item.SharedWithDetails || item.SharedWithUsers || item.sharedEvents ) {
+    itemDetail.itemSharingInfo = {
+      sharedEvents: item.sharedEvents ? item.sharedEvents : [],
+      SharedWithUsers: item.SharedWithUsers ? item.SharedWithUsers : [],
+      FileRef: itemDetail.FileRef ,
+      FileLeafRef: itemDetail.FileLeafRef ,
+      FileSystemObjectType: item.FileSystemObjectType ,
+      id: itemDetail.id,
+
+      iconName: '',
+      iconColor: '',
+      iconTitle: '',
+    
+      iconSearch: '', //Tried removing this but it caused issues with the auto-create title icons in Items.tsx so I'm adding it back.
+      meta: itemDetail.meta,
+      // SharedWithDetails: null,
+    };
+    meta.push( 'WasShared' ) ;
+  }
+
   if ( dataOptions.useMediaTags === true ) {
-    // itemDetail.MediaServiceAutoTags = item.MediaServiceAutoTags;
-    // itemDetail.MediaServiceLocation = item.MediaServiceLocation;
-    // itemDetail.MediaServiceOCR = item.MediaServiceOCR;
-    // itemDetail.MediaServiceKeyPoints = item.MediaServiceKeyPoints;
-    // itemDetail.MediaLengthInSeconds = item.MediaLengthInSeconds;
-    ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'].map( key => {
+    let mediaTabs: IKnownMeta[] = ['MediaServiceAutoTags','MediaServiceLocation','MediaServiceOCR','MediaServiceKeyPoints','MediaLengthInSeconds'];
+    mediaTabs.map( key => {
       let keyProp = item[ key ];
       if ( keyProp && keyProp.length > 0 ) {  //Removed !== null because on WebPartDev Teams drag and drop it errored out.
         itemDetail[ key ] = keyProp;
         itemDetail.isMedia = true ;
+        itemDetail.meta.push( key );
       } else { itemDetail[ key ] = null ; }
     });
   }
@@ -1565,18 +1930,34 @@ function expandArray ( count: number ) : any[] {
     itemDetail.iconName = iconInfo.iconName; 
     itemDetail.iconColor = iconInfo.iconColor;   
     itemDetail.iconTitle = iconInfo.iconTitle;   
+    itemDetail.iconSearch = iconInfo.iconSearch;
+    itemDetail.meta.push( iconInfo.iconSearch );
 
   } else if ( itemDetail.isFolder === true ) {
 
-    itemDetail.docIcon = 'folder'; 
+    itemDetail.docIcon = 'Type:Folder'; 
     itemDetail.iconName = 'OpenFolderHorizontal'; 
     itemDetail.iconColor = 'black';  
     itemDetail.iconTitle = 'Folder'; 
+    itemDetail.iconSearch = 'Type:Folder'; 
+    itemDetail.meta.push( 'Type:Folder' );
   }
+
+  if ( itemDetail.itemSharingInfo ) {
+    itemDetail.itemSharingInfo.iconName = itemDetail.iconName;
+    itemDetail.itemSharingInfo.iconColor = itemDetail.iconColor;
+    itemDetail.itemSharingInfo.iconTitle = itemDetail.iconTitle;
+    itemDetail.itemSharingInfo.iconSearch = itemDetail.iconSearch;
+
+  }
+
+  itemDetail.meta.push( item.DocIcon );
 
   return itemDetail;
 
  }
+
+
 
  /***
  *     d888b  d88888b d888888b      d888888b  .o88b.  .d88b.  d8b   db      d888888b d8b   db d88888b  .d88b.  
@@ -1590,9 +1971,12 @@ function expandArray ( count: number ) : any[] {
  */
  function getFileTypeIconInfo( ext: string) {
 
+  let anyExt : any = ext;
   let iconColor = 'black';
   let iconName = ext;
-  let iconTitle =  ext;
+  let iconTitle = ext;
+  let iconSearch: IKnownMeta = anyExt;
+
   switch (ext) {
     case 'xls':
     case 'xlsm':
@@ -1600,12 +1984,14 @@ function expandArray ( count: number ) : any[] {
     case 'xlsx':
       iconColor = 'darkgreen';
       iconName = 'ExcelDocument';
+      iconSearch = 'Type:Excel';
       break;
 
     case 'doc':
     case 'docx':
       iconColor = 'darkblue';
       iconName = 'WordDocument';
+      iconSearch = 'Type:Word';
       break;
 
     case 'ppt':
@@ -1613,27 +1999,32 @@ function expandArray ( count: number ) : any[] {
     case 'pptm':
       iconColor = 'firebrick';
       iconName = 'PowerPointDocument';
+      iconSearch = 'Type:PowerPoint';
       break;
 
     case 'pdf':
       iconColor = 'red';
+      iconSearch = 'Type:pdf';
       break;
 
     case 'one':
     case 'onepkg':
       iconColor = 'purple';
       iconName = 'OneNoteLogo';
+      iconSearch = 'Type:OneNote';
       break;
 
     case 'msg':
       iconColor = 'blue';
       iconName = 'OutlookLogo';
+      iconSearch = 'Type:Outlook';
       break;
 
     case '7z':
     case 'zip':
       iconColor = 'blue';
       iconName = 'ZipFolder';
+      iconSearch = 'Type:Zipped';
       break;
 
     case 'avi':
@@ -1643,11 +2034,7 @@ function expandArray ( count: number ) : any[] {
     case 'wmv':
       iconColor = 'dimgray';
       iconName = 'MSNVideosSolid';
-      break;
-
-    case 'msg':
-      iconColor = 'blue';
-      iconName = 'Microphone';
+      iconSearch = 'Type:Movie';
       break;
 
     case 'png':
@@ -1656,23 +2043,27 @@ function expandArray ( count: number ) : any[] {
     case 'jpeg':
       iconColor = 'blue';
       iconName = 'Photo2';
+      iconSearch = 'Type:Image';
       break;
 
     case 'txt':
     case 'csv':
       iconName = 'TextDocument';
+      iconSearch = 'Type:Text';
       break;
 
     case 'dwg':
       iconName = 'PenWorkspace';
+      iconSearch = 'Type:Dwg';
       break;
 
     default:
       iconName = 'FileTemplate';
+      iconSearch = 'Type:File';
       break;
   }
 
-  return { iconName: iconName, iconColor: iconColor, iconTitle: iconTitle };
+  return { iconName: iconName, iconColor: iconColor, iconTitle: iconTitle, iconSearch: iconSearch };
 
  }
 

@@ -44,6 +44,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { getSiteInfo, getWebInfoIncludingUnique } from '@mikezimm/npmfunctions/dist/Services/Sites/getSiteInfo';
 import { cleanURL, encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { getCurrentUser } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
@@ -66,9 +67,13 @@ import { IWebpartBannerProps, } from "./HelpInfo/banner/bannerProps";
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
+import ExVersions from './pages/versions/ExVersions';
 import ExSize from './pages/size/ExSize';
 import ExAge from './pages/age/ExAge';
 import ExDups from './pages/dups/ExDups';
+import EsItems from './pages/items/EsItems';
+import { nothingToShow } from './pages/miniComps/components';
+
 import { saveAnalytics2 } from '@mikezimm/npmfunctions/dist/Services/Analytics/analytics2';
 import { IZLoadAnalytics, IZSentAnalytics, } from '@mikezimm/npmfunctions/dist/Services/Analytics/interfaces';
 
@@ -94,7 +99,10 @@ const pivotHeading6 = 'You';
 const pivotHeading7 = 'Perms';
 const pivotHeading8 = 'Dups';
 const pivotHeading9 = 'Folders';
-const pivotHeading10 = 'Timeline';
+const pivotHeading10 = 'Sharing';
+const pivotHeading14 = 'Versions';
+const pivotHeading12 = 'All items';
+const pivotHeading11 = 'Timeline';
 
 const mainGridColumns: IGridColumns = {
   dateColumn: 'Modified',
@@ -103,7 +111,7 @@ const mainGridColumns: IGridColumns = {
   valueOperators: ['Sum','Count','Avg'],
   dropDownColumns: ['+authorTitle','+editorTitle','+docIcon'],
   searchColumns: ['FileLeafRef'], 
-  metaColumns: [], 
+  metaColumns: ['meta'], 
 };
 
 
@@ -111,7 +119,7 @@ export default class ExStorage extends React.Component<IExStorageProps, IExStora
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
-  
+
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -184,7 +192,7 @@ public constructor(props:IExStorageProps){
         
         dropDownLabels: [],
         dropDownIndex: 0,
-        dropDownText: 'Oops!  No Libraries was found',
+        dropDownText: 'Oops!  No Libraries were found',
 
         loadProperties: null,
 
@@ -215,7 +223,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   } else {
 
-    pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', false, ' > GenWP.tsx ~ 825', 'BaseErrorTrace' );
+    pickedWeb = await getWebInfoIncludingUnique( webUrl, 'min', true, 'ExStorage.tsx ~ 226', 'BaseErrorTrace' );
 
     errMessage = pickedWeb.error;
     if ( pickedWeb.error && pickedWeb.error.length > 0 ) {
@@ -223,7 +231,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
     }
   
-    theSite = await getSiteInfo( webUrl, false, ' > GenWP.tsx ~ 831', 'BaseErrorTrace' );
+    theSite = await getSiteInfo( webUrl, true, 'ExStorage.tsx ~ 226', 'BaseErrorTrace' );
 
   }
 
@@ -258,7 +266,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   let areSystemLists = SystemLists.join(',').toLowerCase().split(',');
 
-  allLists.map( list => {
+  allLists.map( ( list, index ) => {
+    console.log('working on list: ', index, list.Title, list.Id, list.guid );
     let isSystemList = areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
     if ( areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1  ) { isSystemList = true; }
 
@@ -297,16 +306,23 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       list.maxYear = maxYear;
 
       pickLists.push( list );
-      dropDownLabels.push( list.Title );
+      // let thisDropDownText = `${list.Title} ${list.ItemCount}`;
+      let thisDropDownText = `${list.Title}`;
+      dropDownLabels.push( thisDropDownText );
 
       if ( list.Title === this.state.listTitle ) { 
         theList = list ;
         dropDownIndex = dropDownLabels.length -1;
-        dropDownText = list.Title;
+        dropDownText = thisDropDownText;
       }   
     }
   });
 
+  if ( !theList ) {
+    alert('Did not find the list: ' + this.state.listTitle );
+    console.log('Title, state.lists', pickLists, this.state.listTitle, );
+  }
+  console.log('dropDownText', dropDownIndex, dropDownText );
   console.log('allLists', allLists );
   console.log('pickLists', pickLists );
 
@@ -328,7 +344,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
   // let theList: IEXStorageList = await listObject.select( listSelect ).get();
   // let theList: IEXStorageList = await thisWebInstance.lists.getByTitle(this.state.listTitle).get();
 
-  let currentUser = this.props.currentUser === null ? await this.getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
+  let currentUser = this.props.currentUser === null ? await getCurrentUser( this.props.parentWeb ) : this.props.currentUser;
 
   //Automatically kick off if it's under 5k items
   if ( theList.ItemCount > 0 && theList.ItemCount < 5000 ) {
@@ -438,25 +454,36 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     let typesPivotContent = <div>
       <ExTypes 
-  
-          //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-          WebpartHeight = { this.props.WebpartHeight }
-          WebpartWidth = { this.props.WebpartWidth }
-      
-          pickedWeb  = { this.state.pickedWeb }
-          pickedList = { this.state.pickedList }
-          theSite = {null }
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+    
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
 
-          typesInfo = { batchData.typesInfo }
-          batches = { batches }
-          batchData = { batchData }
-                        
-          heading = { '' }
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
 
-          dataOptions = { this.props.dataOptions }
-          uiOptions = { this.props.uiOptions }
+        typesInfo = { batchData.typesInfo }
+        batches = { batches }
+        batchData = { batchData }
+                      
+        refreshId = { this.state.refreshId }
+
+        heading = { '' }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        columns = { this.state.mainGridColumns }
+        gridStyles = { this.props.gridStyles }
       >
-      </ExTypes></div>;
+    </ExTypes></div>;
 
     let usersPivotContent = null;
     
@@ -561,12 +588,6 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
         </ExUser>
       </div>;
 
-    let permsPivotContent = <div><div>
-      <h3>Summary of files with broken permissions</h3>
-      </div>
-        <ReactJson src={ batchData.uniqueInfo.uniqueRolls} name={ 'Broken Permissions' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
-
     let dupsPivotContent = <div>
       <ExDups
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -589,15 +610,142 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       >
       </ExDups></div>;
 
-    let folderPivotContent = <div><div>
-      <h3>Summary of Folders</h3>
-      </div>
-        <ReactJson src={ batchData.folderInfo.folders} name={ 'Folders' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-      </div>;
+    let permsPivotContent = batchData.uniqueInfo.summary.count === 0 ? nothingToShow('All item permissions') : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { batchData.uniqueInfo.uniqueRolls }
+        itemsAreDups = { false }
+        itemsAreFolders = { false }
+        duplicateInfo = { null }
+        heading = { ` with unique permissions` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        sharedItems = { [] }
+
+        itemType = { 'Items' }
+
+        >
+      </EsItems>;
+
+    let sharingPivotContent = batchData.sharingInfo.summary.count === 0 ? nothingToShow('All item sharing') : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { [] }
+        itemsAreDups = { false }
+        itemsAreFolders = { false }
+        duplicateInfo = { null }
+
+        heading = { ` Sharing Events` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        
+        itemType = { 'Shared' }
+
+        sharedItems = { batchData.sharingInfo.sharedItems }
+
+        >
+      </EsItems>;
+
+      let versionContent = <div>
+      <ExVersions 
+        pageContext = { this.props.pageContext }
+        wpContext = { this.props.wpContext }
+        tenant = { this.props.tenant }
+    
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartElement = { this.props.WebpartElement }
+
+        //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+        WebpartHeight = { this.props.WebpartHeight }
+        WebpartWidth = { this.props.WebpartWidth }
+    
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        versionInfo = { batchData.versionInfo }
+        batchData = { batchData }
+
+        heading = { '' }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        columns = { this.state.mainGridColumns }
+        gridStyles = { this.props.gridStyles }
+      >
+    </ExVersions></div>;
+
+      let itemsContent = !this.state.pickedList ? nothingToShow('All item versions') : <EsItems 
+
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { this.state.batchData.items }
+        itemsAreDups = { false }
+        itemsAreFolders = { false }
+        duplicateInfo = { null }
+        heading = { `From Library ${ this.state.pickedList.Title }` }
+        // batches = { batches }
+        icons = { [] }
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+
+        sharedItems = { [] }
+
+        itemType = { 'Items' }
+
+        >
+      </EsItems>;
+
+    let folderPivotContent = batchData.folderInfo.count === 0 ? nothingToShow('No folders found!') : 
+      <EsItems 
+        pickedWeb  = { this.state.pickedWeb }
+        pickedList = { this.state.pickedList }
+        theSite = {null }
+
+        items = { batchData.folderInfo.folders }
+        itemsAreDups = { false }
+        itemsAreFolders = { true }
+        duplicateInfo = { null }
+        heading = { ` with unique permissions` }
+        // batches = { batches }
+        icons = { [] }
+
+        showHeading = { true } // false because we are putting a heading above the pivot items
+
+        dataOptions = { this.props.dataOptions }
+        uiOptions = { this.props.uiOptions }
+        
+        itemType = { 'Items' }
+
+        sharedItems = { [] }
+
+        >
+      </EsItems>;
 
     let summaryPivot = createBatchSummary( this.state.batchData );
 
-    let gridPivotContent = !this.state.isLoaded || this.state.batchData.count === 0 ? null : 
+    let gridPivotContent = !this.state.isLoaded || this.state.batchData.summary.count === 0 ? nothingToShow('No items to show on the timeline') : 
       <Gridcharts
 
         items = { this.state.batchData.items }
@@ -701,6 +849,18 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       </PivotItem>
 
       <PivotItem headerText={ pivotHeading10 } ariaLabel={pivotHeading10} title={pivotHeading10} itemKey={ pivotHeading10 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { sharingPivotContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading14 } ariaLabel={pivotHeading14} title={pivotHeading14} itemKey={ pivotHeading14 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { versionContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading12 } ariaLabel={pivotHeading12} title={pivotHeading12} itemKey={ pivotHeading12 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
+        { itemsContent }
+      </PivotItem>
+
+      <PivotItem headerText={ pivotHeading11 } ariaLabel={pivotHeading11} title={pivotHeading11} itemKey={ pivotHeading11 } keytipProps={ { content: 'Hello', keySequences: ['a','b','c'] } }>
         { gridPivotContent }
       </PivotItem>
 
@@ -783,7 +943,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
           { sliderYearComponent }
           { sliderCountComponent }
           { this.state.isLoading ? 
-              <div>
+              <div style={{ height: '200px', padding: '50px 25px 25px 25px' }}>
                 { loadingNote }
                 { searchSpinner }
                 { myProgress }
@@ -962,7 +1122,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       errorMessage: '',
       isLoaded: false,
     });
-    getSearchedFiles( this.props.tenant, pickedList, true);
+    // getSearchedFiles( this.props.tenant, pickedList, true);
     getStorageItems( pickedWeb, pickedList, getCount, currentUser, this.props.dataOptions, this.addTheseItemsToState.bind(this), this.setProgress.bind(this) );
 
   }
@@ -1023,10 +1183,10 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let zzzRichText2 = null;
     let zzzRichText3 = null;
 
-    let filePercent = batchData.totalCount > 0  ? 100 * batchData.count / batchData.totalCount : null;
+    let filePercent = batchData.totalCount > 0  ? 100 * batchData.summary.count / batchData.totalCount : null;
     let hasSignificantData = batchData.isSignificant;
 
-    if ( batchData.count > 0) {
+    if ( batchData.summary.count > 0) {
       zzzRichText1 = {};
       let saveSummaryObjects = [ 'large','oldCreated','oldModified', 'folderInfo', 'duplicateInfo' ];
       saveSummaryObjects.map( objKey => {
@@ -1039,7 +1199,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       batchData.typesInfo.types.map( type => {
         let smallType : any = {};
         Object.keys( type ).map( key => {
-          let skipTypesKeys = [ 'items', 'createdMs', 'sizes' ];
+          let skipTypesKeys = [ 'items', 'createdMs', 'sizes', 'versionInfo' ];
           //Skip modifiedMs if there are lots of items to avoid memory issue per column
           /**
            * During testing, found that 41,000 items in 60 items: 
@@ -1048,7 +1208,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
            * Therefore to be safe, the number of item ModifiedMS that could safely be saved would be
            *  ( 800k / 595k ) * 41k items = 
            */
-          if ( batchData.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
+          if ( batchData.summary.count > 55000 ) { skipTypesKeys.push('modifiedMs') ; }
           if ( skipTypesKeys.indexOf( key ) < 0 ) { smallType[ key ] = type[ key ] ; }
         });
         zzzRichText2[ 'typesInfo' ]['types'].push( smallType );
@@ -1067,8 +1227,9 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     if ( zzzRichText2 ) { zzzRichText2 = JSON.stringify( zzzRichText2 ); }
     if ( zzzRichText3 ) { zzzRichText3 = JSON.stringify( zzzRichText3 ); }
 
-    let msPerFetch = batchData.count > 0 ?( batchInfo.fetchMs / batchData.count ) : null;
-    let msPerAnalyze = batchData.count > 0 ?( batchInfo.analyzeMs / batchData.count ) : null;
+    console.log('zzzRichText1 length:', zzzRichText1 ? zzzRichText1.length : 0 );
+    console.log('zzzRichText2 length:', zzzRichText2 ? zzzRichText2.length : 0 );
+    console.log('zzzRichText3 length:', zzzRichText3 ? zzzRichText3.length : 0 );
 
     let saveObject: IZSentAnalytics = {
       loadProperties: this.state.loadProperties,
@@ -1077,7 +1238,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     
       Result: 'Success',  //Success or Error
     
-      zzzText1: `${ batchData.count } of ${ batchData.totalCount } files [ ${ filePercent.toPrecision(2) } % ] = [ ${ getSizeLabel( batchData.size ) } ]`, //Start-Now in some webparts
+      zzzText1: `${ batchData.summary.count } of ${ batchData.totalCount } files [ ${ filePercent.toPrecision(2) } % ] = [ ${ getSizeLabel( batchData.summary.size ) } ]`, //Start-Now in some webparts
       zzzText2: `${ hasSignificantData === true ? 'Significant' : 'Insignificant'}`, //Start-TheTime in some webparts
       zzzText3: ``, //Info1 in some webparts.  Simple category defining results.   Like Unique / Inherited / Collection
       zzzText4: ``, //Info2 in some webparts.  Phrase describing important details such as "Time to check old Permissions: 86 snaps / 353ms"
@@ -1086,12 +1247,12 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       zzzText7: `zzzRichText1: ${zzzRichText1 ? zzzRichText1.length : 'na'} zzzRichText2: ${zzzRichText2 ? zzzRichText2.length : 'na'} zzzRichText3: ${zzzRichText3 ? zzzRichText3.length : 'na'}`,
     
       zzzNumber1: batchInfo.totalLength,
-      zzzNumber2: batchInfo.fetchMs,
-      zzzNumber3: batchInfo.analyzeMs,
-      zzzNumber4: batchData.sizeGB,
+      zzzNumber2: batchData.analytics.fetchMs,
+      zzzNumber3: batchData.analytics.analyzeMs,
+      zzzNumber4: batchData.summary.sizeGB,
       zzzNumber5: filePercent,
-      zzzNumber6: msPerFetch,
-      zzzNumber7: msPerAnalyze,
+      zzzNumber6: batchData.analytics.msPerFetch,
+      zzzNumber7: batchData.analytics.msPerAnalyze,
     
       zzzRichText1: zzzRichText1,  //Used to store JSON objects for later use, will be stringified
       zzzRichText2: zzzRichText2,
@@ -1117,31 +1278,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   }
 
-
-  public async getCurrentUser( webURL: string): Promise<IUser> {
-    let currentUser : IUser =  null;
-    let thisWebInstance = Web(webURL);
-    await thisWebInstance.currentUser.get().then((r) => {
-      currentUser = {
-        title: r['Title'] , //
-        Title: r['Title'] , //
-        initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
-        email: r['Email'] , //Single person column
-        id: r['Id'] , //
-        Id: r['Id'] , //
-        ID: r['Id'] , //
-        remoteID: null,
-        isSiteAdmin: r['IsSiteAdmin'],
-        LoginName: r['LoginName'],
-        Name: r['LoginName'],
-      };
-      // this.setState({ currentUser: currentUser });
-      
-    });
-    return currentUser;
-  }
-
-  
+ 
 // let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
 // this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
 
@@ -1188,9 +1325,9 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
           choices.map(val => {
 
             if ( val === this.state.dropDownText ) { 
-              // console.log(`_createDropdownField val MATCH: ${ val } `);
+              console.log(`_createDropdownField val MATCH: ${ val } `, this.state.dropDownText);
             } else {
-              // console.log(`_createDropdownField val: ${ val } `);
+              console.log(`_createDropdownField val: ${ val } `, this.state.dropDownText);
             }
               return {
                   key: getChoiceKey(val),

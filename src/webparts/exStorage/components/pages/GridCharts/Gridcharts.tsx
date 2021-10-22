@@ -868,6 +868,8 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
   
             items = { panelItems }
             itemsAreDups = { false }
+            itemsAreFolders = { false }
+
             duplicateInfo = { null }
             heading = { `${ this.props.esItemsHeading }` }
             // batches = { batches }
@@ -876,6 +878,10 @@ export default class Gridcharts extends React.Component<IGridchartsProps, IGridc
                           
             dataOptions = { this.props.dataOptions }
             uiOptions = { this.props.uiOptions }
+
+            sharedItems = { [] }
+            
+            itemType = { 'Items' }
             
           ></EsItems>
       </Panel></div>;

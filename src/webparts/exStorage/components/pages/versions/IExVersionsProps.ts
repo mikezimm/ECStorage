@@ -11,38 +11,39 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo } from '../../IExStorageState';
+import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, ITypeInfo, ILargeFiles, IVersionInfo } from '../../IExStorageState';
 
 import { IDataOptions, IUiOptions } from '../../IExStorageProps';
 
 import {  IGridStyles , IGridColumns} from '../GridCharts/IGridchartsProps';
 
-export interface IExTypesProps {
+export interface IExVersionsProps {
 
       // 0 - Context
-      wpContext: WebPartContext;
-      pageContext: PageContext;
+      // wpContext: WebPartContext;
+      // pageContext: PageContext;
 
-      WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+      // WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
-      tenant: string;
+      // tenant: string;
   
       theSite: ISite;
       pickedWeb : IPickedWebBasic;
       pickedList? : IEXStorageList;
   
-      // currentUser: IUser;
-  
-      typesInfo:  ITypeInfo;
-
-      batches: IEXStorageBatch[];
+      versionInfo: IVersionInfo;
       batchData: IBatchData;
 
-      heading: string;
+      wpContext: WebPartContext;
+      pageContext: PageContext;
+      WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+      tenant: string;
 
       WebpartHeight: number;
       WebpartWidth: number;
 
+      heading: string;
+      
       dataOptions: IDataOptions;
       uiOptions: IUiOptions;
 

@@ -28,6 +28,7 @@ import { basicsContent } from '../Content/Basics';
 import { tricksTable } from '../Content/Tricks';
 
 import { IWebpartBannerProps, IWebpartBannerState } from './bannerProps';
+import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
 
 const pivotStyles = {
 	root: {
@@ -73,9 +74,14 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 
 			let bannerTitle = this.props.title && this.props.title.length > 0 ? this.props.title : 'Extreme Storage Webpart';
+	
+			let bannerStyle: React.CSSProperties = this.createStyleFromString( this.props.style, { background: 'green' } );
+			if ( !bannerStyle.height ) { bannerStyle.height = '35px' ; }
+			if ( !bannerStyle.paddingLeft ) { bannerStyle.paddingLeft = '20px' ; }
+			if ( !bannerStyle.paddingRight ) { bannerStyle.paddingRight = '20px' ; }
 
 			let classNames = [ styles.container, styles.opacity, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
-			let bannerContent = <div className={ classNames } style={{ height: '35px', paddingLeft: '20px', paddingRight: '20px' }}>
+			let bannerContent = <div className={ classNames } style={ bannerStyle }>
 				<div> { bannerTitle } </div>
 				<div>More information</div>
 			</div>;
@@ -159,7 +165,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				>
 				{ panelContent }
 			</Panel></div>;
-	
+
 			return (
 				<div className={styles.bannerComponent} onClick={ this._openPanel.bind( this ) }>
 					{ bannerContent }
@@ -172,6 +178,28 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 
 	}
+
+	private createStyleFromString( styleString: string, fallback: React.CSSProperties ) {
+		let thisStyle: React.CSSProperties = {};
+
+		if ( !styleString || styleString === null || styleString === undefined ) {
+			return fallback;
+		}
+
+		try {
+				thisStyle = JSON.parse( styleString );
+
+		} catch(e) {
+			getHelpfullErrorV2( e, false, true, 'banner.component.tsx set styleString ~ 190 ');
+			console.log('Unable to understand this style string:', styleString + '' );
+			thisStyle = fallback;
+
+		}
+
+		return thisStyle;
+
+	}
+
 
 	public _selectedIndex = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.

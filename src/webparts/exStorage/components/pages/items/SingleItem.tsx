@@ -12,9 +12,15 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { getSizeLabel, getCountLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
+
 import { IItemDetail, IDuplicateFile } from '../../IExStorageState';
+
+import { createDetailsShareTable } from '../../Sharing/SharingElements2';
 import { getFocusableByIndexPath } from 'office-ui-fabric-react';
-  
+
+import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/ISharingInterface';
+
 const cellMaxStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   height: '15px',
@@ -41,6 +47,18 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
     rows.push( createRowFromItem( item, thisKey ) );
   });
 
+  if ( item.isFolder === true ) {
+    ['directCount','directSize','totalCount','totalSize' ].map( thisKey => {
+      rows.push( createRowFromItem( item, thisKey ) );
+    });
+  }
+
+  if ( item.meta.length > 0 ) {
+      rows.push( createRowFromItem( item, 'meta' ) );
+  }
+
+  let sharingTable = createDetailsShareTable( item, true, true, 'pad30' );
+
   let previewUrl = siteUrl + "/_layouts/15/getpreview.ashx?resolution=0&clientMode=modernWebPart&path=" +
     window.origin + item.FileRef + "&width=500&height=400";
 
@@ -52,7 +70,9 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
     <table style={{ tableLayout:"fixed" }} id="Select-b">
       { rows }
     </table>
-      
+    <div style={{ display: sharingTable === null ? 'none' : null }}>
+      { sharingTable }
+    </div>
     <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
       <div>
         <div style={{ fontSize: 'larger', fontWeight: 600, paddingBottom: '20px'  }}>Preview (if available)"</div>
@@ -67,47 +87,7 @@ export function createItemDetail( item: IItemDetail, itemsAreDups: boolean, site
 
           <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
           <div>
-            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups ), textSearch ) }</p>
-          </div>
-        </div>
-      }
-    </div>
-
-  </div>;
-  return table;
-
-}
-
-export function createDuplicateDetail( item: IDuplicateFile, siteUrl: string, textSearch: string, onClick?: any, onPreviewClick?: any ) {
-
-  let rows = [];
-  
-  [ 'sizeLabel','created','author','modified','editor','uniquePerms'].map( thisKey => {
-    rows.push( createRowFromDup( item, thisKey ) );
-  });
-  
-  ['ContentTypeId','ContentTypeName','ServerRedirectedEmbedUrl', 'isFolder'].map( thisKey => {
-    rows.push( createRowFromDup( item, thisKey ) );
-  });
-
-  let table = <div style={{marginRight: '10px'}} onClick={ onClick }>
-      <h2 style={{  }}>{ <Icon iconName= { item.iconName } style={ { fontSize: 'larger', color: item.iconColor, padding: '0px 15px 0px 0px', } }></Icon> }
-        { item.FileLeafRef }</h2>
-
-    <table style={{ tableLayout:"fixed" }} id="Select-b">
-      { rows }
-    </table>
-
-    <div style = {{ paddingTop: '40px', display: 'flex', alignItems: 'flex-start', flexDirection: 'row' }}>
-      {
-        !textSearch || textSearch.length === 0 ? null :
-        <div style = {{ paddingLeft: '50px', }}>
-          <div style={{ fontSize: 'larger', fontWeight: 600  }}>Found by Searching for:</div>
-          <p> { textSearch } </p>
-
-          <div style={{ fontSize: 'larger', fontWeight: 600  }}>In this:</div>
-          <div>
-            <p>{ getHighlightedText( item.FileLeafRef , textSearch ) }</p>
+            <p>{ getHighlightedText( getItemSearchString( item, itemsAreDups, true ), textSearch ) }</p>
           </div>
         </div>
       }
@@ -133,7 +113,18 @@ export function getHighlightedText(text, highlight) {
   } </span>;
 }
 
-export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean ) {
+export function getEventSearchString ( event: ISharingEvent ) {
+
+  let searchThis = '';
+  searchThis = [event.FileLeafRef, event.sharedBy, event.iconSearch, event.sharedWith, event.SharedTime.toLocaleDateString() ].join('|');
+
+  if ( event.FileSystemObjectType === 1 ) { searchThis += `|folder` ; } //MSAT:
+
+  return searchThis;
+
+}
+
+export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean, includeMeta: boolean ) {
 
   let createdDate = new Date( item.created );
   let searchThis = '';
@@ -146,10 +137,8 @@ export function getItemSearchString ( item: IItemDetail, itemsAreDups: boolean )
 
   }
 
-  if ( item.MediaServiceAutoTags ) { searchThis += `|${item.MediaServiceAutoTags}` ; } //MSAT:
-  if ( item.MediaServiceKeyPoints ) { searchThis += `|:${item.MediaServiceKeyPoints}` ; } //MSKP:
-  if ( item.MediaServiceLocation ) { searchThis += `|:${item.MediaServiceLocation}` ; } //MSL:
-  if ( item.MediaServiceOCR ) { searchThis += `|:${item.MediaServiceOCR}` ; } //MSOCR:
+  
+  if ( includeMeta === true && item.meta.length > -1 ) { searchThis += 'meta:' + item.meta.join('|') ; }
 
   return searchThis;
 
@@ -177,9 +166,23 @@ function createRowFromItem( item: IItemDetail, key: string, format?: string, ) {
     case 'id':
       textValue = `Id: ${ item.id } Batch Details: ${ item.batch } ${ item.index }`;
       break;
+    
+    case 'meta':
+      textValue = item.meta ? item.meta.join(' | ') : '';
+      break;
 
     default:
-      textValue = item[ key ];
+
+      if ( key.toLowerCase().indexOf('size') > - 1 && typeof item[ key ] === 'number' ) {
+        textValue = getSizeLabel( item[ key ] );
+
+      } else if ( key.toLowerCase().indexOf('count') > - 1 && typeof item[ key ] === 'number' ) {
+        textValue = getCountLabel( item[ key ] );
+
+      } else {
+        textValue = item[ key ] === true ? 'true' : item[ key ] === false ? 'false' : item[ key ];
+      }
+
       break;
   }
 
