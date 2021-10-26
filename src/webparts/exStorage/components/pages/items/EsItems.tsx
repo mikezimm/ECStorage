@@ -604,18 +604,28 @@ private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISh
   let folderIcon = <td className = { itemStyles.tableIconDots }>...</td>;
   let openItemCell = <td className = { itemStyles.tableIconDots }>...</td>;
 
-  let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
 
-  if ( isSameEvent !== true ) {
+  let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
+  let isSameEventCopiedFile = isSameEvent === true && event.id !== priorEvent.id ? true : false;
+
+  //This is separate loop from next loop because this has to apply to all.
+  //Next loop has it's own set of coditions and alternates and has to be independant.
+  if ( isSameEvent !== true || isSameEventCopiedFile === true ) {
     folderIcon = this.buildFolderIcon( event );
     openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0), `Click to preview this file` , null );
     detailIcon = this.buildDetailIcon( event, event.id.toString() );
+
   }
 
   if ( isSameEvent === true ) {
     eventTime = '...' ;
-    sharedBy = eventTime = '...' ;
-    FileLeafRef = eventTime = '...' ;
+    sharedBy = '...' ;
+
+    if ( isSameEventCopiedFile === true ) {
+      FileLeafRef = <span style={{ fontStyle: 'italic' }}>{ event.FileLeafRef }</span> ;
+    } else {
+      FileLeafRef = '...' ;
+    }
 
     //If there is highlight (search string), then highlight any text.
   } else if ( highlight && highlight.length > 0 ) {
@@ -1062,7 +1072,7 @@ private _onClickItem( event ) {
 
     let iconCell = <td className = { itemStyles.tableIcons } style={{width: '50px', cursor: 'pointer', position: 'relative' }} 
       onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }
-      title={ `See all Item Details.` }>
+      title={ `ID:  ${ itemIn.id } See all Item Details.` }>
       <div style={{ position: 'relative' }} onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }>{ detailIcon }</div>
     </td>;
 

@@ -2,10 +2,18 @@ import { IRepoLinks } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLin
 
 export interface IWebpartBannerProps {
 	title: string;
-	style: string;
+	panelTitle: string;
+	styleString?: string;
+	bannerReactCSS?: React.CSSProperties;
+	earyAccess?: boolean; //Auto add early access warning in panel
 	showBanner: boolean;
 	showTricks: boolean;
 	gitHubRepo: IRepoLinks; // replace with IRepoLinks from npmFunctions v0.1.0.3
+
+	nearElements: any[];
+	farElements: any[];
+
+
 	
 }
 

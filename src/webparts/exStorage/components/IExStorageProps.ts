@@ -12,7 +12,7 @@ import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/List
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { IChoiceGroupOptionStyleProps } from "office-ui-fabric-react";
 
-import { IWebpartBannerProps, IWebpartBannerState } from './HelpInfo/banner/bannerProps';
+import { IWebpartBannerProps, IWebpartBannerState } from './HelpPanel/banner/bannerProps';
 
 import {  IGridStyles , IGridColumns} from './pages/GridCharts/IGridchartsProps';
 
