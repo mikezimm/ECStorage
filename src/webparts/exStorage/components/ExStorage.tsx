@@ -278,7 +278,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   let minYear: any = currentYear - 3;
   let maxYear: any = currentYear + 1;
-  let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.toLowerCase().split(';') : [];
+  // let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.toLowerCase().split(';') : [];
+  let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.split(';') : [];
 
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
 
@@ -942,13 +943,14 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     //2021-08-25 MZ:  Added for Banner
     let Banner = <WebpartBanner 
       showBanner={ this.props.bannerProps.showBanner }
-      title ={ this.props.bannerProps.title }
+      title ={ `Extreme Storage - ${this.state.dropDownText}` }
       panelTitle = { this.props.bannerProps.panelTitle }
       bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
       showTricks={ this.props.bannerProps.showTricks }
       gitHubRepo={ this.props.bannerProps.gitHubRepo }
       nearElements = { this.nearBannerElements }
       farElements = { this.farBannerElements }
+      earyAccess = { false }
 
     ></WebpartBanner>;
     

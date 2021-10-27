@@ -362,7 +362,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 PropertyPaneTextField('excludeListTitles', {
                   label: 'Exclude these from dropdown',
                   disabled: this.properties.showListDropdown === true ? false : true,
-                  description: 'semi-colon separated words'
+                  description: 'Case SENSITIVE semi-colon (;) separated words'
                 }),
                 
                 PropertyPaneToggle('useMediaTags', {

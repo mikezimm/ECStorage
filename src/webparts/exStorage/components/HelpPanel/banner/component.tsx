@@ -164,7 +164,8 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 				let tips = webParTips.length === 0 ? null :
 					<MessageBar messageBarType={MessageBarType.warning } >
-						<div style={{fontWeight: 600, fontSize: 'large', paddingBottom: '15px'}} >Pro TIP:</div> { getRandomTip() }
+						<div style={{fontWeight: 600, fontSize: 'large', marginBottom: '12px'}} >Pro TIP:</div> 
+						<div style={{minHeight: '30px'}} >{ getRandomTip() }</div>
 					</MessageBar>;
 
 				panelContent = <div>
