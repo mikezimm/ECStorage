@@ -31,6 +31,7 @@ import { getRandomTip, webParTips } from '../Content/Tips';
 import { IWebpartBannerProps, IWebpartBannerState } from './bannerProps';
 import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
 import { createStyleFromString, getReactCSSFromString } from "@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS";
+import { noWrap } from "office-ui-fabric-react";
 
 const pivotStyles = {
 	root: {
@@ -58,6 +59,8 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		private tricks= tricksTable();
 		private about= aboutTable();
 
+		private toggleWide = this.props.toggleWide ? this.props.toggleWide : true;
+
 		private hasNear = this.props.nearElements.length > 0 ? true : false;
 		private hasFar = this.props.farElements.length > 0 ? true : false;
 		private hasNearOrFar = this.hasNear === true || this.hasFar === true ? true : false;
@@ -67,6 +70,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			this.state = {
 				showPanel: false,
 				selectedKey: pivotHeading1,
+				panelType: PanelType.medium,
 			};
 		}
 
@@ -172,7 +176,14 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					{ earlyAccess }
 					{ tips }
 					{ webPartLinks }
-					<h3> { this.props.panelTitle }</h3>
+					<div style={{display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
+						<h3> { this.props.panelTitle }</h3>
+						<div title={ this.state.panelType === PanelType.medium ? 'Make panel wider' : 'Make panel narrower' }>
+							<Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
+								onClick={ this._panelWidth.bind(this) }></Icon>
+						</div>
+					</div>
+
 					<Pivot
 							// styles={ pivotStyles }
 							linkFormat={PivotLinkFormat.links}
@@ -201,7 +212,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					isBlocking={true}
 					onDismiss={ this._closePanel.bind(this) }
 					closeButtonAriaLabel="Close"
-					type = { PanelType.medium }
+					type = { this.state.panelType }
 					isLightDismiss = { true }
 				>
 				{ panelContent }
@@ -264,5 +275,12 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			this.setState({ showPanel: true,});
 		}
 	}
+
+	
+	private _panelWidth ( )  {
+		let newPanelType: PanelType = this.state.panelType !== PanelType.medium ? PanelType.medium : PanelType.large;
+    this.setState({ panelType: newPanelType,});
+	}
+	
 
 }
