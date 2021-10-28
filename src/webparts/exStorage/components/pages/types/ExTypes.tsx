@@ -172,8 +172,8 @@ public componentDidMount() {
     });
     sortedTypes = sortObjectArrayByChildNumberKey( sortedTypes, 'dec', 'sizeToCountRatio' );
 
-    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'size' );
-    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'count' );
+    const bySize = this.buildTypeTables( this.props.typesInfo.types , 'By Total Size', this.state.rankSlider, this.state.textSearch, 'summary.size' );
+    const byCount = this.buildTypeTables( this.props.typesInfo.types , 'By Count', this.state.rankSlider, this.state.textSearch, 'summary.count' );
     const byAvg = this.buildTypeTables( this.props.typesInfo.types , 'By Avg size', this.state.rankSlider, this.state.textSearch, 'avgSize' );
     const byMax = this.buildTypeTables( this.props.typesInfo.types , 'By Max size', this.state.rankSlider, this.state.textSearch, 'maxSize' );
     const byRatio = this.buildTypeTables( this.props.typesInfo.types , null, 3, '', 'sizeToCountRatio' );
@@ -309,7 +309,7 @@ public componentDidMount() {
         type = { PanelType.large }
         isLightDismiss = { true }
         >
-          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', 'Test Types Heading', [], null )}
+          { createItemsHeadingWithTypeIcons( this.state.items, 'Items', `with file type: ${this.state.selectedType.iconName}`,'', [], null )}
           { componentPivot }
       </Panel></div>;
     }
@@ -374,7 +374,7 @@ public componentDidMount() {
     this.setState({ textSearch: item });
   }
 
-  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'size' | 'count' | 'avgSize' | 'maxSize' | 'sizeToCountRatio'): any {
+  private buildTypeTables( types: IFileType[] , data: string, countToShow: number, textSearch: string, sortKey: 'summary.size' | 'summary.count' | 'avgSize' | 'maxSize' | 'sizeToCountRatio'): any {
 
     let elements = [];
     let tableTitle = data;
@@ -388,12 +388,12 @@ public componentDidMount() {
         let label: any = '';
 
         switch (sortKey) {
-          case 'size':
+          case 'summary.size':
             typePercent = ( type.summary.sizeP ).toFixed( 0 );
             label = `${type.type}  [ ${ type.summary.sizeLabel} / ${ typePercent }% ]` ;
             break;
         
-          case 'count':
+          case 'summary.count':
             typePercent = ( type.summary.countP ).toFixed( 0 );
             label = `${type.type}  [ ${ type.summary.count} / ${ typePercent }% ]` ;
             break;

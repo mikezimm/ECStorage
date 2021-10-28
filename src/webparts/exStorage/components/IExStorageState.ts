@@ -27,6 +27,7 @@ export interface IEXStorageList extends IPickedList {
   ItemCount: number;
   LastItemUserModifiedDate: string;
   Title: string;
+  DropDownLabel: string;
   BaseType: number;
   Id: string;
   DocumentTemplateUrl: string;

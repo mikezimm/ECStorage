@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-import * as devLinks from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksDevDocs';
-import * as chartJSLinks from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksChartJS';
-import * as repoLinks from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+import * as devLinks from '@mikezimm/npmfunctions/dist/Links/LinksDevDocs';
+import * as chartJSLinks from '@mikezimm/npmfunctions/dist/Links/LinksChartJS';
+import * as repoLinks from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
-import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../banner/SinglePage/ISinglePageProps';
 
 export function devTable() {
 
@@ -17,11 +17,21 @@ export function devTable() {
 
     table.rows.push( [ devLinks.devDocsWeb, devLinks.gitRepoSPFxContReact , 'MSFT Dev Docs for Fabric React UI Components' ] );
     table.rows.push( [ devLinks.devDocsPnpJSsp, devLinks.gitRepoPnpJSsp, 'PNP JS sp:  Library for interacting with SPO' ] );
+    table.rows.push( [ null, devLinks.FLICONio, 'Search available icons' ] );
     table.rows.push( [ devLinks.devDocsIcon, '', '' ] );
     table.rows.push( [ devLinks.devDocsText, '', '' ] );
     table.rows.push( [ devLinks.devDocsDate, devLinks.gitSampleReactDate, '' ] );
     table.rows.push( [ devLinks.devDocsSlider, '', '' ] );
     table.rows.push( [ devLinks.devDocsToggle, '', '' ] );
+
+    table.rows.push( [ devLinks.devDocsDropdown, '', '' ] );
+    table.rows.push( [ devLinks.devDocsCheckbox, '', '' ] );
+    table.rows.push( [ devLinks.devDocsSearchbox, '', '' ] );
+    table.rows.push( [ devLinks.devDocsProgress, '', '' ] );
+    table.rows.push( [ devLinks.devDocsMessageBar, '', '' ] );
+    table.rows.push( [ devLinks.devDocsPanel, '', '' ] );
+    table.rows.push( [ devLinks.devDocsPeoplePicker, '', '' ] );
+
     table.rows.push( [ devLinks.devDocsChoice, '', '' ] );
     
     table.rows.push( [ devLinks.devDocsButton, '', '' ] );

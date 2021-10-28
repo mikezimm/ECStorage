@@ -37,6 +37,10 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
 
+import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
+
+import { Image, ImageFit, ImageCoverStyle} from 'office-ui-fabric-react/lib/Image';
+
 import ReactJson from "react-json-view";
 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -50,6 +54,8 @@ import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Service
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
 import { getSizeLabel, getCommaSepLabel } from '@mikezimm/npmfunctions/dist/Services/Math/basicOperations'; 
 
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardExStorage';
+
 import * as strings from 'ExStorageWebPartStrings';
 
 import { createSlider, createChoiceSlider } from './fields/sliderFieldBuilder';
@@ -62,8 +68,8 @@ import { createBatchSummary } from './pages/summary/ExBatchSummary';
 /**
  * 2021-08-25 MZ:  Added for Banner
  */
-import WebpartBanner from "./HelpInfo/banner/component";
-import { IWebpartBannerProps, } from "./HelpInfo/banner/bannerProps";
+import WebpartBanner from "./HelpPanel/banner/component";
+import { IWebpartBannerProps, } from "./HelpPanel/banner/bannerProps";
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
@@ -119,6 +125,24 @@ export default class ExStorage extends React.Component<IExStorageProps, IExStora
 
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
+  private nearBannerElements = this.buildNearBannerElements();
+  private farBannerElements = this.buildFarBannerElements();
+
+  private buildNearBannerElements() {
+    //See banner/NearAndFarSample.js for how to build this.
+    return [];
+  }
+
+  private buildFarBannerElements() {
+    //See banner/NearAndFarSample.js for how to build this.
+    return [];
+  }
+
+  private _onClickSample( event ) {
+    // console.log( '_onClickType:',  event );
+    let textCallback = event.currentTarget.dataset.callback;
+    alert('textCallback: ' +  textCallback );
+  }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -254,7 +278,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
   let minYear: any = currentYear - 3;
   let maxYear: any = currentYear + 1;
-  let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.toLowerCase().split(';') : [];
+  // let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.toLowerCase().split(';') : [];
+  let excludeTitles = this.props.uiOptions.excludeListTitles && this.props.uiOptions.excludeListTitles.length > 0 ? this.props.uiOptions.excludeListTitles.split(';') : [];
 
   if ( webUrl.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
 
@@ -270,6 +295,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     console.log('working on list: ', index, list.Title, list.Id, list.guid );
     let isSystemList = areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
     if ( areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1  ) { isSystemList = true; }
+
 
     let showList = true;
 
@@ -304,10 +330,11 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       maxYear = new Date( list.LastItemUserModifiedDate);
       maxYear = maxYear.getFullYear() + 1;
       list.maxYear = maxYear;
+      list.DropDownLabel = `${list.Title} [ ${getCommaSepLabel(list.ItemCount)} ]`;
 
       pickLists.push( list );
       // let thisDropDownText = `${list.Title} ${list.ItemCount}`;
-      let thisDropDownText = `${list.Title}`;
+      let thisDropDownText = `${list.DropDownLabel}`;
       dropDownLabels.push( thisDropDownText );
 
       if ( list.Title === this.state.listTitle ) { 
@@ -351,7 +378,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
         pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false,
-        loadProperties: loadProperties, 
+        loadProperties: loadProperties, listTitle: theList.Title,
        });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
   } else {
@@ -359,7 +386,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
       pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
       pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: true,
-      loadProperties: loadProperties,
+      loadProperties: loadProperties, listTitle: theList.Title,
     });
 
   }
@@ -759,7 +786,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         // 2 - Source and destination list information
         parentListWeb = { this.props.parentWeb }
-        parentListTitle = { this.props.listTitle }
+        parentListTitle = { this.state.listTitle }
         parentListURL = { null}
 
         esItemsHeading = { ``}
@@ -915,13 +942,22 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     }
 
-    //2021-08-25 MZ:  Added for Banner
+    //2021-08-25 MZ:  Added for dynamic Banner for this webpart.  Others may not need that.
+    let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`;
+
     let Banner = <WebpartBanner 
       showBanner={ this.props.bannerProps.showBanner }
-      title ={ this.props.bannerProps.title }
-      style={ this.props.bannerProps.style }
+      title ={ bannerTitle }
+      panelTitle = { this.props.bannerProps.panelTitle }
+      bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
       showTricks={ this.props.bannerProps.showTricks }
+      hoverEffect={ this.props.bannerProps.hoverEffect }
       gitHubRepo={ this.props.bannerProps.gitHubRepo }
+      earyAccess={ this.props.bannerProps.earyAccess }
+      wideToggle={ this.props.bannerProps.wideToggle }
+      nearElements = { this.nearBannerElements }
+      farElements = { this.farBannerElements }
+
     ></WebpartBanner>;
     
     let urlColor = this.state.isCurrentWeb === true ? 'black' : 'red';
@@ -1306,7 +1342,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       pickedList: pickedList,
       dropDownIndex: idx,
       dropDownText: thisValue,
-      listTitle: thisValue,
+      listTitle: pickedList.Title,
       loadProperties: loadProperties,
       fetchSlider: pickedList ? pickedList.ItemCount: 0,
     });

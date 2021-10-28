@@ -14,9 +14,9 @@ import * as assets from "./Cards/assets";
 
 import WebPartLinks from './WebPartLinks';
 
-import SinglePage from './SinglePage';
+import SinglePage from './SinglePage/SinglePage';
 import { aboutTable } from '../Content/About';
-import { devTable } from '@mikezimm/npmfunctions/dist/HelpInfo/Content/Developer';
+import { devTable } from '@mikezimm/npmfunctions/dist/Links/Developer';
 import { gettingStartedContent } from '../Content/GettingStarted';
 
 import { errorsContent } from '../Content/Errors';
@@ -26,9 +26,12 @@ import { futureContent } from '../Content/FuturePlans';
 import { basicsContent } from '../Content/Basics';
 
 import { tricksTable } from '../Content/Tricks';
+import { getRandomTip, webParTips } from '../Content/Tips';
 
 import { IWebpartBannerProps, IWebpartBannerState } from './bannerProps';
 import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
+import { createStyleFromString, getReactCSSFromString } from "@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS";
+import { noWrap } from "office-ui-fabric-react";
 
 const pivotStyles = {
 	root: {
@@ -46,7 +49,7 @@ const pivotHeading7 = 'Tricks';  //Templates
 const pivotHeading8 = 'About';  //Templates
 
 export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
-		
+		private hoverEffect = this.props.hoverEffect === false ? false : true;
     private gettingStarted= gettingStartedContent();
     private basics= basicsContent();
     private advanced= advancedContent();
@@ -54,13 +57,20 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
     private dev= devTable();
 		private errors= errorsContent();
 		private tricks= tricksTable();
-    private about= aboutTable();
+		private about= aboutTable();
+
+		private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;
+
+		private hasNear = this.props.nearElements.length > 0 ? true : false;
+		private hasFar = this.props.farElements.length > 0 ? true : false;
+		private hasNearOrFar = this.hasNear === true || this.hasFar === true ? true : false;
 
     constructor(props: IWebpartBannerProps) {
 			super(props);
 			this.state = {
 				showPanel: false,
 				selectedKey: pivotHeading1,
+				panelType: PanelType.medium,
 			};
 		}
 
@@ -73,18 +83,43 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		} else {
 
 
-			let bannerTitle = this.props.title && this.props.title.length > 0 ? this.props.title : 'Extreme Storage Webpart';
+			let bannerTitleText = this.props.title && this.props.title.length > 0 ? this.props.title : 'Extreme Storage Webpart';
 	
-			let bannerStyle: React.CSSProperties = this.createStyleFromString( this.props.style, { background: 'green' } );
+			let bannerStyle: React.CSSProperties = {};
+			if ( this.props.bannerReactCSS ) { bannerStyle = this.props.bannerReactCSS ; } 
+			else if ( this.props.styleString ) { bannerStyle = createStyleFromString( this.props.styleString, { background: 'green' }, 'bannerStyle in banner/component.tsx ~ 81' ); }
+			
 			if ( !bannerStyle.height ) { bannerStyle.height = '35px' ; }
 			if ( !bannerStyle.paddingLeft ) { bannerStyle.paddingLeft = '20px' ; }
 			if ( !bannerStyle.paddingRight ) { bannerStyle.paddingRight = '20px' ; }
+			if ( this.hasNearOrFar === false ) { bannerStyle.cursor = 'pointer' ; }
 
-			let classNames = [ styles.container, styles.opacity, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
-			let bannerContent = <div className={ classNames } style={ bannerStyle }>
-				<div> { bannerTitle } </div>
-				<div>More information</div>
+			let classNames = [ styles.container, this.hoverEffect === true ? styles.opacity : null, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
+
+			//On clicks need to be defined like this and only put on specific elements in certain cases.
+			//  OR ELSE they will all get fired messing up panel open
+			
+			let bannerOnClick = this.hasNearOrFar !== true ? this._openPanel.bind( this ) : null;
+			let titleInfoOnClick = this.hasNearOrFar === true ? this._openPanel.bind( this ) : null;
+			let titleInfoCursor = this.hasNearOrFar === true ? 'pointer' : null;
+
+			let bannerLeft = this.props.nearElements.length === 0 ? <div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } > { bannerTitleText } </div> :
+				<div className={ styles.flexLeftNoWrapStart }>
+					{ this.props.nearElements }
+					<div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } > { bannerTitleText } </div>
+				</div>;
+
+			let bannerRight = this.props.farElements.length === 0 ? <div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } >More information</div> :
+			<div className={ styles.flexLeftNoWrapStart }>
+				<div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick }>More information</div>
+				{ this.props.farElements }
 			</div>;
+
+			let bannerContent = 
+				<div className={ classNames } style={ bannerStyle } onClick = { bannerOnClick }>
+					{ bannerLeft }
+					{ bannerRight }
+				</div>;
 
 			let thisPage = null;
 
@@ -126,12 +161,31 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						content= { content }
 				></SinglePage>;
 
-				panelContent = <div>
-					<MessageBar messageBarType={MessageBarType.severeWarning} style={{ fontSize: 'larger' }}>
+				let earlyAccess = this.props.earyAccess === false ? null :
+					<MessageBar messageBarType={MessageBarType.severeWarning} style={{ fontSize: 'large' }}>
 						{ `Webpart is still under development` }
-					</MessageBar>
+					</MessageBar>;
+
+				let tips = webParTips.length === 0 ? null :
+					<MessageBar messageBarType={MessageBarType.warning } >
+						<div style={{fontWeight: 600, fontSize: 'large', marginBottom: '12px'}} >Pro TIP:</div> 
+						<div style={{minHeight: '30px'}} >{ getRandomTip() }</div>
+					</MessageBar>;
+
+				let wideIcon = this.wideToggle !== true ? null : <Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
+					onClick={ this._panelWidth.bind(this) }></Icon>;
+
+				panelContent = <div>
+					{ earlyAccess }
+					{ tips }
 					{ webPartLinks }
-					<h3> { `Early Access webpart :)` }</h3>
+					<div style={{display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
+							<h3> { this.props.panelTitle }</h3>
+							<div title={ this.state.panelType === PanelType.medium ? 'Make panel wider' : 'Make panel narrower' }>
+							{ wideIcon }
+						</div>
+					</div>
+
 					<Pivot
 							// styles={ pivotStyles }
 							linkFormat={PivotLinkFormat.links}
@@ -160,14 +214,14 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 					isBlocking={true}
 					onDismiss={ this._closePanel.bind(this) }
 					closeButtonAriaLabel="Close"
-					type = { PanelType.medium }
+					type = { this.state.panelType }
 					isLightDismiss = { true }
 				>
 				{ panelContent }
 			</Panel></div>;
 
 			return (
-				<div className={styles.bannerComponent} onClick={ this._openPanel.bind( this ) }>
+				<div className={styles.bannerComponent} >
 					{ bannerContent }
 					{ bannerPanel }
 				</div>
@@ -179,26 +233,26 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 	}
 
-	private createStyleFromString( styleString: string, fallback: React.CSSProperties ) {
-		let thisStyle: React.CSSProperties = {};
+	// private createStyleFromString( styleString: string, fallback: React.CSSProperties ) {
+	// 	let thisStyle: React.CSSProperties = {};
 
-		if ( !styleString || styleString === null || styleString === undefined ) {
-			return fallback;
-		}
+	// 	if ( !styleString || styleString === null || styleString === undefined ) {
+	// 		return fallback;
+	// 	}
 
-		try {
-				thisStyle = JSON.parse( styleString );
+	// 	try {
+	// 			thisStyle = JSON.parse( styleString );
 
-		} catch(e) {
-			getHelpfullErrorV2( e, false, true, 'banner.component.tsx set styleString ~ 190 ');
-			console.log('Unable to understand this style string:', styleString + '' );
-			thisStyle = fallback;
+	// 	} catch(e) {
+	// 		getHelpfullErrorV2( e, false, false, 'banner.component.tsx set styleString ~ 190 ');
+	// 		console.log('Unable to understand this style string:', styleString + '' );
+	// 		thisStyle = fallback;
 
-		}
+	// 	}
 
-		return thisStyle;
+	// 	return thisStyle;
 
-	}
+	// }
 
 
 	public _selectedIndex = (item): void => {
@@ -215,8 +269,20 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
     this.setState({ showPanel: false,});
 	}
 	
-	private _openPanel ( )  {
-    this.setState({ showPanel: true,});
+	private _openPanel ( event )  {
+		let textCallback = event.currentTarget.dataset.callback;
+		if ( textCallback && textCallback.length > 0) {
+			//Do nothing
+		} else {
+			this.setState({ showPanel: true,});
+		}
 	}
+
+	
+	private _panelWidth ( )  {
+		let newPanelType: PanelType = this.state.panelType !== PanelType.medium ? PanelType.medium : PanelType.large;
+    this.setState({ panelType: newPanelType,});
+	}
+	
 
 }

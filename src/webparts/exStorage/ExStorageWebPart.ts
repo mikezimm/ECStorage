@@ -23,11 +23,14 @@ import * as strings from 'ExStorageWebPartStrings';
 import ExStorage from './components/ExStorage';
 import { IExStorageProps, IDataOptions, IUiOptions } from './components/IExStorageProps';
 
-import { FPSOptionsGroup } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
+import { FPSOptionsGroup, FPSBanner2Group } from '@mikezimm/npmfunctions/dist/Services/PropPane/FPSOptionsGroup';
 import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Services/PropPane/zReusablePropPane';
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+import { createStyleFromString, getReactCSSFromString, ICurleyBraceCheck } from '@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS';
 
-import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpInfo/banner/bannerProps';
+
+import * as links from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
+
+import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpPanel/banner/bannerProps';
 
 require('../../services/GrayPropPaneAccordions.css');
 
@@ -53,6 +56,7 @@ export interface IExStorageWebPartProps {
     bannerTitle: string;
     bannerStyle: string;
     showBanner: boolean;
+    bannerHoverEffect: boolean;
     showTricks: boolean;
   // }
 
@@ -108,7 +112,9 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
   private currentUser: IUser = null;
   private urlVars : any;
   private allowOtherSites: boolean = false;
-  private forceBanner = false ;
+  private forceBanner = true ;
+  private modifyBannerTitle = false ;
+  private modifyBannerStyle = true ;
 
   public onInit():Promise<void> {
     return super.onInit().then(_ => {
@@ -168,7 +174,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
     this.setThisPageFormatting( this.properties.fpsPageStyle );
     this.setQuickLaunch( this.properties.quickLaunchHide );
 
-    console.log('forceBanner, showBanner:' , this.forceBanner, this.properties.showBanner );
+    console.log('forceBanner, modifyBannerStyle, showBanner:' , this.forceBanner, this.modifyBannerStyle, this.properties.showBanner );
 
     //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
     //If it's undefined, null or '', get current page context value
@@ -213,17 +219,47 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
       if ( this.context.pageContext.user.loginName.indexOf( 'erri.scov') > -1 ){ showTricks = true ; }
 
+    let bannerTitle = this.modifyBannerTitle === true && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`;
+    let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', this.properties.bannerStyle, {background: "#7777"} );
+
     let bannerProps: IWebpartBannerProps = {
+      panelTitle: 'eXTreme Storage Webpart Help',
       showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
-      showTricks: showTricks,      
-      title: this.forceBanner === false && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
+      showTricks: showTricks,
+      hoverEffect: this.properties.bannerHoverEffect === false ? false : true,
+      title: bannerStyle.errMessage !== '' ? bannerStyle.errMessage : bannerTitle ,
       // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : `{'background': 'yellow', 'fontWeight':600,'fontSize':'large'}`,
-      style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle.replace('\"','"') : `{"background": "PaleGreen"}`,
+      bannerReactCSS: bannerStyle.errMessage === '' ? bannerStyle.parsed : { background: "yellow", color: "red", },
       // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle.replace('\"','"') : `{"background": "yellow", "fontWeight":600,"fontSize":"large"}`,
       // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
       
       gitHubRepo: links.gitRepoEasyStorageSmall,
+      farElements: [],
+      nearElements: [],
+      earyAccess: false,
+      wideToggle: true,
     };
+
+              
+    // // Object.keys( [] ).map( key => {
+    // let errBannerMessage = '';
+    // ['bannerStyle'].map( key => {
+
+    //   let braced = addCurleyBraces( key, bannerProps[ key ] );
+    //   if ( braced.parsed && braced.errMessage === '' ) {
+    //     bannerProps[ key ] = braced.string;
+    //     this.properties[ key ] = braced.string;
+
+    //   } else { errBannerMessage = braced.errMessage; }
+
+    // });
+
+    // if ( errBannerMessage !== '' ) {
+    //   bannerProps.title = errBannerMessage;
+    //   bannerProps.style = `{"background": "yellow", "color": "red"}`;
+    // }
+
+
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
       ExStorage,
@@ -330,7 +366,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 PropertyPaneTextField('excludeListTitles', {
                   label: 'Exclude these from dropdown',
                   disabled: this.properties.showListDropdown === true ? false : true,
-                  description: 'semi-colon separated words'
+                  description: 'Case SENSITIVE semi-colon (;) separated words'
                 }),
                 
                 PropertyPaneToggle('useMediaTags', {
@@ -339,40 +375,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 }),
               ]
             },
-            {
-              groupName: 'Banner',
-              isCollapsed: true ,
-              groupFields: [
-                
-                PropertyPaneToggle('showBanner', {
-                  label: 'Show Banner',
-                  disabled: this.forceBanner !== false ? true : false ,
-                }),
-
-                PropertyPaneTextField('bannerTitle', {
-                  label: 'Webpart Title',
-                  description: '',
-                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
-                }),
-
-                PropertyPaneTextField('bannerStyle', {
-                  label: 'Style options',
-                  'description': 'TBD',
-                  disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
-                }),
-
-                // PropertyPaneToggle('showTricks', {
-                //   label: 'Show Advanced',
-                //   disabled: this.forceBanner === true || this.properties.showBanner !== true ? true : false,
-                // }),
-
-                // showBanner: true,
-                // showTricks: true,      
-                // title: this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`,
-                // style: this.properties.bannerTitle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
-
-              ]
-            },
+            FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null ),
             FPSOptionsGroup( false, true, true, true ), // this group,
           ]
         }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/Links/AllLinks';
 
 import { Stack, IStackTokens } from 'office-ui-fabric-react';
 
@@ -98,7 +98,7 @@ public constructor(props:IWebPartLinksProps){
 
         let showLists = doParentList === true || doChildList === true ? true : false ;
 
-        thisPage = <div style={{paddingTop: '10px' , paddingBottom: '10px' }}>
+        thisPage = <div style={{paddingTop: '30px' }}>
             <Stack horizontal={true} wrap={true} horizontalAlign={"stretch"} tokens={stackTokensBody}>
                 { ( showLists === true ? <div><b>Your Lists:</b></div> : null ) }
                 { ( doParentList === true ? parentListURL : null ) }

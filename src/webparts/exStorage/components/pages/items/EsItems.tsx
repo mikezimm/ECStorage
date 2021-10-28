@@ -18,6 +18,7 @@ import {
   SpinnerSize,
   FloatingPeoplePicker,
   tdProperties,
+  TooltipHost, ITooltipHostStyles
   // MessageBar,
   // MessageBarType,
   // SearchBox,
@@ -87,6 +88,32 @@ import { IItemSharingInfo, ISharingEvent, ISharedWithUser } from '../../Sharing/
 
 export default class EsItems extends React.Component<IEsItemsProps, IEsItemsState> {
 
+  
+  private searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
+
+  private getSearchNote() {
+    let searchNote = `Search will search Created Name and Date, filenames/types${ this.searchMedia ? this.searchMedia : '' }`;
+    if ( this.props.itemType === 'Duplicates' ) {
+      searchNote = `Search will search Created Name and Date, foldername/types`;
+    } else if ( this.props.itemType === 'Shared' ) {
+      searchNote = `Search will search date/time, sharedBy, sharedWith, filenames`;
+    }
+    return searchNote;
+  }
+  
+
+  private getVisibleNote() {
+    let visibleNote = '';
+    if ( this.props.heading.toLowerCase().indexOf('from user') > -1 ) {
+      visibleNote = `You will find an item under a User if the User created the item.`;
+    } else if ( this.props.itemType === 'Duplicates' ) {
+      visibleNote = `Folder names start at the lowest common branch (folder)`;
+    } else if ( this.props.itemType === 'Shared' ) {
+      visibleNote = `Shared items under a user include any files they created, modified, shared or were shared with.`;
+    }
+    return visibleNote;
+  }
+
   private showHeading: boolean = this.props.showHeading === false ? false : true;
   private currentDate = new Date();
   private currentYear = this.currentDate.getFullYear();
@@ -106,16 +133,15 @@ export default class EsItems extends React.Component<IEsItemsProps, IEsItemsStat
   private commonPath: string = this.getRelativePath === true && this.commonFolders.length > 0 ? this.commonRelativePath.replace( this.props.pickedList.LibraryUrl , '') + '/' : '';
   private commonParent: string = this.getRelativePath === true && this.commonFolders.length > 0 && this.commonRelativePath !== this.props.pickedList.LibraryUrl ? this.commonFolders[ this.commonFolders.length - 1 ] : '';
 
-  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.itemsAny, this.props.itemType, this.props.heading, this.props.icons, this._onClickType.bind(this) );
+  private searchNote = this.getSearchNote();
+  private visibleNote = this.getVisibleNote();
+
+  private itemsHeading: any = createItemsHeadingWithTypeIcons( this.itemsAny, this.props.itemType, this.props.heading, this.visibleNote, this.props.icons, this._onClickType.bind(this) );
 
   private sliderTitle = this.itemsLength < 400 ? 'Show Top items by size' : `Show up to 400 of ${ getCommaSepLabel(this.itemsLength) } items, use Search box to find more)`;
   private sliderMax = this.itemsLength < 400 ? this.itemsLength : 400;
   private sliderInc = this.itemsLength < 50 ? 1 : this.itemsLength < 100 ? 10 : 25;
   private siderMin = this.sliderInc > 1 ? this.sliderInc : 5;
-
-  private searchMedia = this.props.dataOptions.useMediaTags !== true ? '' : ', MediaServiceAutoTags, MediaServiceKeyPoints, MediaServiceLocation, MediaServiceOCR';
-  private searchNote = `Search will search Created Name and Date, filenames/types ${ this.searchMedia }`;
-  private visibleNote = `You will find an item under a User if the User created the item.`;
 
   private getCommonFolders( itemsIn: IItemDetail[] | IDuplicateFile[] ) {
     let items: any[] = itemsIn;
@@ -161,20 +187,11 @@ public constructor(props:IEsItemsProps){
   let currentYearVal = currentYear.getFullYear();
   
   let totalSize: number = 0;
+  let hasMedia = false;
   this.itemsAny.map( item => {
     totalSize += item.size;
+    if ( item.isMedia ) {  hasMedia = true; }
   });
-
-  
-  if ( this.props.itemType === 'Duplicates' ) {
-    this.searchNote = `Search will search Created Name and Date, foldername/types`;
-    this.visibleNote = `Folder names start at the lowest common branch (folder)`;
-
-  } else if ( this.props.itemType === 'Shared' ) {
-    this.searchNote = `Search will search date/time, sharedBy, sharedWith, filenames`;
-    this.visibleNote = `Shared items under a user include any files they created, modified, shared or were shared with.`;
-
-  }
 
   this.state = {
 
@@ -211,7 +228,7 @@ public constructor(props:IEsItemsProps){
         showPreview: false,
         selectedItem: null,
 
-        hasMedia: false,
+        hasMedia: hasMedia,
   
   };
 }
@@ -447,8 +464,7 @@ public componentDidMount() {
           <div> { this.buildSearchBox( this.state.textSearch) } </div>
         </div>
         <div>
-          <div>{ this.searchNote }</div>
-          <div>{ this.visibleNote }</div>
+
           <div style={{ padding: '10px 0px 5px 0px', display: styleCommonPathDisplay }}>
             { foundMessage }
             <span style={{ fontWeight: 600 }}>{ this.commonPath }</span></div>
@@ -604,18 +620,28 @@ private createSingleEventRow( key: string, event: ISharingEvent, priorEvent: ISh
   let folderIcon = <td className = { itemStyles.tableIconDots }>...</td>;
   let openItemCell = <td className = { itemStyles.tableIconDots }>...</td>;
 
-  let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
 
-  if ( isSameEvent !== true ) {
+  let isSameEvent = priorEvent !== null && event.TimeMS === priorEvent.TimeMS && event.sharedBy === priorEvent.sharedBy && event.FileLeafRef === priorEvent.FileLeafRef ? true : false;
+  let isSameEventCopiedFile = isSameEvent === true && event.id !== priorEvent.id ? true : false;
+
+  //This is separate loop from next loop because this has to apply to all.
+  //Next loop has it's own set of coditions and alternates and has to be independant.
+  if ( isSameEvent !== true || isSameEventCopiedFile === true ) {
     folderIcon = this.buildFolderIcon( event );
     openItemCell = this.buildOpenItemCell( event, event.id.toFixed(0), `Click to preview this file` , null );
     detailIcon = this.buildDetailIcon( event, event.id.toString() );
+
   }
 
   if ( isSameEvent === true ) {
     eventTime = '...' ;
-    sharedBy = eventTime = '...' ;
-    FileLeafRef = eventTime = '...' ;
+    sharedBy = '...' ;
+
+    if ( isSameEventCopiedFile === true ) {
+      FileLeafRef = <span style={{ fontStyle: 'italic' }}>{ event.FileLeafRef }</span> ;
+    } else {
+      FileLeafRef = '...' ;
+    }
 
     //If there is highlight (search string), then highlight any text.
   } else if ( highlight && highlight.length > 0 ) {
@@ -697,7 +723,7 @@ private isEventVisible ( textSearch: any, event: ISharingEvent ) {
 
     rows.push( <tr>
       <th></th>
-      <th></th>
+      { this.state.hasMedia === true ? <th style={{paddingRight: '5px'}} title={'Media Tags'}>Media</th> : null }
       <th>Info</th>
       { this.props.itemsAreFolders === true ? 
       <th title='Number of files and folders in this folder'>#</th> :
@@ -752,7 +778,7 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
 
   let id = this.props.itemsAreDups === true ? item.id.toString() : item.id.toString()  ;
   let detailItemIcon = this.buildDetailIcon( item, id );
-  let detailMediaIcon = this.buildMediaIconCell( item, id );
+  let detailMediaIcon = this.state.hasMedia === true ? this.buildMediaIconCell( item, id ) : null ;
   
   let userStyle: any =  { width: null } ;
   let userTitle = null;
@@ -807,7 +833,7 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
 
     } else if ( item.checkedOutId ) {
       cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black', 
-      this._onClickDataSearch.bind(this), null, 'CheckedOutToYou') }</td> );
+      this._onClickDataSearch.bind(this), null, 'CheckedOut') }</td> );
       
     } else { cells.push( <td></td> ); }
 
@@ -1062,7 +1088,7 @@ private _onClickItem( event ) {
 
     let iconCell = <td className = { itemStyles.tableIcons } style={{width: '50px', cursor: 'pointer', position: 'relative' }} 
       onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }
-      title={ `See all Item Details.` }>
+      title={ `ID:  ${ itemIn.id } See all Item Details.` }>
       <div style={{ position: 'relative' }} onClick={ this._onClickItemDetail.bind(this)} id={ id } data-search = { iconSearch }>{ detailIcon }</div>
     </td>;
 
@@ -1241,8 +1267,10 @@ private _onClickFolder( event ) {
 
 private buildSearchBox( testSearch: string ) {
   /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
+  const calloutProps = { gapSpace: 0 };
   let searchBox =  
   <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
+
     <SearchBox
       className={styles.searchBox}
       styles={{ root: { maxWidth: 200 } }}
@@ -1254,10 +1282,13 @@ private buildSearchBox( testSearch: string ) {
       value={ testSearch }
 
     />
-    <div className={styles.searchStatus}>
-      { `Search all ${ getCommaSepLabel( this.itemsAny.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
-      { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
-    </div>
+    <TooltipHost content={ this.searchNote } id={'tooltipsearchbox'} calloutProps={calloutProps}>
+      <div className={styles.searchStatus}>
+        { `Search all ${ getCommaSepLabel( this.itemsAny.length) } items [ ${ getSizeLabel( this.state.totalSize ) } ]` }
+        { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+      </div>
+    </TooltipHost>
+
   </div>;
 
   return searchBox;

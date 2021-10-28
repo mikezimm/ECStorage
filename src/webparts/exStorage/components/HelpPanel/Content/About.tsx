@@ -1,9 +1,9 @@
 import * as React from 'react';
 
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
-import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../banner/SinglePage/ISinglePageProps';
 
-export const panelVersionNumber = '2021-10-22 -  1.0.0.19'; //Added to show in panel
+export const panelVersionNumber = '2021-10-27 -  1.0.0.20'; //Added to show in panel
 
 export function aboutTable() {
 
@@ -13,6 +13,7 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( createAboutRow('2021-10-27', '1.0.0.20', `Standardize Banner code and options` ) );
     table.rows.push( createAboutRow('2021-10-22', '1.0.0.19', `Add CheckedOut and IsMinor to Versions tab` ) );
     table.rows.push( createAboutRow('2021-10-18', '1.0.0.18', `Add Version Info - Files in draft, high version counts` ) );
     table.rows.push( createAboutRow('2021-10-15', '1.0.0.17', `Misc data and styling improvements` ) );

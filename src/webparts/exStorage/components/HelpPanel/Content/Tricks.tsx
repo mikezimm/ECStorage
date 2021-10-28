@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
-import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../banner/SinglePage/ISinglePageProps';
 
 export function tricksTable() {
 
@@ -11,7 +11,9 @@ export function tricksTable() {
         rows: [],
     };
 
-    let searchParams = window.location.search ? window.location.search : '';
+    let hasSearch = window.location.search && window.location.search.length > 0 ? true : false;
+    let searchParams = hasSearch === true ? window.location.search : '';
+
     searchParams = searchParams.split('%3a').join(':');
     let hasSearchParams = searchParams.length > 0 ? '&' : '?';
 
@@ -32,6 +34,10 @@ export function tricksTable() {
     //Just replacing : with encoded url based on testing.
     let gulpParam = 'debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js';
 
+    let bareLink = hasSearch ?  
+        makeCenteredBoldSpan (<a href={ window.location.pathname }>Activate!</a> ) :
+        makeCenteredBoldSpan('true');
+
     let hasGulp = searchParams.indexOf( gulpParam ) > -1 
         ? makeCenteredBoldSpan('true') 
         : makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + gulpParam }>Activate!</a> ) ;
@@ -39,6 +45,7 @@ export function tricksTable() {
     table.rows.push( [ makeCenteredSpan('scenario'), makeCenteredSpan('dev'), hasScenarioDev,    <span>Opens up additional options - 'Rails Off' meaning limited safety checks. </span>] );
     table.rows.push( [ makeCenteredSpan('gulp serve'), makeCenteredSpan('dev'), hasGulp,    <span>Adds param to Url to use gulp serve code instead of published code</span>] );
     table.rows.push( [ makeCenteredSpan('allowOtherSites'), makeCenteredSpan('true'), hasAllowOther,   <span>Allows you to do some 'Rails Off' functions on other sites { '' } </span>] );
+    table.rows.push( [ makeCenteredSpan('clearParams'), makeCenteredSpan( `${hasSearch}` ), bareLink,   <span>Reload without any parameters (everything after the ? in the url ) </span>] );
 
     // table.rows.push( [ makeCenteredSpan('crazy'), makeCenteredSpan('true'), hasCrazy,   <span>Opens up additional even more options - 'DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING'.</span>] );
     // table.rows.push( [ makeCenteredSpan('create'), makeCenteredSpan('true'), hasCreate,   <span>Opens up additional options - create sample items in lists</span>] );
