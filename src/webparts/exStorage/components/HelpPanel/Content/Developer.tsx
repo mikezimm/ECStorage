@@ -22,6 +22,15 @@ export function devTable() {
     table.rows.push( [ devLinks.devDocsDate, devLinks.gitSampleReactDate, '' ] );
     table.rows.push( [ devLinks.devDocsSlider, '', '' ] );
     table.rows.push( [ devLinks.devDocsToggle, '', '' ] );
+
+    table.rows.push( [ devLinks.devDocsDropdown, '', '' ] );
+    table.rows.push( [ devLinks.devDocsCheckbox, '', '' ] );
+    table.rows.push( [ devLinks.devDocsSearchbox, '', '' ] );
+    table.rows.push( [ devLinks.devDocsProgress, '', '' ] );
+    table.rows.push( [ devLinks.devDocsMessageBar, '', '' ] );
+    table.rows.push( [ devLinks.devDocsPanel, '', '' ] );
+    table.rows.push( [ devLinks.devDocsPeoplePicker, '', '' ] );
+
     table.rows.push( [ devLinks.devDocsChoice, '', '' ] );
     
     table.rows.push( [ devLinks.devDocsButton, '', '' ] );
