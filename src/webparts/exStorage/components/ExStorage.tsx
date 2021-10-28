@@ -296,6 +296,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let isSystemList = areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
     if ( areSystemLists.indexOf(list.Title.toLowerCase()) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1  ) { isSystemList = true; }
 
+
     let showList = true;
 
     if ( list.BaseType !== 1 ) { showList = false; }
@@ -329,10 +330,11 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       maxYear = new Date( list.LastItemUserModifiedDate);
       maxYear = maxYear.getFullYear() + 1;
       list.maxYear = maxYear;
+      list.DropDownLabel = `${list.Title} [ ${getCommaSepLabel(list.ItemCount)} ]`;
 
       pickLists.push( list );
       // let thisDropDownText = `${list.Title} ${list.ItemCount}`;
-      let thisDropDownText = `${list.Title}`;
+      let thisDropDownText = `${list.DropDownLabel}`;
       dropDownLabels.push( thisDropDownText );
 
       if ( list.Title === this.state.listTitle ) { 
@@ -376,7 +378,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
         pickedList: theList, fetchSlider: theList.ItemCount, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
         pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: false,
-        loadProperties: loadProperties, 
+        loadProperties: loadProperties, listTitle: theList.Title,
        });
     this.fetchStoredItems(pickedWeb, theList, theList.ItemCount, currentUser );
   } else {
@@ -384,7 +386,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     this.setState({ parentWeb: webUrl, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, currentUser: currentUser,
       pickedList: theList, isLoaded: true, isLoading: false, minYear: minYear, maxYear: maxYear, yearSlider: currentYear,
       pickLists: pickLists, dropDownLabels: dropDownLabels, dropDownIndex: dropDownIndex, dropDownText: dropDownText, showBegin: true,
-      loadProperties: loadProperties,
+      loadProperties: loadProperties, listTitle: theList.Title,
     });
 
   }
@@ -784,7 +786,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
         // 2 - Source and destination list information
         parentListWeb = { this.props.parentWeb }
-        parentListTitle = { this.props.listTitle }
+        parentListTitle = { this.state.listTitle }
         parentListURL = { null}
 
         esItemsHeading = { ``}
@@ -1340,7 +1342,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       pickedList: pickedList,
       dropDownIndex: idx,
       dropDownText: thisValue,
-      listTitle: thisValue,
+      listTitle: pickedList.Title,
       loadProperties: loadProperties,
       fetchSlider: pickedList ? pickedList.ItemCount: 0,
     });
