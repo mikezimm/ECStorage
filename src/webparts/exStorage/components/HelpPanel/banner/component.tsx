@@ -59,7 +59,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		private tricks= tricksTable();
 		private about= aboutTable();
 
-		private toggleWide = this.props.toggleWide ? this.props.toggleWide : true;
+		private wideToggle = this.props.wideToggle === null || this.props.wideToggle === undefined ? true : this.props.wideToggle ;
 
 		private hasNear = this.props.nearElements.length > 0 ? true : false;
 		private hasFar = this.props.farElements.length > 0 ? true : false;
@@ -172,15 +172,17 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 						<div style={{minHeight: '30px'}} >{ getRandomTip() }</div>
 					</MessageBar>;
 
+				let wideIcon = this.wideToggle !== true ? null : <Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
+					onClick={ this._panelWidth.bind(this) }></Icon>;
+
 				panelContent = <div>
 					{ earlyAccess }
 					{ tips }
 					{ webPartLinks }
 					<div style={{display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
-						<h3> { this.props.panelTitle }</h3>
-						<div title={ this.state.panelType === PanelType.medium ? 'Make panel wider' : 'Make panel narrower' }>
-							<Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
-								onClick={ this._panelWidth.bind(this) }></Icon>
+							<h3> { this.props.panelTitle }</h3>
+							<div title={ this.state.panelType === PanelType.medium ? 'Make panel wider' : 'Make panel narrower' }>
+							{ wideIcon }
 						</div>
 					</div>
 

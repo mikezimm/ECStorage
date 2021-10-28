@@ -817,7 +817,7 @@ private createSingleItemRow( key: string, item: IItemDetail ) {
 
     } else if ( item.checkedOutId ) {
       cells.push( <td style={ null } >{ buildClickableIcon('eXTremeStorage', StdIcons.CheckedOutByOther , `Checked out by: ${ item.checkedOutId }`, 'black', 
-      this._onClickDataSearch.bind(this), null, 'CheckedOutToYou') }</td> );
+      this._onClickDataSearch.bind(this), null, 'CheckedOut') }</td> );
       
     } else { cells.push( <td></td> ); }
 

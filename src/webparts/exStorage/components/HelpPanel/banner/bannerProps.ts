@@ -12,13 +12,11 @@ export interface IWebpartBannerProps {
 	showTricks: boolean;
 	gitHubRepo: IRepoLinks; // replace with IRepoLinks from npmFunctions v0.1.0.3
 
-	toggleWide?: boolean; //enables panel width expander, true by default
+	wideToggle?: boolean; //enables panel width expander, true by default
 
 	nearElements: any[];
 	farElements: any[];
 
-
-	
 }
 
 export interface IWebpartBannerState {
