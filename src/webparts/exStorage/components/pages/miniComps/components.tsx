@@ -2,6 +2,10 @@ import * as React from 'react';
 import styles from '../../ExStorage.module.scss';
 import stylesMini from './mini.module.scss';
 
+import {
+  TooltipHost, ITooltipHostStyles
+} from "office-ui-fabric-react";
+
 import { IExStorageState, IEXStorageList, IEXStorageBatch, IBatchData, IUserSummary, IFileType, ILargeFiles, IOldFiles, IItemType, IIconArray, IItemDetail, IDuplicateFile } from '../../IExStorageState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
@@ -25,16 +29,26 @@ const flexWrapStart: React.CSSProperties = {
   alignItems: 'center',
 };
 
-export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemType: IItemType, heading: any, icons: IIconArray[], onClickIcon: any ) {
+export function createItemsHeadingWithTypeIcons ( items: IItemDetail[] | IDuplicateFile[], itemType: IItemType, heading: any, tooltip: string, icons: IIconArray[], onClickIcon: any ) {
   if ( !icons || icons.length === 0 ) {
     icons = createIconsArray( items );
   }
   let iconArray = createIconElementArray( icons, onClickIcon );
+  const calloutProps = { gapSpace: 0 };
+
+  let headingSpan = heading;
+
+  if ( tooltip && tooltip.length > 0 ) {
+    headingSpan = <TooltipHost content={ tooltip } id={'tooltipsearchbox'} calloutProps={calloutProps}>
+      { heading }
+    </TooltipHost>;
+  }
+
   let element = 
     // <div className={styles.flexWrapStart}> //For some reason this did not work even though it was buried under the correct classname
-    <div style={ flexWrapStart }>
-      <h3>{ getCommaSepLabel( items.length ) } { itemType } found { heading }</h3> < div> { iconArray } </div>
-    </div>;
+      <div style={ flexWrapStart }>
+        <h3>{ getCommaSepLabel( items.length ) } { itemType } found { headingSpan }</h3> < div> { iconArray } </div>
+      </div>;
 
   return element;
 }

@@ -13,7 +13,7 @@ import WebPartLinks from './WebPartLinks';
 
 import SinglePage from './SinglePage';
 import { aboutTable } from '../Content/About';
-import { devTable } from '@mikezimm/npmfunctions/dist/HelpInfo/Content/Developer';
+import { devTable } from '@mikezimm/npmfunctions/dist/Links/Developer';
 import { gettingStartedContent } from '../Content/GettingStarted';
 
 import { errorsContent } from '../Content/Errors';

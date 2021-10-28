@@ -941,7 +941,8 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     }
 
     //2021-08-25 MZ:  Added for Banner
-    let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`
+    let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`;
+    
     let Banner = <WebpartBanner 
       showBanner={ this.props.bannerProps.showBanner }
       title ={ bannerTitle }
