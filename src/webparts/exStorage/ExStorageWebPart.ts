@@ -28,7 +28,7 @@ import { WebPartInfoGroup, JSON_Edit_Link } from '@mikezimm/npmfunctions/dist/Se
 import { createStyleFromString, getReactCSSFromString, ICurleyBraceCheck } from '@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS';
 
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+import * as links from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
 import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpPanel/banner/bannerProps';
 

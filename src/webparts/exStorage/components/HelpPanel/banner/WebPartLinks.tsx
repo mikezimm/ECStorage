@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/Links/AllLinks';
 
 import { Stack, IStackTokens } from 'office-ui-fabric-react';
 

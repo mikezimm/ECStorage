@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { createLink, createRepoLinks, IRepoLinks } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
+import { createLink, createRepoLinks, IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 
 export const baseDevDocs = 'https://developer.microsoft.com/en-us/fabric#/controls/web/';

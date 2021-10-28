@@ -1,4 +1,4 @@
-import { IRepoLinks } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
+import { IRepoLinks } from '@mikezimm/npmfunctions/dist/Links/CreateLinks';
 
 import { Panel, IPanelProps, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
