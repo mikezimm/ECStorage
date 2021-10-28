@@ -14,7 +14,7 @@ import * as assets from "./Cards/assets";
 
 import WebPartLinks from './WebPartLinks';
 
-import SinglePage from './SinglePage';
+import SinglePage from './SinglePage/SinglePage';
 import { aboutTable } from '../Content/About';
 import { devTable } from '@mikezimm/npmfunctions/dist/Links/Developer';
 import { gettingStartedContent } from '../Content/GettingStarted';
