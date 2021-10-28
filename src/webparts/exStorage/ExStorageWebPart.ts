@@ -56,6 +56,7 @@ export interface IExStorageWebPartProps {
     bannerTitle: string;
     bannerStyle: string;
     showBanner: boolean;
+    bannerHoverEffect: boolean;
     showTricks: boolean;
   // }
 
@@ -219,12 +220,13 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       if ( this.context.pageContext.user.loginName.indexOf( 'erri.scov') > -1 ){ showTricks = true ; }
 
     let bannerTitle = this.modifyBannerTitle === true && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`;
-    let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', this.properties.bannerStyle, {background: "PaleGreen"} );
+    let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', this.properties.bannerStyle, {background: "#7777"} );
 
     let bannerProps: IWebpartBannerProps = {
       panelTitle: 'eXTreme Storage Webpart Help',
       showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
-      showTricks: showTricks,      
+      showTricks: showTricks,
+      hoverEffect: this.properties.bannerHoverEffect === false ? false : true,
       title: bannerStyle.errMessage !== '' ? bannerStyle.errMessage : bannerTitle ,
       // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : `{'background': 'yellow', 'fontWeight':600,'fontSize':'large'}`,
       bannerReactCSS: bannerStyle.errMessage === '' ? bannerStyle.parsed : { background: "yellow", color: "red", },
@@ -234,6 +236,8 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       gitHubRepo: links.gitRepoEasyStorageSmall,
       farElements: [],
       nearElements: [],
+      earyAccess: false,
+      wideToggle: true,
     };
 
               

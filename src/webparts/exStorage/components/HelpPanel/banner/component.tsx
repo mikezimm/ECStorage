@@ -49,7 +49,7 @@ const pivotHeading7 = 'Tricks';  //Templates
 const pivotHeading8 = 'About';  //Templates
 
 export default class WebpartBanner extends React.Component<IWebpartBannerProps, IWebpartBannerState > {
-		
+		private hoverEffect = this.props.hoverEffect === false ? false : true;
     private gettingStarted= gettingStartedContent();
     private basics= basicsContent();
     private advanced= advancedContent();
@@ -94,7 +94,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			if ( !bannerStyle.paddingRight ) { bannerStyle.paddingRight = '20px' ; }
 			if ( this.hasNearOrFar === false ) { bannerStyle.cursor = 'pointer' ; }
 
-			let classNames = [ styles.container, styles.opacity, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
+			let classNames = [ styles.container, this.hoverEffect === true ? styles.opacity : null, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
 
 			//On clicks need to be defined like this and only put on specific elements in certain cases.
 			//  OR ELSE they will all get fired messing up panel open

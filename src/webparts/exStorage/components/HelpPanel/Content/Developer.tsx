@@ -5,7 +5,7 @@ import * as chartJSLinks from '@mikezimm/npmfunctions/dist/Links/LinksChartJS';
 import * as repoLinks from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
-import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../banner/SinglePage/ISinglePageProps';
 
 export function devTable() {
 

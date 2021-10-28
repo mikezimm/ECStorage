@@ -13,6 +13,7 @@ export interface IWebpartBannerProps {
 	gitHubRepo: IRepoLinks; // replace with IRepoLinks from npmFunctions v0.1.0.3
 
 	wideToggle?: boolean; //enables panel width expander, true by default
+	hoverEffect?: boolean; // applies fade in to full opacity on hover - true by default
 
 	nearElements: any[];
 	farElements: any[];

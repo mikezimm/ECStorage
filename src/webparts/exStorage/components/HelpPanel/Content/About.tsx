@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 //import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../Component/ISinglePageProps';
-import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '@mikezimm/npmfunctions/dist/HelpInfo/Component/ISinglePageProps';
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from '../banner/SinglePage/ISinglePageProps';
 
 export const panelVersionNumber = '2021-10-27 -  1.0.0.20'; //Added to show in panel
 

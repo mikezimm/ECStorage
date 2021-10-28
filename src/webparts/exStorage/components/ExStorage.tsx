@@ -940,7 +940,7 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     }
 
-    //2021-08-25 MZ:  Added for Banner
+    //2021-08-25 MZ:  Added for dynamic Banner for this webpart.  Others may not need that.
     let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`;
 
     let Banner = <WebpartBanner 
@@ -949,11 +949,12 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
       panelTitle = { this.props.bannerProps.panelTitle }
       bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
       showTricks={ this.props.bannerProps.showTricks }
+      hoverEffect={ this.props.bannerProps.hoverEffect }
       gitHubRepo={ this.props.bannerProps.gitHubRepo }
+      earyAccess={ this.props.bannerProps.earyAccess }
+      wideToggle={ this.props.bannerProps.wideToggle }
       nearElements = { this.nearBannerElements }
       farElements = { this.farBannerElements }
-      earyAccess = { false }
-      wideToggle = { true }
 
     ></WebpartBanner>;
     
