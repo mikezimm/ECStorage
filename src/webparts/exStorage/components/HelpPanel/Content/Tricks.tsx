@@ -32,15 +32,16 @@ export function tricksTable() {
         makeCenteredBoldSpan('true') : '' ;
 
     //Just replacing : with encoded url based on testing.
-    let gulpParam = 'debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js';
+    let gulpParam1 = 'debug=true&noredir=true&debugManifestsFile=https://localhost:4321/temp/manifests.js';
+    let gulpParam2 = 'debug=true&noredir=true&debugManifestsFile=https%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fmanifests.js';
 
     let bareLink = hasSearch ?  
         makeCenteredBoldSpan (<a href={ window.location.pathname }>Activate!</a> ) :
         makeCenteredBoldSpan('true');
 
-    let hasGulp = searchParams.indexOf( gulpParam ) > -1 
+    let hasGulp = searchParams.indexOf( gulpParam1 ) > -1 || searchParams.indexOf( gulpParam2 ) > -1 
         ? makeCenteredBoldSpan('true') 
-        : makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + gulpParam }>Activate!</a> ) ;
+        : makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + gulpParam1 }>Activate!</a> ) ;
 
     table.rows.push( [ makeCenteredSpan('scenario'), makeCenteredSpan('dev'), hasScenarioDev,    <span>Opens up additional options - 'Rails Off' meaning limited safety checks. </span>] );
     table.rows.push( [ makeCenteredSpan('gulp serve'), makeCenteredSpan('dev'), hasGulp,    <span>Adds param to Url to use gulp serve code instead of published code</span>] );
