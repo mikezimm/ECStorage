@@ -30,7 +30,7 @@ import { createStyleFromString, getReactCSSFromString, ICurleyBraceCheck } from 
 
 import * as links from '@mikezimm/npmfunctions/dist/Links/LinksRepos';
 
-import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpPanel/banner/bannerProps';
+import { IWebpartBannerProps, IWebpartBannerState } from './components/HelpPanel/banner/onNpm/bannerProps';
 
 require('../../services/GrayPropPaneAccordions.css');
 
@@ -58,6 +58,11 @@ export interface IExStorageWebPartProps {
     showBanner: boolean;
     bannerHoverEffect: boolean;
     showTricks: boolean;
+
+    showGoToHome: boolean;  //defaults to true
+    showGoToParent: boolean;  //defaults to true
+    showBannerGear: boolean;
+
   // }
 
 
@@ -214,33 +219,67 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
       excludeListTitles: this.properties.excludeListTitles,
     };
 
-    let showTricks = false;
-    links.trickyEmails.map( getsTricks => {
-      if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
-      if ( this.context.pageContext.user.loginName.indexOf( 'erri.scov') > -1 ){ showTricks = true ; }
+//  db   db d88888b db      d8888b.      d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
+//  88   88 88'     88      88  `8D      88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
+//  88ooo88 88ooooo 88      88oodD'      88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY' 
+//  88~~~88 88~~~~~ 88      88~~~        88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b   
+//  88   88 88.     88booo. 88           88   8D 88   88 88  V888 88  V888 88.     88 `88. 
+//  YP   YP Y88888P Y88888P 88           Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD 
+//                                                                                         
+//                                                                                         
 
-    let bannerTitle = this.modifyBannerTitle === true && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Extreme Storage - ${ this.properties.listTitle }`;
-    let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', this.properties.bannerStyle, {background: "#7777"} );
+//UPDATE PER WEBPART
+let gitHubRepo = links.gitRepoEasyStorageSmall;
 
-    let bannerProps: IWebpartBannerProps = {
-      panelTitle: 'eXTreme Storage Webpart Help',
-      showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
-      showTricks: showTricks,
-      hoverEffect: this.properties.bannerHoverEffect === false ? false : true,
-      title: bannerStyle.errMessage !== '' ? bannerStyle.errMessage : bannerTitle ,
-      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : `{'background': 'yellow', 'fontWeight':600,'fontSize':'large'}`,
-      bannerReactCSS: bannerStyle.errMessage === '' ? bannerStyle.parsed : { background: "yellow", color: "red", },
-      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle.replace('\"','"') : `{"background": "yellow", "fontWeight":600,"fontSize":"large"}`,
-      // style: this.forceBanner === false && this.properties.bannerStyle && this.properties.bannerStyle.length > 0 ? this.properties.bannerStyle : '',
-      
-      gitHubRepo: links.gitRepoEasyStorageSmall,
-      farElements: [],
-      nearElements: [],
-      earyAccess: false,
-      wideToggle: true,
-    };
+let showTricks = false;
+links.trickyEmails.map( getsTricks => {
+  if ( this.context.pageContext.user.loginName && this.context.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
+  if ( this.context.pageContext.user.loginName.indexOf( 'erri.scov') > -1 ){ showTricks = true ; }
 
-              
+let bannerTitle = this.modifyBannerTitle === true && this.properties.bannerTitle && this.properties.bannerTitle.length > 0 ? this.properties.bannerTitle : `Pivot Tiles`;
+let bannerStyle: ICurleyBraceCheck = getReactCSSFromString( 'bannerStyle', this.properties.bannerStyle, {background: "#7777",fontWeight:600, fontSize: 'larger', height: '43px'} );
+let showBannerGear = this.properties.showBannerGear === false ? false : true;
+
+let anyContext: any = this.context;
+console.log('_pageLayoutType:', anyContext._pageLayoutType );
+console.log('pageLayoutType:', anyContext.pageLayoutType );
+
+let bannerProps: IWebpartBannerProps = {
+
+  pageContext: this.context.pageContext,
+  panelTitle: 'Pivot Tiles webpart - Automated links and tiles',
+  bannerWidth : this.domElement.clientWidth,
+  showBanner: this.forceBanner === true || this.properties.showBanner !== false ? true : false,
+  showTricks: showTricks,
+  showBannerGear: showBannerGear,
+  showGoToHome: this.properties.showGoToHome === false ? false : true,
+  showGoToParent: this.properties.showGoToParent === false ? false : true,
+  // onHomePage: anyContext._pageLayoutType === 'Home' ? true : false,
+  onHomePage: this.context.pageContext.legacyPageContext.isWebWelcomePage === true ? true : false,
+  hoverEffect: this.properties.bannerHoverEffect === false ? false : true,
+  title: bannerStyle.errMessage !== '' ? bannerStyle.errMessage : bannerTitle ,
+  bannerReactCSS: bannerStyle.errMessage === '' ? bannerStyle.parsed : { background: "yellow", color: "red", },
+  gitHubRepo: gitHubRepo,
+  farElements: [],
+  nearElements: [],
+  earyAccess: false,
+  wideToggle: true,
+};
+
+//close #129:  This makes the maxWidth added in fps options apply to banner as well.
+if ( this.properties.fpsContainerMaxWidth && this.properties.fpsContainerMaxWidth.length > 0 ) {
+  bannerProps.bannerReactCSS.maxWidth = this.properties.fpsContainerMaxWidth;
+}
+             
+//  d88888b d8b   db d8888b.      d8888b.  .d8b.  d8b   db d8b   db d88888b d8888b. 
+//  88'     888o  88 88  `8D      88  `8D d8' `8b 888o  88 888o  88 88'     88  `8D 
+//  88ooooo 88V8o 88 88   88      88oooY' 88ooo88 88V8o 88 88V8o 88 88ooooo 88oobY' 
+//  88~~~~~ 88 V8o88 88   88      88~~~b. 88~~~88 88 V8o88 88 V8o88 88~~~~~ 88`8b   
+//  88.     88  V888 88  .8D      88   8D 88   88 88  V888 88  V888 88.     88 `88. 
+//  Y88888P VP   V8P Y8888D'      Y8888P' YP   YP VP   V8P VP   V8P Y88888P 88   YD 
+//                                                                                  
+//                                                                                  
+
     // // Object.keys( [] ).map( key => {
     // let errBannerMessage = '';
     // ['bannerStyle'].map( key => {
@@ -260,6 +299,14 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
     // }
 
 
+//   .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+//  d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+//  8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+//  8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+//  Y8b  d8 88 `88. 88.     88   88    88    88.          88.     88booo. 88.     88  88  88 88.     88  V888    88    
+//   `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+//                                                                                                                     
+//                                                                                                                     
 
     const element: React.ReactElement<IExStorageProps> = React.createElement(
       ExStorage,
@@ -375,7 +422,7 @@ export default class ExStorageWebPart extends BaseClientSideWebPart<IExStorageWe
                 }),
               ]
             },
-            FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null ),
+            FPSBanner2Group( this.forceBanner , this.modifyBannerTitle, this.modifyBannerStyle, this.properties.showBanner, null, true ),
             FPSOptionsGroup( false, true, true, true ), // this group,
           ]
         }
