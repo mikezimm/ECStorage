@@ -268,6 +268,9 @@ public componentDidMount() {
  */
   public render(): React.ReactElement<IEsItemsProps> {
 
+    let totalWidth = 0;
+    let reduceWidth = 0;
+
     console.log('EsItems.tsx1');
     // debugger;
     // const items : IItemDetail[] | IDuplicateFile []= this.itemsAny;
@@ -275,17 +278,17 @@ public componentDidMount() {
     let filteredCount = null;
 
     if ( this.props.itemType === 'Shared' ) {
-      let tableResults = this.buildSharedEventsTable( this.sharedEvents , '', this.state.rankSlider, this.state.textSearch );
+      let tableResults = this.buildSharedEventsTable( this.sharedEvents , '', this.state.rankSlider, this.state.textSearch, totalWidth, reduceWidth );
       itemsTable = tableResults.table;
       filteredCount = tableResults.filteredCount;
 
     } else if ( this.props.itemType === 'Items' ) {
-      let tableResults = this.buildItemsTable( this.props.items , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+      let tableResults = this.buildItemsTable( this.props.items , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size', totalWidth, reduceWidth );
       itemsTable = tableResults.table;
       filteredCount = tableResults.filteredCount;
 
     } else if ( this.props.itemType === 'Duplicates' ) {
-      let tableResults = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size' );
+      let tableResults = this.buildDupsTable( this.props.duplicateInfo.duplicates , this.props.itemsAreDups, '', this.state.rankSlider, this.state.textSearch, 'size', totalWidth, reduceWidth );
       itemsTable = tableResults.table;
       filteredCount = tableResults.filteredCount;
 
@@ -556,7 +559,7 @@ public componentDidMount() {
  *                                                                                                     
  */
 
-  private buildSharedEventsTable( sharedEvents: ISharingEvent[] , data: string, countToShow: number, textSearch: string, ): any {
+  private buildSharedEventsTable( sharedEvents: ISharingEvent[] , data: string, countToShow: number, textSearch: string, totalWidth: number, reduceWidth: number ): any {
 
     // let items : IItemDetail[] = itemsIn;
     let rows = [];
@@ -586,7 +589,7 @@ public componentDidMount() {
       } else if ( isVisible === true ) { filteredCount ++; }
     });
 
-    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable ) } ;
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.eventsTable, totalWidth, reduceWidth ) } ;
 
   }
 
@@ -714,7 +717,7 @@ private isEventVisible ( textSearch: any, event: ISharingEvent ) {
  *                                                                                               
  */
 
-  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildItemsTable( items: IItemDetail[] | IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size', totalWidth: number, reduceWidth: number ): any {
 
     let rows = [];
     let tableTitle = data;
@@ -749,7 +752,7 @@ private isEventVisible ( textSearch: any, event: ISharingEvent ) {
       } else if ( isVisible === true ) { filteredCount ++; }
     });
 
-    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable, totalWidth, reduceWidth ) };
 
   }
 
@@ -911,7 +914,7 @@ private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boo
    * @param textSearch 
    * @param sortKey 
    */
-  private buildDupsTable( items: IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size' ): any {
+  private buildDupsTable( items: IDuplicateFile[] , itemsAreDups: boolean , data: string, countToShow: number, textSearch: string, sortKey: 'size', totalWidth: number, reduceWidth: number ): any {
 
     let rows = [];
     let tableTitle = data;
@@ -935,7 +938,7 @@ private isVisibleItem ( textSearch: string, item: IItemDetail, itemsAreDups: boo
       } else if ( isVisible === true ) { filteredCount ++; }
     });
 
-    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable ) };
+    return { filteredCount: filteredCount, table: this.buildTableFromRows( rows, tableTitle, itemStyles.itemsTable, totalWidth, reduceWidth ) };
 
   }
   
@@ -1421,9 +1424,19 @@ public _searchForItems = (item): void => {
 *                                                                                            
 */
 
-private buildTableFromRows( rows, tableTitle, tableClassName ) {
+private buildTableFromRows( rows, tableTitle, tableClassName, totalWidth: number, reduceWidth: number ) {
   
-  let table = <div style={{marginRight: '10px'}} className = { tableClassName }>
+  let tableStyle: React.CSSProperties = {marginRight: '10px'};
+  //Then do nothing to viewWidth
+  if ( !totalWidth || !reduceWidth || reduceWidth === 0 || totalWidth === 0 ) {
+
+  } else {
+    let reduceVW = 100 - ( reduceWidth / totalWidth ) * 100;
+    tableStyle.width = `${reduceVW}vw !important`;
+
+  }
+
+  let table = <div style={ tableStyle } className = { tableClassName }>
     <h3 style={{ textAlign: 'center' }}> { tableTitle }</h3>
     {/* <table style={{padding: '0 20px'}}> */}
     <table style={{  }} id="Select-b">

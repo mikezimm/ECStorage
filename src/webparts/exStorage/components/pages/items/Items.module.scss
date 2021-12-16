@@ -39,9 +39,13 @@
 }
 
 .allItemsTables {
+  width: 100vw;
+  overflow:auto;
+
   table {
-    width: 95%;
+    // width: 100vw;
   };
+
 
   tr { height: '27px' }
 

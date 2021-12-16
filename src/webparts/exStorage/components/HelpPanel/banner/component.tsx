@@ -28,10 +28,17 @@ import { basicsContent } from '../Content/Basics';
 import { tricksTable } from '../Content/Tricks';
 import { getRandomTip, webParTips } from '../Content/Tips';
 
-import { IWebpartBannerProps, IWebpartBannerState } from './bannerProps';
+import { IWebpartBannerProps, IWebpartBannerState, } from './onNpm/bannerProps';
+import { IKeySiteProps } from './onNpm/interfaces';
+
 import { getHelpfullErrorV2 } from "@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler";
 import { createStyleFromString, getReactCSSFromString } from "@mikezimm/npmfunctions/dist/Services/PropPane/StringToReactCSS";
-import { noWrap } from "office-ui-fabric-react";
+import { noWrap, divProperties } from "office-ui-fabric-react";
+
+import { bannerSettingsContent } from './onNpm/bannerFunctions';
+
+import { IReturnErrorType, checkDeepProperty } from "@mikezimm/npmfunctions/dist/Services/Objects/properties"; 
+import { goToParentSite, goToHomePage } from "@mikezimm/npmfunctions/dist/Services/Navigation/site"; 
 
 const pivotStyles = {
 	root: {
@@ -65,12 +72,101 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 		private hasFar = this.props.farElements.length > 0 ? true : false;
 		private hasNearOrFar = this.hasNear === true || this.hasFar === true ? true : false;
 
+		private nearElements: any[] = [];
+		private showSettings() {  this.setState({ showSettings: !this.state.showSettings }); }
+		private showSettingsAsPivot = false;
+
+		private settingsContent: any = null;
+		private isShowTricks = this.props.showTricks;
+		private isSiteAdmin = this.props.pageContext.legacyPageContext.isSiteAdmin;
+		private isSiteOwner = this.isSiteAdmin === true ? true : this.props.pageContext.legacyPageContext.isSiteOwner;
+
+		private jumpToParentSite(  ) {
+			let e: any = event;
+			goToParentSite( e, this.props.pageContext );		
+		}
+		
+		private  jumpToHomePage( ) {
+			let e: any = event;
+			goToHomePage( e, this.props.pageContext );		
+		}
+
     constructor(props: IWebpartBannerProps) {
 			super(props);
+			
+			let pageContext: any = this.props.pageContext;
+
+			let LimtedDowload = null;
+			
+			let spFeatures = pageContext.spFeatureInfo && pageContext.spFeatureInfo.features && pageContext.spFeatureInfo.features.length > 0 ? pageContext.spFeatureInfo.features : null;
+
+			if ( spFeatures ) {
+				spFeatures.map( feature => {
+					if ( feature.key === 'FollowingContent' ) {
+
+						if ( feature.value && feature.value.enabled === true ) {
+
+						}
+						if ( feature.value && feature.value.version === 2 ) {
+							
+						}
+					}
+				});
+			}
+
+			let keySiteProps: IKeySiteProps = {
+				SiteLogoUrl: pageContext.web.logoUrl,  // pageContext.web.logoUrl;
+				LimitedDownload: null, // TBD
+			
+				WebTimezone: checkDeepProperty( pageContext, ['web','timeZoneInfo','description'], 'ShortError' ) ,
+				WebLanguage: `${ checkDeepProperty( pageContext, ['cultureInfo','currentCultureName'], 'ShortError' ) } - ${checkDeepProperty( pageContext, ['web','language'], 'ShortError' )}`,
+			
+				UserTimezone:  checkDeepProperty( pageContext, ['user','timeZoneInfo','description'], 'ShortError' ),  // pageContext.user.timeZoneInfo.description;
+				UserTimePref:   checkDeepProperty( pageContext, ['user','preferUserTimeZone'], 'ShortError' ) ,  // pageContext.user.preferUserTimeZone ;
+			
+				BrokenPermissions: null, // TBD
+			};
+
+			if ( this.props.showBannerGear === true ) {
+				this.nearElements.push( <Icon iconName='PlayerSettings' onClick={ this.showSettings.bind(this) } style={ this.props.bannerCommandStyles } title="Show Settings quick links and info"></Icon> );
+				this.hasNear = true;
+				this.hasNearOrFar = true;
+				let bannerContent = bannerSettingsContent( this.props.showTricks, this.props.pageContext, keySiteProps, this.props.bannerCommandStyles, this.props.bannerWidth );
+				this.settingsContent = bannerContent.content;
+				this.showSettingsAsPivot = bannerContent.showSettingsAsPivot;
+
+			}
+
+			if ( this.props.onHomePage !== true && this.props.showGoToHome === true ) {
+				let titleHome = 'Go to Home Page of current site';
+				this.hasNear = true;
+				this.hasNearOrFar = true;
+
+				//This is the easy fix that assumes the page is not in a folder in site pages.
+				this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ titleHome } >
+					<Icon iconName='Home' onClick={ this.jumpToHomePage.bind(this) } style={ this.props.bannerCommandStyles }></Icon>
+				</div>);
+			}
+	
+			if ( this.props.showGoToParent === true && this.props.pageContext.site.absoluteUrl !== this.props.pageContext.web.absoluteUrl ) {
+				let title = 'Go to parent site';
+				this.hasNear = true;
+				this.hasNearOrFar = true;
+	
+				this.nearElements.push(<div style={{ paddingRight: null }} className={ '' } title={ title}>
+					<Icon iconName='Up' onClick={ this.jumpToParentSite.bind(this) } style={ this.props.bannerCommandStyles }></Icon>
+				</div>);
+	
+			}
+			
+			this.nearElements.push(...this.props.nearElements );
+
 			this.state = {
+				keySiteProps: keySiteProps,
 				showPanel: false,
 				selectedKey: pivotHeading1,
 				panelType: PanelType.medium,
+				showSettings: false,
 			};
 		}
 
@@ -82,9 +178,23 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 			return (null);
 		} else {
 
+				
+			//  Estimated width pixels used by banner.  Used to determine max size of the title component.
+			let usedWidth = 40; //20px padding on outside of all elements
+			usedWidth += this.nearElements.length * 43 + this.props.farElements.length * 43;  //Add 45px per icon button
+			// usedWidth += 40; //Padding between near/far elements and the text part of heading
+			let remainingWidth = this.props.bannerWidth - usedWidth - 40;
 
-			let bannerTitleText = this.props.title && this.props.title.length > 0 ? this.props.title : 'Extreme Storage Webpart';
-	
+			let moreInfoText = this.props.bannerWidth > 700 ? 'More Information' : 'Info';
+			let bannerTitleText = this.props.title && this.props.title.length > 0 ? this.props.title : 'FPS Webpart';
+			let textWidth = ( moreInfoText.length + bannerTitleText.length ) * 19 + 40; //characters * 19px + 40 padding
+
+			//  If space between < estimated space needed, apply ratio, else just leave large on both sides so the math works.
+			let moreInfoRatio = textWidth > remainingWidth ? moreInfoText.length / ( moreInfoText.length + bannerTitleText.length ) : .7;
+			let titleRatio = textWidth > remainingWidth ? 1 - moreInfoRatio : .7;
+
+			// usedWidth += 18 * bannerTitleText.length; //Est 18px per character of title
+
 			let bannerStyle: React.CSSProperties = {};
 			if ( this.props.bannerReactCSS ) { bannerStyle = this.props.bannerReactCSS ; } 
 			else if ( this.props.styleString ) { bannerStyle = createStyleFromString( this.props.styleString, { background: 'green' }, 'bannerStyle in banner/component.tsx ~ 81' ); }
@@ -96,30 +206,43 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 			let classNames = [ styles.container, this.hoverEffect === true ? styles.opacity : null, styles.flexContainer ].join( ' ' ); //, styles.innerShadow
 
-			//On clicks need to be defined like this and only put on specific elements in certain cases.
+			//  On clicks need to be defined like this and only put on specific elements in certain cases.
 			//  OR ELSE they will all get fired messing up panel open
 			
+
 			let bannerOnClick = this.hasNearOrFar !== true ? this._openPanel.bind( this ) : null;
 			let titleInfoOnClick = this.hasNearOrFar === true ? this._openPanel.bind( this ) : null;
 			let titleInfoCursor = this.hasNearOrFar === true ? 'pointer' : null;
+			let styleFlexElements : React.CSSProperties = { padding: '10px', cursor: titleInfoCursor };
+			let styleLeftTitle : React.CSSProperties = { padding: '10px', cursor: titleInfoCursor, maxWidth: titleRatio * remainingWidth, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }; 
+			let styleRightTitle : React.CSSProperties = { padding: '10px', cursor: titleInfoCursor, maxWidth: moreInfoRatio * remainingWidth, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }; 
 
-			let bannerLeft = this.props.nearElements.length === 0 ? <div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } > { bannerTitleText } </div> :
+			let bannerLeft = this.nearElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } > { bannerTitleText } </div> :
 				<div className={ styles.flexLeftNoWrapStart }>
-					{ this.props.nearElements }
-					<div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } > { bannerTitleText } </div>
+					{ this.nearElements }
+					<div style={ styleLeftTitle } onClick = { titleInfoOnClick } title={ bannerTitleText }> { bannerTitleText } </div>
 				</div>;
 
-			let bannerRight = this.props.farElements.length === 0 ? <div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick } >More information</div> :
+		let bannerRight = this.props.farElements.length === 0 ? <div style={ styleFlexElements } onClick = { titleInfoOnClick } >{moreInfoText}</div> :
 			<div className={ styles.flexLeftNoWrapStart }>
-				<div style={{ padding: '10px', cursor: titleInfoCursor }} onClick = { titleInfoOnClick }>More information</div>
+				<div style={ styleRightTitle } onClick = { titleInfoOnClick }  title={ 'More Information on webpart' }>{moreInfoText}</div>
 				{ this.props.farElements }
 			</div>;
 
+			let showSettingStyle = this.showSettingsAsPivot === true ? styles.showSettingsPivot : styles.showSettingsFlex;
+
 			let bannerContent = 
+			<div>
 				<div className={ classNames } style={ bannerStyle } onClick = { bannerOnClick }>
 					{ bannerLeft }
+					{/* { <div style={{width: '100%', overflow: 'hidden', color: 'green'}}></div>} */}
 					{ bannerRight }
-				</div>;
+				</div>
+				<div className={ this.state.showSettings ? showSettingStyle: styles.hideSettings } style={ {} }>
+					{ this.settingsContent }
+				</div>
+			</div>
+;
 
 			let thisPage = null;
 
@@ -175,7 +298,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 				let wideIcon = this.wideToggle !== true ? null : <Icon iconName= { this.state.panelType === PanelType.medium ? 'MaximumValue' : 'MinimumValue' } style={{ fontSize: 'xx-large', cursor: 'pointer' }} 
 					onClick={ this._panelWidth.bind(this) }></Icon>;
 
-				panelContent = <div>
+				panelContent = <div style={{ paddingBottom: '50px' } }>
 					{ earlyAccess }
 					{ tips }
 					{ webPartLinks }
@@ -233,28 +356,6 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
 
 	}
 
-	// private createStyleFromString( styleString: string, fallback: React.CSSProperties ) {
-	// 	let thisStyle: React.CSSProperties = {};
-
-	// 	if ( !styleString || styleString === null || styleString === undefined ) {
-	// 		return fallback;
-	// 	}
-
-	// 	try {
-	// 			thisStyle = JSON.parse( styleString );
-
-	// 	} catch(e) {
-	// 		getHelpfullErrorV2( e, false, false, 'banner.component.tsx set styleString ~ 190 ');
-	// 		console.log('Unable to understand this style string:', styleString + '' );
-	// 		thisStyle = fallback;
-
-	// 	}
-
-	// 	return thisStyle;
-
-	// }
-
-
 	public _selectedIndex = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
@@ -269,7 +370,7 @@ export default class WebpartBanner extends React.Component<IWebpartBannerProps, 
     this.setState({ showPanel: false,});
 	}
 	
-	private _openPanel ( event )  {
+	private _openPanel ( event: any )  {
 		let textCallback = event.currentTarget.dataset.callback;
 		if ( textCallback && textCallback.length > 0) {
 			//Do nothing

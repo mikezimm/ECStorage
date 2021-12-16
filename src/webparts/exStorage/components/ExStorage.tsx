@@ -69,7 +69,8 @@ import { createBatchSummary } from './pages/summary/ExBatchSummary';
  * 2021-08-25 MZ:  Added for Banner
  */
 import WebpartBanner from "./HelpPanel/banner/component";
-import { IWebpartBannerProps, } from "./HelpPanel/banner/bannerProps";
+import { IWebpartBannerProps, } from "./HelpPanel/banner/onNpm/bannerProps";
+import { defaultBannerCommandStyles, } from "@mikezimm/npmfunctions/dist/HelpPanel/banner/onNpm/defaults";
 
 import ExUser from './pages/user/ExUser';
 import ExTypes from './pages/types/ExTypes';
@@ -942,15 +943,23 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
 
     }
 
-    //2021-08-25 MZ:  Added for dynamic Banner for this webpart.  Others may not need that.
-    let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`;
+  //Exclude the props.bannerProps.title if the webpart is narrow to make more responsive
+  let bannerTitle = this.props.bannerProps.title.indexOf('JSON') > 0 ? this.props.bannerProps.title : `Extreme Storage - ${this.state.dropDownText}`;
+  if ( bannerTitle === '' ) { bannerTitle = 'Pivot Tiles' ; }
 
-    let Banner = <WebpartBanner 
+   let Banner = <WebpartBanner 
       showBanner={ this.props.bannerProps.showBanner }
+      bannerWidth={ this.props.bannerProps.bannerWidth }
+      pageContext={ this.props.bannerProps.pageContext }
       title ={ bannerTitle }
       panelTitle = { this.props.bannerProps.panelTitle }
       bannerReactCSS={ this.props.bannerProps.bannerReactCSS }
+      bannerCommandStyles={ defaultBannerCommandStyles }
       showTricks={ this.props.bannerProps.showTricks }
+      showGoToParent={ this.props.bannerProps.showGoToParent }
+      showGoToHome={ this.props.bannerProps.showGoToHome }
+      onHomePage={ this.props.bannerProps.onHomePage }
+      showBannerGear={ this.props.bannerProps.showBannerGear }
       hoverEffect={ this.props.bannerProps.hoverEffect }
       gitHubRepo={ this.props.bannerProps.gitHubRepo }
       earyAccess={ this.props.bannerProps.earyAccess }
@@ -964,50 +973,54 @@ public async updateWebInfo ( webUrl: string, listChangeOnly : boolean ) {
     let urlWeight = this.state.isCurrentWeb === true ? 300 : 600;
 
     return (
-      <div className={ styles.exStorage }>
-        <div className={ styles.container }>
-          { Banner }
-          {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
-          {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
-          <div className={ styles.flexWrapStart }>
-            <p className={ styles.description } style={{paddingRight: '50px', color: urlColor, fontWeight: urlWeight }}>{escape(this.props.parentWeb)}</p>
-            <div>{ listDropdown } </div>
-          </div>
+      <div>
+        {/* { devHeader } */}
+        { Banner }
 
-          {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
-
-          { sliderYearComponent }
-          { sliderCountComponent }
-          { this.state.isLoading ? 
-              <div style={{ height: '200px', padding: '50px 25px 25px 25px' }}>
-                { loadingNote }
-                { searchSpinner }
-                { myProgress }
-              </div>
-            : null
-          } 
-          
-          { this.state.showBegin === true ? 
-            <div>
-              { beginMessage }
+        <div className={ styles.exStorage }>
+          <div className={ styles.container }>
+            {/* <span className={ styles.title }>Welcome to SharePoint!</span> */}
+            {/* <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p> */}
+            <div className={ styles.flexWrapStart }>
+              <p className={ styles.description } style={{paddingRight: '50px', color: urlColor, fontWeight: urlWeight }}>{escape(this.props.parentWeb)}</p>
+              <div>{ listDropdown } </div>
             </div>
-            : null
-          } 
 
-          { this.state.showBegin === false && this.state.isLoading === false ? 
-              <div>
-                { componentPivot }
-                <div style={{ overflowY: 'auto' }}>
-                    {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-                    <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
-                    <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
-                    <ReactJson src={ batches } name={ 'Load Batches' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+            {/* <div>{ this.state.currentUser ? this.state.currentUser.Title : null }</div> */}
 
+            { sliderYearComponent }
+            { sliderCountComponent }
+            { this.state.isLoading ? 
+                <div style={{ height: '200px', padding: '50px 25px 25px 25px' }}>
+                  { loadingNote }
+                  { searchSpinner }
+                  { myProgress }
                 </div>
-                { userPanel }
+              : null
+            } 
+            
+            { this.state.showBegin === true ? 
+              <div>
+                { beginMessage }
               </div>
               : null
-          } 
+            } 
+
+            { this.state.showBegin === false && this.state.isLoading === false ? 
+                <div>
+                  { componentPivot }
+                  <div style={{ overflowY: 'auto' }}>
+                      {/* <ReactJson src={ this.state.currentUser } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+                      <ReactJson src={ this.state.pickedWeb } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+                      <ReactJson src={ this.state.pickedList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/> */}
+                      <ReactJson src={ batches } name={ 'Load Batches' } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '20px 0px' }}/>
+
+                  </div>
+                  { userPanel }
+                </div>
+                : null
+            } 
+          </div>
         </div>
       </div>
     );
