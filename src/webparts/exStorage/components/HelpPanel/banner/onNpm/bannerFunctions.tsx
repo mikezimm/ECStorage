@@ -79,16 +79,16 @@ export function NavigationElements( siteUrl: string, showIcon: boolean, iconStyl
 
 //https://tenant-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx#/siteManagement/view/SITES%20WITHOUT%20A%20GROUP
 export function TenantSites( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
-  return standardSettingsLink( 'Tenant Sites', showIcon === true ? 'SharepointLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/SITES%20WITHOUT%20A%20GROUP`, tenantColor );
+  return standardSettingsLink( 'Sites', showIcon === true ? 'SharepointLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/SITES%20WITHOUT%20A%20GROUP`, tenantColor );
 }
 
 export function TenantHubs( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
-  return standardSettingsLink( 'Tenant Hubs', showIcon === true ? 'TFVCLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/ALL%20SITES`, tenantColor );
+  return standardSettingsLink( 'Hubs', showIcon === true ? 'TFVCLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/ALL%20SITES`, tenantColor );
 }
 
 //https://tenant-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx#/siteManagement/view/TEAMS%20CONNECTED%20SITES
 export function TenantTeams( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
-  return standardSettingsLink( 'Tenant Teams', showIcon === true ? 'TeamsLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/TEAMS%20CONNECTED%20SITES`, tenantColor );
+  return standardSettingsLink( 'Teams', showIcon === true ? 'TeamsLogo' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/siteManagement/view/TEAMS%20CONNECTED%20SITES`, tenantColor );
 }
 
 //https://tenant-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx#/siteManagement/view/TEAMS%20CONNECTED%20SITES
@@ -97,7 +97,7 @@ export function TenantApps( siteUrl: string, showIcon: boolean, iconStyles: any,
 }
 
 export function TenantSearch( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
-  return standardSettingsLink( 'Tenant Search', showIcon === true ? 'SearchAndApps' : '', iconStyles, `${getTenantAdminUrl()}`, tenantColor );
+  return standardSettingsLink( 'Search', showIcon === true ? 'SearchAndApps' : '', iconStyles, `${getTenantAdminUrl()}`, tenantColor );
 }
 
 export function AzureDevOps( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
@@ -106,7 +106,12 @@ export function AzureDevOps( siteUrl: string, showIcon: boolean, iconStyles: any
 
 //https://tenant-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx#/contentTypes
 export function TenantContentCenter( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
-  return standardSettingsLink( 'Tenant Content Types', showIcon === true ? 'Archive' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/contentTypes`, tenantColor );
+  return standardSettingsLink( 'Content Types', showIcon === true ? 'Archive' : '', iconStyles, `${getTenantAdminUrl()}/_layouts/15/online/AdminHome.aspx#/contentTypes`, tenantColor );
+}
+
+//https://tenant.sharepoint.com/sites/contentTypeHub/_layouts/15/mngfield.aspx
+export function TenantSiteColumns( siteUrl: string, showIcon: boolean, iconStyles: any, tenantColor: hoverColor ) {
+  return standardSettingsLink( 'Site Columns', showIcon === true ? 'ReportAdd' : '', iconStyles, `${siteUrl}/_layouts/15/mngfield.aspx`, tenantColor );
 }
 
 export function bannerSettingsContent( showTricks: boolean,	pageContext: PageContext, keySiteProps: IKeySiteProps, bannerCommandStylesX: React.CSSProperties, bannerWidth: number,  ) {
@@ -118,23 +123,31 @@ export function bannerSettingsContent( showTricks: boolean,	pageContext: PageCon
 
   let showAdmin = pageContext.legacyPageContext.isSiteAdmin === true ? true : false;
   let siteUrl = pageContext.site.absoluteUrl;
+  let contentTypeHub = `${window.location.origin}/sites/contentTypeHub`;
 
   let isFraudTenant = pageContext.legacyPageContext.isFraudTenant ;
   let allowInfectedDownload = pageContext.legacyPageContext.allowInfectedDownload ;
   let isNoScriptEnabled = pageContext.site.isNoScriptEnabled ;
+  let noScriptStyle = isNoScriptEnabled !== true ? settingStyles.redLabel : settingStyles.justLabel  ;
 
   let blockDownloads = pageContext.legacyPageContext.blockDownloadsExperienceEnabled ;
+  let blockDownloadStyle = blockDownloads !== true ? settingStyles.redLabel : settingStyles.justLabel ;
+
   let disableFlows = pageContext.legacyPageContext.disableFlows ;
   let isWebWelcomePage = pageContext.legacyPageContext.isWebWelcomePage ;
   let hasManageWebPermissions = pageContext.legacyPageContext.hasManageWebPermissions ;
   let guestsEnabled = pageContext.legacyPageContext.guestsEnabled ;
+  let guestStyle = guestsEnabled === true ? settingStyles.redLabel : settingStyles.justLabel;
 
   let isSiteOwner = pageContext.legacyPageContext.isSiteOwner ;
   let isArchived = pageContext.legacyPageContext.isArchived ;
 
-  let liIsNoScriptEnabled = <li className={ settingStyles.justLabel } title='pageContext.site.isNoScriptEnabled'>{ `Scripts Disabled: ${ isNoScriptEnabled }` }</li>;
-  let liGuestsEnabled = <li className={ settingStyles.justLabel } title='pageContext.legacyPageContext.guestsEnabled'>{ `Guests Enabled: ${ guestsEnabled}` }</li>;
-  let liBlockDownloads = <li className={ settingStyles.justLabel } title='pageContext.legacyPageContext.blockDownloadsExperienceEnabled'>{ `Block Downloads: ${ blockDownloads }` }</li>;
+  let liIsNoScriptEnabled = <li className={ noScriptStyle } title='pageContext.site.isNoScriptEnabled'>{ `Scripts Disabled: ${ isNoScriptEnabled }` }</li>;
+  let liGuestsEnabled = <li className={ guestStyle } title='pageContext.legacyPageContext.guestsEnabled'>{ `Guests Enabled: ${ guestsEnabled}` }</li>;
+  let liBlockDownloads = <li className={ blockDownloadStyle } title='pageContext.legacyPageContext.blockDownloadsExperienceEnabled'>{ `Block Downloads: ${ blockDownloads }` }</li>;
+
+  let flowStyle = disableFlows === true ? settingStyles.redLabel : settingStyles.justLabel;
+  let liDisableFlows = <li className={ flowStyle } title='pageContext.legacyPageContext.disableFlows'>{ `Disable Flows: ${ disableFlows }` }</li>;
 
   let licGuestsEnabled = <li className={ settingStyles.compressedLabel } title='pageContext.legacyPageContext.guestsEnabled'>{ `Guests Enabled: ${ guestsEnabled}` }</li>;
   let licBlockDownloads = <li className={ settingStyles.compressedLabel } title='pageContext.legacyPageContext.blockDownloadsExperienceEnabled'>{ `Block Downloads: ${ blockDownloads }` }</li>;
@@ -179,13 +192,14 @@ export function bannerSettingsContent( showTricks: boolean,	pageContext: PageCon
   //Tenant links
 
   let trickyContent = showTricks !== true ? null : <div className={ settingStyles.tileBox }>
-    <h2>Tenant Admins</h2>
+    <h2>Tenant Links</h2>
     <ul className={ settingStyles.boxLinks }>
       { TenantSites( webUrl, true, bannerCommandStyles, tenantColor ) }
       { TenantHubs( webUrl, true, bannerCommandStyles, tenantColor ) }
       { TenantTeams( webUrl, true, bannerCommandStyles, tenantColor ) }
       { TenantApps( webUrl, true, bannerCommandStyles, tenantColor ) }
       { TenantContentCenter( webUrl, true, bannerCommandStyles, tenantColor ) }
+      { TenantSiteColumns( contentTypeHub, true, bannerCommandStyles, tenantColor ) }
       { AzureDevOps( webUrl, true, bannerCommandStyles, tenantColor ) }
       <div style={{ height: '20px' }}></div>
       { liIsNoScriptEnabled }
@@ -207,7 +221,7 @@ export function bannerSettingsContent( showTricks: boolean,	pageContext: PageCon
   let webTime24 = pageContext.legacyPageContext.webTime24;
   let WebTimeTitle = `Web Timezone: ( ${ webTime24 === true ? 24 : 12 } hour )`;
   let webRegionalSettings = webUrl + '/_layouts/15/regionalsetng.aspx';
-  let settingsContent = <div className={ settingStyles.tileBox }>
+  let settingsContent = <div className={ [settingStyles.tileBox, settingStyles.summaryBox].join(' ') }>
     <h2>Summary</h2>
     <ul className={ settingStyles.boxLinks }>
 
@@ -234,7 +248,7 @@ export function bannerSettingsContent( showTricks: boolean,	pageContext: PageCon
       { licBlockDownloads }
       { licGuestsEnabled }
 
-      <li className={ settingStyles.compressedLabel } title='pageContext.legacyPageContext.disableFlows'>{ `Disable Flows: ${ disableFlows }` }</li>
+      { liDisableFlows }
 
       <li className={ settingStyles.compressedLabel } title='pageContext.site.isArchived'>{ `Is archived: ${ isArchived }` }</li>
       <li className={ settingStyles.compressedLabel } title='pageContext.legacyPageContext.isWebWelcomePage'>{ `Is Welcome Page: ${ isWebWelcomePage}` }</li>

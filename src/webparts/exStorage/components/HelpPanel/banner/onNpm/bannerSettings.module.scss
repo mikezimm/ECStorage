@@ -93,8 +93,23 @@
       cursor: default;
     }
 
+    .redLabel {
+      padding-left: 13px;
+      line-height: 2em;
+      cursor: default;
+      color: 'red';
+      font-weight: 600;
+    }
+
+    .redLabelNoLeftPad {
+      line-height: 2em;
+      cursor: default;
+      color: 'red';
+      font-weight: 600;
+    }
+
     .compressedLabel {
-      // padding: 13px;
+      padding: 13px;
       line-height: 1.5em;
       cursor: default;
     }
@@ -143,6 +158,13 @@
         transition:all 0.4s ease;
       }
     }
+  }
+
+  // This will just remove the extra left indent from Summary box which is not needed.
+  .summaryBox .justLabel,.summaryBox .redLabel,.summaryBox  .compressedLabel {
+    padding-left: 0px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
   }
 
 }
